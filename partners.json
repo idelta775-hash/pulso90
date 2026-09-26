@@ -1,0 +1,55 @@
+{
+  "updated_at": "2026-09-25",
+  "partners": [
+    {
+      "slug": "kto",
+      "name": "KTO",
+      "spa_authorized": true,
+      "domain": "kto.bet.br",
+      "relationship": "candidatura_disponivel",
+      "program": "Revenue Share 25%-40%, CPA e Híbrido",
+      "funding_model": "comissão por receita/aquisição; acordos personalizados para alto volume",
+      "url": "https://affiliates.kto.bet.br/"
+    },
+    {
+      "slug": "betfair",
+      "name": "Betfair",
+      "spa_authorized": true,
+      "domain": "betfair.bet.br",
+      "relationship": "candidatura_disponivel",
+      "program": "CPA, Ad Spend e Híbrido",
+      "funding_model": "Ad Spend pode remunerar exposição de marca; sujeito a aprovação e contrato",
+      "url": "https://partnerships.betfair.com/pt_BR/index.html"
+    },
+    {
+      "slug": "betano",
+      "name": "Betano",
+      "spa_authorized": true,
+      "domain": "betano.bet.br",
+      "relationship": "candidatura_disponivel",
+      "program": "Programa profissional de afiliados",
+      "funding_model": "comissões e ferramentas após aprovação interna",
+      "url": "https://support.betano.bet.br/hc/pt-br/articles/6414509538333-Como-posso-ser-um-afiliado"
+    },
+    {
+      "slug": "betmgm",
+      "name": "BetMGM",
+      "spa_authorized": true,
+      "domain": "betmgm.bet.br",
+      "relationship": "candidatura_disponivel",
+      "program": "Programa profissional de afiliados",
+      "funding_model": "ferramentas e comissões mediante proposta e aprovação",
+      "url": "https://help.betmgm.bet.br/hc/pt-br/articles/21341181515932-Indica%C3%A7%C3%A3o-de-Amigos-e-Programa-de-Afiliados"
+    },
+    {
+      "slug": "superbet",
+      "name": "Superbet",
+      "spa_authorized": true,
+      "domain": "superbet.bet.br",
+      "relationship": "programa_criadores",
+      "program": "SuperSocial / criadores de conteúdo",
+      "funding_model": "monetização condicionada a critérios de audiência e atividade definidos no painel",
+      "url": "https://superbet.bet.br/blog/supersocial-criadores-de-conteudo"
+    }
+  ]
+}
