@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.11_RECOVERY_BRIDGE",
-  "built_at": "2026-09-26T13:03:30Z",
+  "release": "GLOBAL_HUB_LAB_0.12_SELF_HEALING_RUNTIME",
+  "built_at": "2026-09-26T13:08:00Z",
   "public_lab": "https://method-ftp-vip-freeze.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -23,7 +23,8 @@
     "PT/EN/ES core UI",
     "PWA manifest and service worker",
     "certification readiness",
-    "stream-timeout recovery checkpoint"
+    "stream-timeout recovery checkpoint",
+    "self-healing RGS/tunnel recovery script"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,

@@ -1,6 +1,6 @@
 # Pulso 90 — Recovery Checkpoint
 
-Release: GLOBAL_HUB_LAB_0.11_RECOVERY_BRIDGE
+Release: GLOBAL_HUB_LAB_0.12_SELF_HEALING_RUNTIME
 Date: 2026-09-26
 
 ## Why this exists
@@ -20,6 +20,13 @@ The ChatGPT web UI showed "ChatGPT stream recovery polling timed out". This is a
 3. Validate `/api/lab/health`.
 4. If the Quick Tunnel changed, update only `runtime-config.json`.
 5. Keep real-money functionality disabled until regulatory/contractual prerequisites are actually met.
+
+## Self-healing runtime
+- Script: `ops/recover-global-lab.ps1`
+- At login, it checks the RGS on port 19011 and the runtime health endpoint.
+- If the current tunnel is dead, it creates a new Quick Tunnel.
+- With `-Publish`, it updates `runtime-config.json` and pushes only the endpoint change to `main`.
+- Healthy runtime = no duplicate process and no unnecessary commit.
 
 ## RGS guarantees in current lab
 - HMAC-SHA256 commit/reveal
