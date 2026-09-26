@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-26T01:41:22.686Z",
+  "checked_at": "2026-09-26T01:44:07.651Z",
   "source": "https://www.gov.br/fazenda/pt-br/composicao/orgaos/secretaria-de-premios-e-apostas/transparencia-ativa-processos-de-autorizacao-de-apostas-de-quota-fixa/planilha-de-autorizacoes-1.csv/@@download/file",
   "domains": {
     "kto.bet.br": true,
@@ -10,6 +10,7 @@
     "bet365.bet.br": true,
     "stake.bet.br": true,
     "betnacional.bet.br": true,
-    "pix.bet.br": true
+    "pix.bet.br": true,
+    "betesporte.bet.br": true
   }
 }

@@ -90,6 +90,16 @@
       "program": "Programa de afiliados Pixbet",
       "funding_model": "comissões, suporte e materiais promocionais; condições dependem de aprovação",
       "url": "https://pixbet.com/afiliados"
+    },
+    {
+      "slug": "betesporte",
+      "name": "BETesporte",
+      "spa_authorized": true,
+      "domain": "betesporte.bet.br",
+      "relationship": "contato_comercial_enviado",
+      "program": "Programa de Afiliados BETesporte",
+      "funding_model": "modelos comerciais e mídia em negociação; marca possui histórico de patrocínio esportivo",
+      "url": "https://ajuda.betesporte.bet.br/"
     }
   ]
 }
