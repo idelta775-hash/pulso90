@@ -90,7 +90,8 @@ async function loadPartners(){
     const [r,sr]=await Promise.all([fetch("partners.json"),fetch("spa-status.json")]);
     const data=await r.json(), spa=await sr.json(), ps=Array.isArray(data.partners)?data.partners:[];
     const verified=ps.filter(p=>spa.domains&&spa.domains[p.domain]===true);
-    $("partners").innerHTML=verified.length?verified.map(p=>'<article class="partner"><span class="tag">SPA verificada · '+esc(p.domain)+'</span><h3>'+esc(p.name)+'</h3><p><b>Programa:</b> '+esc(p.program)+'</p><p>'+esc(p.funding_model)+'</p><p><b>Status Pulso 90:</b> candidatura/negociação; sem alegação de parceria ativa.</p><a href="'+p.url+'" target="_blank" rel="noopener">Abrir programa oficial ↗</a></article>').join(""):'<div class="empty">Nenhum programa passou na verificação atual da SPA.</div>';
+    const statusText=p=>p.relationship==="contato_comercial_enviado"?"Contato comercial enviado; aguardando retorno.":p.relationship==="cadastro_exige_aceite_contratual"?"Cadastro disponível; envio depende do aceite contratual do titular.":"Candidatura/negociação disponível; sem alegação de parceria ativa.";
+    $("partners").innerHTML=verified.length?verified.map(p=>'<article class="partner"><span class="tag">SPA verificada · '+esc(p.domain)+'</span><h3>'+esc(p.name)+'</h3><p><b>Programa:</b> '+esc(p.program)+'</p><p>'+esc(p.funding_model)+'</p><p><b>Status Pulso 90:</b> '+esc(statusText(p))+'</p><a href="'+p.url+'" target="_blank" rel="noopener">Abrir programa oficial ↗</a></article>').join(""):'<div class="empty">Nenhum programa passou na verificação atual da SPA.</div>';
   }catch{
     $("partners").innerHTML='<div class="empty">Não foi possível validar os programas contra a lista oficial da SPA.</div>';
   }
