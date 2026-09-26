@@ -12,6 +12,7 @@ const auditFile=path.join(runtime,"games-lab-audit-v03.jsonl");
 const telemetryFile=path.join(runtime,"product-telemetry-v1.jsonl");
 const PORT=Number(process.env.PULSO90_GAMES_PORT||19011);
 const sessions=new Map();
+const telemetryRate=new Map();
 let lastAuditHash="GENESIS";
 
 const tigerTable=[
@@ -49,6 +50,7 @@ function historyFor(sessionId,limit=20){if(!fs.existsSync(auditFile))return[];co
 const telemetryEvents=new Set(["page_view","game_open","favorite_toggle","filter","search","provider_open","partner_open","sport_tab","original_open"]);
 function cleanText(v,max=80){return String(v??"").replace(/[^a-zA-Z0-9À-ÿ _.:+\-/]/g,"").slice(0,max)}
 function dailyAnon(clientId,at){const day=String(at).slice(0,10);return sha256(day+":"+String(clientId||"anonymous")).slice(0,16)}
+function telemetryAllowed(req){const now=Date.now(),key=sha256(String(req.socket.remoteAddress||"unknown")).slice(0,16),cur=telemetryRate.get(key);if(!cur||now-cur.start>=60000){telemetryRate.set(key,{start:now,count:1});return true}cur.count++;return cur.count<=120}
 function appendTelemetry(v){
   const at=new Date().toISOString(),event=String(v.event||"");
   if(!telemetryEvents.has(event))throw new Error("invalid_telemetry_event");
@@ -74,6 +76,7 @@ const server=http.createServer(async(req,res)=>{
     if(req.method==="GET"&&url.pathname==="/api/lab/health")
       return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.4.0",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size,telemetry:"anonymous_daily_hash_v1"});
     if(req.method==="POST"&&url.pathname==="/api/telemetry/event"){
+      if(!telemetryAllowed(req))return json(res,429,{error:"telemetry_rate_limited"});
       const v=await body(req);appendTelemetry(v);return json(res,202,{ok:true});
     }
     if(req.method==="GET"&&url.pathname==="/api/telemetry/summary"){

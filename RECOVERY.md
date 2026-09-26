@@ -28,6 +28,14 @@ The ChatGPT web UI showed "ChatGPT stream recovery polling timed out". This is a
 - With `-Publish`, it updates `runtime-config.json` and pushes only the endpoint change to `main`.
 - Healthy runtime = no duplicate process and no unnecessary commit.
 
+## Guardian support — stream recovery incident
+- 2026-09-26 11:40 BRT: ChatGPT UI showed `Resume stream unavailable` after earlier `ChatGPT stream recovery polling timed out`.
+- Guardian Direct Control support request opened as private issue #17 and processed successfully.
+- Guardian result: direct-control agent healthy enough to process the request, but global Guardian state = `DEGRADED_GUARDIAN`; self-test = `DEGRADED`; `safeHealUnlocked=false`.
+- Allowed while degraded: observe, diagnose, classify, prepare handoff, update local index, write audit log, refresh dashboard, self-test.
+- Therefore Pulso 90 continuity does not rely on Guardian auto-heal during this state; GitHub Pages + runtime bridge + release/checkpoint remain the source of truth.
+- The ChatGPT `Resume stream unavailable` message is treated as a UI/stream continuity fault, not a Pulso 90 runtime failure.
+
 ## RGS guarantees in current lab
 - HMAC-SHA256 commit/reveal
 - configurable client seed
