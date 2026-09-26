@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://idelta775-hash.github.io/pulso90/sitemap.xml

@@ -140,6 +140,26 @@
       "program": "Novi Affiliates",
       "funding_model": "acordos de comissão flexíveis, tracking em tempo real e gestão de afiliados",
       "url": "https://br.noviaffiliates.com/"
+    },
+    {
+      "slug": "estrelabet",
+      "name": "EstrelaBet",
+      "spa_authorized": true,
+      "domain": "estrelabet.bet.br",
+      "relationship": "contato_comercial_enviado",
+      "program": "Stellar Gaming / Programa de Afiliados EstrelaBet",
+      "funding_model": "CPA + Revenue Share, suporte dedicado, pagamento mensal e dashboard em tempo real",
+      "url": "https://afiliados.stellargaming.com/"
+    },
+    {
+      "slug": "vupi",
+      "name": "VUPI",
+      "spa_authorized": true,
+      "domain": "vupi.bet.br",
+      "relationship": "contato_comercial_enviado",
+      "program": "Stellar Gaming",
+      "funding_model": "mesmo ecossistema comercial da Stellar Gaming; condições dependem de aprovação",
+      "url": "https://afiliados.stellargaming.com/"
     }
   ]
 }
