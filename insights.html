@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#07100b">
+<title>Pulso 90 — Intelligence Center</title>
+<style>
+:root{--bg:#060a08;--p:#0d1712;--p2:#101f18;--line:#274438;--txt:#f3f8f5;--mut:#8fa198;--lime:#b8ff66;--green:#49dc91;--gold:#ffd56b;--red:#ff7979;--cyan:#69e8ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#173a25,#060a08 35%);color:var(--txt);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{max-width:1280px;margin:auto;padding:16px}a{color:var(--lime);text-decoration:none}.top{display:flex;align-items:center;gap:10px}.mark{width:42px;height:42px;border-radius:12px;background:var(--lime);color:#07100b;display:grid;place-items:center;font-weight:950}.back{margin-left:auto;font-size:11px}.hero{margin-top:12px;border:1px solid var(--line);border-radius:16px;padding:20px;background:linear-gradient(120deg,#153822,#101a14)}.ey{font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--lime);font-weight:900}.hero h1{margin:6px 0;font-size:30px}.hero p,.mut{color:#9eb0a7;font-size:10px;line-height:1.55}.refresh{border:1px solid #3b614d;background:#14291d;color:var(--lime);border-radius:9px;padding:9px 11px;font-size:10px;font-weight:850;cursor:pointer}.kpis{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;margin-top:11px}.kpi,.panel{border:1px solid #243e32;background:var(--p);border-radius:13px}.kpi{padding:11px;min-height:82px}.kpi small{display:block;color:#84988e;font-size:8px;text-transform:uppercase;letter-spacing:.09em}.kpi b{display:block;font-size:20px;margin-top:7px}.ok{color:var(--green)}.warn{color:var(--gold)}.bad{color:var(--red)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px}.panel{padding:14px}.panel h2{font-size:15px;margin:0 0 8px}.bars{display:grid;gap:7px}.bar{display:grid;grid-template-columns:minmax(110px,1fr) 2.2fr 38px;gap:7px;align-items:center;font-size:9px}.track{height:7px;border-radius:999px;background:#17261f;overflow:hidden}.fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--lime),var(--green));min-width:2px}.count{text-align:right;color:#b5c6bd}.pipeline{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.pipe{border:1px solid #21382e;border-radius:10px;padding:10px;background:#0a130f}.pipe b{font-size:11px}.pipe p{margin:4px 0;font-size:8px;line-height:1.45;color:#8fa298}.pill{display:inline-block;font-size:7px;font-weight:900;text-transform:uppercase;border:1px solid #3e5d4e;border-radius:999px;padding:4px 6px;color:var(--green)}.pill.prospecting{color:var(--gold);border-color:#66592f}.system{display:grid;grid-template-columns:140px 1fr;gap:7px;font-size:9px}.system b{color:#85998e}.code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;word-break:break-all;color:#c5d4cc}.privacy{margin:10px 0;border:1px solid #3d5136;background:#11180e;border-radius:12px;padding:11px;font-size:9px;line-height:1.55;color:#a9b89f}.foot{padding:18px 0;color:#708178;font-size:8px}.empty{font-size:9px;color:#83958c}@media(max-width:1050px){.kpis{grid-template-columns:repeat(4,1fr)}}@media(max-width:720px){.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.pipeline{grid-template-columns:1fr}.system{grid-template-columns:1fr}.bar{grid-template-columns:100px 1fr 30px}}
+</style></head><body><main class="wrap">
+<div class="top"><span class="mark">90</span><div><b>PULSO 90 · INTELLIGENCE CENTER</b><div class="mut">Produto, runtime, audiência agregada e pipeline B2B</div></div><button class="refresh" id="refresh">Atualizar</button><a class="back" href="./">← Home</a></div>
+<section class="hero"><div class="ey">OPERATIONS & PRODUCT INTELLIGENCE</div><h1>Uma fonte de verdade para evoluir o Pulso 90.</h1><p>Este painel não mede dinheiro apostado nem perfis pessoais. Ele combina saúde técnica, release, telemetria anônima de produto e andamento comercial/certificação.</p></section>
+<section class="kpis">
+<div class="kpi"><small>Runtime</small><b id="kRuntime">—</b></div>
+<div class="kpi"><small>Release</small><b id="kRelease">—</b></div>
+<div class="kpi"><small>Eventos 7d</small><b id="kEvents">0</b></div>
+<div class="kpi"><small>Visitantes/dia</small><b id="kVisitors">0</b></div>
+<div class="kpi"><small>Sessões demo</small><b id="kSessions">0</b></div>
+<div class="kpi"><small>Originais</small><b id="kGames">3</b></div>
+<div class="kpi"><small>Fornecedores</small><b id="kProviders">0</b></div>
+<div class="kpi"><small>Labs</small><b id="kLabs">0</b></div>
+</section>
+<section class="grid">
+<article class="panel"><h2>🔥 Conteúdos com mais interesse</h2><div class="bars" id="topItems"></div></article>
+<article class="panel"><h2>🏭 Provedores mais explorados</h2><div class="bars" id="topProviders"></div></article>
+<article class="panel"><h2>🧭 Categorias mais exploradas</h2><div class="bars" id="topCategories"></div></article>
+<article class="panel"><h2>📊 Eventos de produto</h2><div class="bars" id="events"></div></article>
+<article class="panel"><h2>🤝 Pipeline de fornecedores</h2><div class="pipeline" id="providerPipeline"></div></article>
+<article class="panel"><h2>🧪 Certificação</h2><div class="pipeline" id="certPipeline"></div></article>
+</section>
+<section class="panel" style="margin-top:9px"><h2>⚙ Estado técnico</h2><div class="system"><b>Frontend persistente</b><span class="code">https://idelta775-hash.github.io/pulso90/</span><b>Runtime RGS</b><span class="code" id="runtimeUrl">—</span><b>Health</b><span class="code" id="healthText">—</span><b>Release</b><span class="code" id="releaseText">—</span><b>Atualizado</b><span class="code" id="updatedAt">—</span></div></section>
+<div class="privacy"><b>Privacidade por desenho:</b> a telemetria não grava o identificador local original. O RGS cria um hash diferente por dia, tornando o identificador inutilizável para montar um perfil histórico permanente. O painel mostra apenas agregados.</div>
+<footer class="foot">Pulso 90 Intelligence Center · noindex · dados operacionais agregados · atualização automática a cada 30 s.</footer>
+<script>
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+function bars(id,arr){const el=$(id),a=Array.isArray(arr)?arr:[];if(!a.length){el.innerHTML='<div class="empty">Sem dados suficientes ainda.</div>';return}const max=Math.max(...a.map(x=>Number(x.count)||0),1);el.innerHTML=a.slice(0,10).map(x=>'<div class="bar"><span>'+esc(x.name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(2,(Number(x.count)||0)/max*100)+'%"></div></div><span class="count">'+(Number(x.count)||0)+'</span></div>').join("")}
+function eventBars(obj){return Object.entries(obj||{}).sort((a,b)=>b[1]-a[1]).map(([name,count])=>({name,count}))}
+function pipeCard(x){return '<div class="pipe"><span class="pill '+(x.status==="prospecting"?"prospecting":"")+'">'+esc(x.status)+'</span><p><b>'+esc(x.name)+'</b></p><p>'+esc((x.targets||[]).join(" · "))+'</p><p>'+esc(x.next||"")+'</p></div>'}
+async function load(){
+ $("updatedAt").textContent=new Date().toLocaleString();
+ try{
+  const [release,runtime,providers,cert]=await Promise.all([
+   fetch("release.json",{cache:"no-store"}).then(r=>r.json()),
+   fetch("runtime-config.json",{cache:"no-store"}).then(r=>r.json()),
+   fetch("data/provider-status.json",{cache:"no-store"}).then(r=>r.json()),
+   fetch("data/certification-status.json",{cache:"no-store"}).then(r=>r.json())
+  ]);
+  $("kRelease").textContent=(release.release||"—").replace("GLOBAL_HUB_LAB_","");
+  $("releaseText").textContent=release.release||"—";
+  $("runtimeUrl").textContent=runtime.rgs_base||"—";
+  $("kProviders").textContent=(providers.providers||[]).filter(x=>x.status==="contacted").length+"/"+(providers.providers||[]).length;
+  $("kLabs").textContent=(cert.labs||[]).length;
+  $("providerPipeline").innerHTML=(providers.providers||[]).map(pipeCard).join("");
+  $("certPipeline").innerHTML=(cert.labs||[]).map(pipeCard).join("");
+  const base=String(runtime.rgs_base||"").replace(/\/$/,"");
+  const [health,telemetry]=await Promise.all([
+   fetch(base+"/api/lab/health",{cache:"no-store"}).then(r=>r.json()),
+   fetch(base+"/api/telemetry/summary?days=7",{cache:"no-store"}).then(r=>r.json())
+  ]);
+  $("kRuntime").textContent=health.ok?"ONLINE":"ERRO";$("kRuntime").className=health.ok?"ok":"bad";
+  $("kEvents").textContent=telemetry.total_events||0;$("kVisitors").textContent=telemetry.unique_daily_visitors||0;
+  $("kSessions").textContent=health.sessions||0;$("kGames").textContent=(health.games||[]).length||3;
+  $("healthText").textContent=JSON.stringify({ok:health.ok,mode:health.mode,version:health.version,rng:health.rng});
+  bars("topItems",telemetry.top_items);bars("topProviders",telemetry.top_providers);bars("topCategories",telemetry.top_categories);bars("events",eventBars(telemetry.events));
+ }catch(e){
+  $("kRuntime").textContent="OFFLINE";$("kRuntime").className="bad";$("healthText").textContent="Falha ao carregar runtime/telemetria: "+String(e.message||e);
+ }
+}
+$("refresh").onclick=load;load();setInterval(load,30000);
+</script></main></body></html>

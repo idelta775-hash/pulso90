@@ -1,6 +1,6 @@
 {
   "platform": "Pulso 90 Games Lab",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "money_mode": "DEMO_ONLY",
   "certification": "NOT_CERTIFIED",
   "outcome_policy": "FIXED_MATH_NO_PLAYER_ADAPTATION",

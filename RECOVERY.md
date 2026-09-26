@@ -1,6 +1,6 @@
 # Pulso 90 — Recovery Checkpoint
 
-Release: GLOBAL_HUB_LAB_0.12_SELF_HEALING_RUNTIME
+Release: GLOBAL_HUB_LAB_0.13_INTELLIGENCE_DISCOVERY
 Date: 2026-09-26
 
 ## Why this exists

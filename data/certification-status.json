@@ -1,0 +1,9 @@
+{
+  "updated_at":"2026-09-26T09:48:00-03:00",
+  "rgs_version":"0.4.0",
+  "games":["Pulso Tiger","Pulso Launch","Pulso Goal Duel"],
+  "labs":[
+    {"id":"ecogra","name":"eCOGRA","status":"pre_quote_sent","next":"Aguardar readiness, prazo e faixa de custo"},
+    {"id":"bmm","name":"BMM","status":"pre_quote_sent","next":"Aguardar readiness, prazo e faixa de custo"}
+  ]
+}

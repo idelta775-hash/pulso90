@@ -9,6 +9,7 @@ const root=path.resolve(here,"..");
 const runtime=path.resolve(root,"..","runtime");
 fs.mkdirSync(runtime,{recursive:true});
 const auditFile=path.join(runtime,"games-lab-audit-v03.jsonl");
+const telemetryFile=path.join(runtime,"product-telemetry-v1.jsonl");
 const PORT=Number(process.env.PULSO90_GAMES_PORT||19011);
 const sessions=new Map();
 let lastAuditHash="GENESIS";
@@ -42,16 +43,42 @@ function json(res,status,body){res.writeHead(status,{"content-type":"application
 function audit(record){const base={...record,previousHash:lastAuditHash};const hash=sha256(JSON.stringify(base));const row={...base,hash};fs.appendFileSync(auditFile,JSON.stringify(row)+"\n","utf8");lastAuditHash=hash;return hash}
 function state(s){return {balance:s.balance,points:s.points,rounds:s.rounds,tier:tier(s.points),fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:s.nonce}}}
 function session(req){const id=String(req.headers["x-demo-session"]||"");return sessions.get(id)}
-async function body(req){return await new Promise((resolve,reject)=>{let raw="";req.on("data",c=>{raw+=c;if(raw.length>4096)reject(new Error("too_large"))});req.on("end",()=>{try{resolve(raw?JSON.parse(raw):{})}catch{reject(new Error("bad_json"))}});req.on("error",reject)})}
+async function body(req){return await new Promise((resolve,reject)=>{let raw="";req.on("data",c=>{raw+=c;if(raw.length>4096)reject(new Error("too_large"))});req.on("end",()=>{try{const clean=raw.replace(/^\uFEFF/,"").trim();resolve(clean?JSON.parse(clean):{})}catch{reject(new Error("bad_json"))}});req.on("error",reject)})}
 function safeStake(v,max=100){const n=Number(v);if(!Number.isFinite(n)||n<=0)return null;return Math.min(max,Math.round(n*100)/100)}
 function historyFor(sessionId,limit=20){if(!fs.existsSync(auditFile))return[];const lines=fs.readFileSync(auditFile,"utf8").trim().split(/\r?\n/).filter(Boolean);const out=[];for(let i=lines.length-1;i>=0&&out.length<limit;i--){try{const row=JSON.parse(lines[i]);if(row.session===sessionId&&row.game)out.push(row)}catch{}}return out.reverse()}
+const telemetryEvents=new Set(["page_view","game_open","favorite_toggle","filter","search","provider_open","partner_open","sport_tab","original_open"]);
+function cleanText(v,max=80){return String(v??"").replace(/[^a-zA-Z0-9À-ÿ _.:+\-/]/g,"").slice(0,max)}
+function dailyAnon(clientId,at){const day=String(at).slice(0,10);return sha256(day+":"+String(clientId||"anonymous")).slice(0,16)}
+function appendTelemetry(v){
+  const at=new Date().toISOString(),event=String(v.event||"");
+  if(!telemetryEvents.has(event))throw new Error("invalid_telemetry_event");
+  const row={at,event,anon:dailyAnon(v.clientId,at),item:cleanText(v.item),category:cleanText(v.category,40),provider:cleanText(v.provider,60),lang:cleanText(v.lang,8),surface:cleanText(v.surface,30)};
+  fs.appendFileSync(telemetryFile,JSON.stringify(row)+"\n","utf8");
+  return row;
+}
+function telemetrySummary(days=7){
+  const windowDays=Number.isFinite(Number(days))?Math.max(1,Math.min(30,Number(days))):7;
+  const cutoff=Date.now()-windowDays*86400000;
+  const counts={events:{},items:{},providers:{},categories:{},daily:{}},unique=new Set();
+  if(!fs.existsSync(telemetryFile))return {window_days:windowDays,total_events:0,unique_daily_visitors:0,events:{},top_items:[],top_providers:[],top_categories:[],daily:{}};
+  const lines=fs.readFileSync(telemetryFile,"utf8").split(/\r?\n/).filter(Boolean);let total=0;
+  for(const line of lines){try{const r=JSON.parse(line),t=Date.parse(r.at);if(!Number.isFinite(t)||t<cutoff)continue;total++;unique.add(String(r.at).slice(0,10)+":"+r.anon);counts.events[r.event]=(counts.events[r.event]||0)+1;if(r.item)counts.items[r.item]=(counts.items[r.item]||0)+1;if(r.provider)counts.providers[r.provider]=(counts.providers[r.provider]||0)+1;if(r.category)counts.categories[r.category]=(counts.categories[r.category]||0)+1;const day=String(r.at).slice(0,10);counts.daily[day]=(counts.daily[day]||0)+1}catch{}}
+  const top=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,12).map(([name,count])=>({name,count}));
+  return {window_days:windowDays,total_events:total,unique_daily_visitors:unique.size,events:counts.events,top_items:top(counts.items),top_providers:top(counts.providers),top_categories:top(counts.categories),daily:counts.daily};
+}
 function settle(s,stake,multiplier,meta,fair){const payout=Math.round(stake*multiplier*100)/100;s.balance=Math.round((s.balance-stake+payout)*100)/100;s.rounds++;s.points+=1+(payout>stake?5:0);const record={at:new Date().toISOString(),session:s.id,mode:"DEMO_ONLY",game:meta.game,version:"0.3.0",stake,payout,multiplier,balanceAfter:s.balance,outcome:meta.outcome,fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:fair.nonce,message:fair.message}};const auditHash=audit(record);return {payout,net:Math.round((payout-stake)*100)/100,auditHash,fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:fair.nonce,message:fair.message},...state(s)}}
 const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,"http://localhost");
   try{
     if(req.method==="OPTIONS"){res.writeHead(204,corsHeaders());return res.end()}
     if(req.method==="GET"&&url.pathname==="/api/lab/health")
-      return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.3.0",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size});
+      return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.4.0",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size,telemetry:"anonymous_daily_hash_v1"});
+    if(req.method==="POST"&&url.pathname==="/api/telemetry/event"){
+      const v=await body(req);appendTelemetry(v);return json(res,202,{ok:true});
+    }
+    if(req.method==="GET"&&url.pathname==="/api/telemetry/summary"){
+      const days=Number(url.searchParams.get("days")||7);return json(res,200,telemetrySummary(days));
+    }
     if(req.method==="POST"&&url.pathname==="/api/lab/session"){
       const id=crypto.randomUUID(),serverSeed=newServerSeed(),clientSeed=newClientSeed();
       const s={id,balance:1000,points:0,rounds:0,createdAt:new Date().toISOString(),serverSeed,serverSeedHash:sha256(serverSeed),clientSeed,nonce:0,revealed:[]};
@@ -123,6 +150,6 @@ const server=http.createServer(async(req,res)=>{
     res.writeHead(200,{"content-type":types[ext]||"application/octet-stream","cache-control":"no-store","x-content-type-options":"nosniff","referrer-policy":"strict-origin-when-cross-origin"});
     if(req.method==="HEAD")return res.end();
     fs.createReadStream(file).pipe(res);
-  }catch(e){const m=String(e&&e.message||"");if(m==="bad_json"||m==="too_large")return json(res,400,{error:m});json(res,500,{error:"lab_internal_error"});}
+  }catch(e){const m=String(e&&e.message||"");if(m==="bad_json"||m==="too_large"||m==="invalid_telemetry_event")return json(res,400,{error:m});json(res,500,{error:"lab_internal_error"});}
 });
-server.listen(PORT,"127.0.0.1",()=>console.log("PULSO90_GAMES_RGS_V03=http://127.0.0.1:"+PORT));
+server.listen(PORT,"127.0.0.1",()=>console.log("PULSO90_GAMES_RGS_V04=http://127.0.0.1:"+PORT));

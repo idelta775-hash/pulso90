@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.12_SELF_HEALING_RUNTIME",
-  "built_at": "2026-09-26T13:08:00Z",
+  "release": "GLOBAL_HUB_LAB_0.13_INTELLIGENCE_DISCOVERY",
+  "built_at": "2026-09-26T13:58:00Z",
   "public_lab": "https://method-ftp-vip-freeze.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -16,7 +16,7 @@
     "SPA-verified commercial operator rail",
     "provider B2B pipeline",
     "Pulso Originals",
-    "RGS demo v0.3",
+    "RGS demo v0.4",
     "HMAC-SHA256 commit/reveal provably-fair lab",
     "hash-chained audit log",
     "cross-origin runtime bridge for GitHub Pages",
@@ -24,7 +24,12 @@
     "PWA manifest and service worker",
     "certification readiness",
     "stream-timeout recovery checkpoint",
-    "self-healing RGS/tunnel recovery script"
+    "self-healing RGS/tunnel recovery script",
+    "anonymous daily-hash product telemetry",
+    "Pulso 90 Intelligence Center",
+    "18-title editorial catalog with generated pages",
+    "7-provider editorial B2B pages",
+    "runtime-status files bypass service-worker cache"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,

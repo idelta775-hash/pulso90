@@ -1,0 +1,240 @@
+{
+  "updated_at": "2026-09-26T10:58:00-03:00",
+  "games": [
+    {
+      "id": "fortune-tiger",
+      "title": "Fortune Tiger",
+      "provider": "PG SOFT",
+      "category": "Slot",
+      "icon": "🐯",
+      "status": "Licenciamento em negociação",
+      "official": "https://www.pgsoft.com/games/all/",
+      "tags": [
+        "Fortune Series",
+        "Brasil",
+        "Slot"
+      ]
+    },
+    {
+      "id": "aviator",
+      "title": "Aviator",
+      "provider": "SPRIBE",
+      "category": "Crash",
+      "icon": "✈️",
+      "status": "Licenciamento em negociação",
+      "official": "https://spribe.co/games/aviator",
+      "tags": [
+        "Crash",
+        "Global"
+      ]
+    },
+    {
+      "id": "fortune-rabbit",
+      "title": "Fortune Rabbit",
+      "provider": "PG SOFT",
+      "category": "Slot",
+      "icon": "🐰",
+      "status": "Licenciamento em negociação",
+      "official": "https://www.pgsoft.com/games/all/",
+      "tags": [
+        "Fortune Series",
+        "Slot"
+      ]
+    },
+    {
+      "id": "fortune-dragon",
+      "title": "Fortune Dragon",
+      "provider": "PG SOFT",
+      "category": "Slot",
+      "icon": "🐲",
+      "status": "Licenciamento em negociação",
+      "official": "https://www.pgsoft.com/games/all/",
+      "tags": [
+        "Fortune Series",
+        "Slot"
+      ]
+    },
+    {
+      "id": "gates-olympus",
+      "title": "Gates of Olympus 1000",
+      "provider": "Pragmatic Play",
+      "category": "Slot",
+      "icon": "⚡",
+      "status": "Contato B2B enviado",
+      "official": "https://www.pragmaticplay.com/",
+      "tags": [
+        "Slot",
+        "Popular"
+      ]
+    },
+    {
+      "id": "crazy-time",
+      "title": "Crazy Time",
+      "provider": "Evolution",
+      "category": "Game Show",
+      "icon": "🎡",
+      "status": "Licenciamento em negociação",
+      "official": "https://www.evolution.com/",
+      "tags": [
+        "Game Show",
+        "Ao vivo"
+      ]
+    },
+    {
+      "id": "football-studio",
+      "title": "Football Studio",
+      "provider": "Evolution",
+      "category": "Live Casino",
+      "icon": "⚽",
+      "status": "Licenciamento em negociação",
+      "official": "https://www.evolution.com/",
+      "tags": [
+        "Ao vivo",
+        "Futebol"
+      ]
+    },
+    {
+      "id": "bac-bo",
+      "title": "Bac Bo",
+      "provider": "Evolution",
+      "category": "Table Game",
+      "icon": "🎲",
+      "status": "Licenciamento em negociação",
+      "official": "https://www.evolution.com/",
+      "tags": [
+        "Mesa",
+        "Ao vivo"
+      ]
+    },
+    {
+      "id": "fortune-ox",
+      "title": "Fortune Ox",
+      "provider": "PG SOFT",
+      "category": "Slot",
+      "icon": "🐂",
+      "status": "Licenciamento em negociação",
+      "official": "https://www.pgsoft.com/games/all/",
+      "tags": [
+        "Fortune Series",
+        "Slot"
+      ]
+    },
+    {
+      "id": "jetx",
+      "title": "JetX",
+      "provider": "SmartSoft",
+      "category": "Crash",
+      "icon": "🚀",
+      "status": "Contato B2B enviado",
+      "official": "https://smartsoftgaming.com/",
+      "tags": [
+        "Crash",
+        "Global"
+      ]
+    },
+    {
+      "id": "sweet-bonanza",
+      "title": "Sweet Bonanza",
+      "provider": "Pragmatic Play",
+      "category": "Slot",
+      "icon": "🍭",
+      "status": "Contato B2B enviado",
+      "official": "https://www.pragmaticplay.com/",
+      "tags": [
+        "Slot",
+        "Popular"
+      ]
+    },
+    {
+      "id": "big-bass",
+      "title": "Big Bass Splash",
+      "provider": "Pragmatic Play",
+      "category": "Slot",
+      "icon": "🎣",
+      "status": "Contato B2B enviado",
+      "official": "https://www.pragmaticplay.com/",
+      "tags": [
+        "Slot",
+        "Popular"
+      ]
+    },
+    {
+      "id": "lightning-roulette",
+      "title": "Lightning Roulette",
+      "provider": "Evolution",
+      "category": "Live Casino",
+      "icon": "⚡",
+      "status": "Licenciamento em negociação",
+      "official": "https://www.evolution.com/",
+      "tags": [
+        "Roleta",
+        "Ao vivo"
+      ]
+    },
+    {
+      "id": "monopoly-live",
+      "title": "Monopoly Live",
+      "provider": "Evolution",
+      "category": "Game Show",
+      "icon": "🎩",
+      "status": "Licenciamento em negociação",
+      "official": "https://www.evolution.com/",
+      "tags": [
+        "Game Show",
+        "Ao vivo"
+      ]
+    },
+    {
+      "id": "spaceman",
+      "title": "Spaceman",
+      "provider": "Pragmatic Play",
+      "category": "Crash",
+      "icon": "👨‍🚀",
+      "status": "Contato B2B enviado",
+      "official": "https://www.pragmaticplay.com/",
+      "tags": [
+        "Crash",
+        "Global"
+      ]
+    },
+    {
+      "id": "high-flyer",
+      "title": "High Flyer",
+      "provider": "Pragmatic Play",
+      "category": "Crash",
+      "icon": "🛩️",
+      "status": "Contato B2B enviado",
+      "official": "https://www.pragmaticplay.com/",
+      "tags": [
+        "Crash",
+        "Popular"
+      ]
+    },
+    {
+      "id": "lightning-storm",
+      "title": "Lightning Storm",
+      "provider": "Evolution",
+      "category": "Game Show",
+      "icon": "🌩️",
+      "status": "Licenciamento em negociação",
+      "official": "https://www.evolution.com/",
+      "tags": [
+        "Game Show",
+        "Ao vivo"
+      ]
+    },
+    {
+      "id": "funky-time",
+      "title": "Funky Time",
+      "provider": "Evolution",
+      "category": "Game Show",
+      "icon": "🪩",
+      "status": "Licenciamento em negociação",
+      "official": "https://www.evolution.com/",
+      "tags": [
+        "Game Show",
+        "Ao vivo"
+      ]
+    }
+  ]
+}

@@ -30,7 +30,7 @@
 </style>
 </head><body><header class="top"><div class="shell bar">
 <a class="brand" href="#"><span class="logo">90</span><span>PULSO 90</span></a>
-<nav class="nav"><a href="#em-alta">Em alta</a><a href="#originais">Originais</a><a href="#catalogo">Cassino</a><a href="#esportes">Esportes</a><a href="games/providers.html">Provedores</a><a href="media-kit.html">Media Kit</a></nav>
+<nav class="nav"><a href="#em-alta">Em alta</a><a href="#originais">Originais</a><a href="#catalogo">Cassino</a><a href="#esportes">Esportes</a><a href="providers/">Provedores</a><a href="media-kit.html">Media Kit</a></nav>
 <div class="spacer"></div><div class="search"><input id="gameSearch" placeholder="Buscar jogos ou provedores…"></div><select id="langSelect" class="lang" aria-label="Idioma"><option value="pt">PT</option><option value="en">EN</option><option value="es">ES</option></select><span class="age">18+ · REAL DATA</span>
 </div></header>
 
@@ -42,7 +42,7 @@
 </div>
 <div class="hero-side">
   <article class="side-card"><span class="pulse"><i class="dot"></i> AO VIVO AGORA</span><p id="heroLive">Consultando jogos reais em andamento…</p><a class="cta" href="#esportes">Abrir Match Center</a></article>
-  <article class="side-card"><b>⚡ Pulso Originals</b><p>Três motores próprios já funcionam em laboratório com CSPRNG no servidor, matemática fixa e auditoria por hash.</p><a class="cta" href="games/">Entrar no Games Lab</a></article>
+  <article class="side-card"><b>⚡ Pulso Originals</b><p>Três motores próprios em laboratório com HMAC-SHA256 commit/reveal, matemática fixa e auditoria por hash.</p><a class="cta" href="games/">Entrar no Games Lab</a></article>
 </div>
 </section>
 
@@ -97,15 +97,15 @@
 </section>
 
 <section class="section" id="providers-section">
-<div class="section-head"><div><div class="ey">PROVIDER NETWORK</div><h2>Ecossistema de conteúdo</h2></div><a href="games/providers.html">Ver negociação B2B →</a></div>
+<div class="section-head"><div><div class="ey">PROVIDER NETWORK</div><h2>Ecossistema de conteúdo</h2></div><a href="providers/">Explorar provedores →</a></div>
 <div class="provider-strip">
-<div class="prov"><b>PG SOFT</b><small>Fortune Series · negociação iniciada</small></div>
-<div class="prov"><b>SPRIBE</b><small>Aviator · negociação iniciada</small></div>
-<div class="prov"><b>Evolution</b><small>Live / Game Shows · negociação iniciada</small></div>
-<div class="prov"><b>Pragmatic Play</b><small>Slots / Live · contato enviado</small></div>
-<div class="prov"><b>SmartSoft</b><small>JetX · contato enviado</small></div>
-<div class="prov"><b>Games Global</b><small>Catálogo global · prospecção</small></div>
-<div class="prov"><b>Play’n GO</b><small>Slots globais · contato enviado</small></div>
+<a class="prov" data-provider="pgsoft" href="providers/pgsoft.html"><b>PG SOFT</b><small>Fortune Series · negociação iniciada</small></a>
+<a class="prov" data-provider="spribe" href="providers/spribe.html"><b>SPRIBE</b><small>Aviator · negociação iniciada</small></a>
+<a class="prov" data-provider="evolution" href="providers/evolution.html"><b>Evolution</b><small>Live / Game Shows · negociação iniciada</small></a>
+<a class="prov" data-provider="pragmatic_play" href="providers/pragmatic_play.html"><b>Pragmatic Play</b><small>Slots / Live · contato enviado</small></a>
+<a class="prov" data-provider="smartsoft" href="providers/smartsoft.html"><b>SmartSoft</b><small>JetX · contato enviado</small></a>
+<a class="prov" data-provider="games_global" href="providers/games_global.html"><b>Games Global</b><small>Catálogo global · prospecção</small></a>
+<a class="prov" data-provider="playngo" href="providers/playngo.html"><b>Play’n GO</b><small>Slots globais · contato enviado</small></a>
 </div>
 </section>
 
@@ -129,16 +129,19 @@
 
 <div class="notice"><b>Transparência Pulso 90.</b> Fortune Tiger, Fortune Rabbit, Fortune Dragon, Fortune Ox, Fortune Mouse, Aviator, JetX, Gates of Olympus, Sweet Bonanza, Big Bass, Crazy Time, Football Studio, Bac Bo, Lightning Roulette e demais títulos de terceiros são marcas/conteúdos de seus respectivos provedores. A presença na vitrine é editorial e de descoberta; não significa integração ativa ou licença concedida ao Pulso 90. Jogos próprios permanecem DEMO e sem valor monetário.</div>
 
-<footer class="footer">Pulso 90 · Global Sports & Games Hub · Dados esportivos reais. Games próprios em laboratório. Conteúdo de terceiros sujeito a licença, certificação e integração com operador autorizado. 18+. Jogue com responsabilidade. Aposta não é investimento.</footer>
+<footer class="footer">Pulso 90 · Global Sports & Games Hub · Dados esportivos reais. Games próprios em laboratório. Conteúdo de terceiros sujeito a licença, certificação e integração com operador autorizado. 18+. Jogue com responsabilidade. Aposta não é investimento. · <a href="insights.html">Intelligence Center</a></footer>
 </main>
 
-<nav class="mobile-nav"><a href="#em-alta"><b>🔥</b>Em alta</a><a href="#catalogo"><b>🎰</b>Games</a><a href="games/"><b>⚡</b>Originais</a><a href="#esportes"><b>⚽</b>Esportes</a><a href="games/providers.html"><b>🤝</b>Provedores</a></nav>
+<nav class="mobile-nav"><a href="#em-alta"><b>🔥</b>Em alta</a><a href="#catalogo"><b>🎰</b>Games</a><a href="games/"><b>⚡</b>Originais</a><a href="#esportes"><b>⚽</b>Esportes</a><a href="providers/"><b>🤝</b>Provedores</a></nav>
 
 <div class="modal" id="gameModal"><div class="modal-card"><button class="close" id="modalClose">×</button><div class="ey" id="modalProvider"></div><h3 id="modalTitle"></h3><p id="modalText"></p><div class="gmeta" id="modalTags"></div><div class="cta-row" id="modalActions"></div></div></div><script>
 const $=id=>document.getElementById(id), $$=s=>[...document.querySelectorAll(s)];
-let RGS_BASE="";
-async function loadRuntimeConfig(){try{const r=await fetch("runtime-config.json",{cache:"no-store"});if(r.ok){const c=await r.json();RGS_BASE=String(c.rgs_base||"").replace(/\/$/,"")}}catch{RGS_BASE=""}}
+let RGS_BASE="",runtimeLoaded=false;
+async function loadRuntimeConfig(){if(runtimeLoaded)return;try{const r=await fetch("runtime-config.json",{cache:"no-store"});if(r.ok){const c=await r.json();RGS_BASE=String(c.rgs_base||"").replace(/\/$/,"")}}catch{RGS_BASE=""}finally{runtimeLoaded=true}}
 function apiUrl(path){return RGS_BASE?RGS_BASE+path:path}
+const ANON_KEY="pulso90-anon-v1";
+let anonId=localStorage.getItem(ANON_KEY)||"";if(!anonId){anonId=(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now().toString(36));localStorage.setItem(ANON_KEY,anonId)}
+async function track(event,data={}){try{await loadRuntimeConfig();if(!RGS_BASE)return;fetch(apiUrl("/api/telemetry/event"),{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({event,clientId:anonId,lang:document.documentElement.lang||"pt-BR",surface:"home",...data}),keepalive:true}).catch(()=>{})}catch{}}
 const LANG_KEY="pulso90-lang-v1";
 let currentLang=localStorage.getItem(LANG_KEY)||((navigator.language||"pt").toLowerCase().startsWith("es")?"es":(navigator.language||"pt").toLowerCase().startsWith("en")?"en":"pt");
 const UI={
@@ -202,13 +205,14 @@ const games=[
 {id:"pulso-goal",title:"Pulso Goal Duel",provider:"Pulso 90 Originals",type:"original",icon:"⚽",c1:"#143b2d",c2:"#53601e",tags:["Original","Virtual","DEMO"],status:"Jogável no Games Lab",play:"games/"}
 ];
 const trendIds=["fortune-tiger","aviator","fortune-rabbit","fortune-dragon","gates-olympus","crazy-time","football-studio","bac-bo","fortune-ox","jetx"];
+const editorialIds=new Set(["fortune-tiger","aviator","fortune-rabbit","fortune-dragon","gates-olympus","crazy-time","football-studio","bac-bo","fortune-ox","jetx","sweet-bonanza","big-bass","lightning-roulette","monopoly-live","spaceman","high-flyer","lightning-storm","funky-time"]);
 let filter="all",query="";
 const DISCOVERY_KEY="pulso90-discovery-v1";
 let discovery={types:{},providers:{},views:0,seen:[],recent:[],favorites:[]};try{discovery={...discovery,...JSON.parse(localStorage.getItem(DISCOVERY_KEY)||"{}")}}catch{}
 discovery.seen=Array.isArray(discovery.seen)?discovery.seen:[];discovery.recent=Array.isArray(discovery.recent)?discovery.recent:[];discovery.favorites=Array.isArray(discovery.favorites)?discovery.favorites:[];
 function saveDiscovery(){localStorage.setItem(DISCOVERY_KEY,JSON.stringify(discovery))}
 function remember(g){discovery.types[g.type]=(discovery.types[g.type]||0)+1;discovery.providers[g.provider]=(discovery.providers[g.provider]||0)+1;discovery.views=(discovery.views||0)+1;discovery.seen=Array.from(new Set([...(discovery.seen||[]),g.id])).slice(-50);discovery.recent=[g.id,...(discovery.recent||[]).filter(id=>id!==g.id)].slice(0,12);saveDiscovery();renderRecent();renderPersonal();loadClub()}
-function toggleFavorite(id){const set=new Set(discovery.favorites||[]);set.has(id)?set.delete(id):set.add(id);discovery.favorites=[...set];saveDiscovery();renderTrending();renderRecent();renderPersonal();renderCatalog()}
+function toggleFavorite(id){const g=games.find(x=>x.id===id),set=new Set(discovery.favorites||[]);const was=set.has(id);was?set.delete(id):set.add(id);discovery.favorites=[...set];saveDiscovery();track("favorite_toggle",{item:id,category:g?.type||"",provider:g?.provider||""});renderTrending();renderRecent();renderPersonal();renderCatalog()}
 function score(g){return (discovery.types[g.type]||0)*3+(discovery.providers[g.provider]||0)*2+(trendIds.includes(g.id)?1:0)+(g.type==="original"?0.5:0)}
 function renderPersonal(){const arr=[...games].sort((a,b)=>score(b)-score(a)).slice(0,10);$("personalRail").innerHTML=arr.map(g=>card(g)).join("");$("personalMeta").textContent=(discovery.views||0)?("Adaptado após "+discovery.views+" exploração(ões) locais"):"Começa com tendências e aprende apenas neste navegador";bindCards()}
 function setProgress(id,textId,value,target){const pct=Math.max(0,Math.min(100,(value/target)*100));$(id).style.width=pct+"%";$(textId).textContent=Math.min(value,target)+"/"+target}
@@ -247,18 +251,18 @@ function bindCards(){
 }
 function openGame(id){
  const g=games.find(x=>x.id===id);if(!g)return;
- remember(g);
+ remember(g);track(g.type==="original"?"original_open":"game_open",{item:g.id,category:g.type,provider:g.provider});
  $("modalProvider").textContent=g.provider;
  $("modalTitle").textContent=g.title;
  $("modalText").textContent=g.status+". "+(g.play?"Este é um original Pulso 90 em modo DEMO, sem dinheiro real.":"O título aparece como referência de mercado. O Pulso 90 só o tornará jogável após licença, certificação e integração aplicáveis.");
  $("modalTags").innerHTML=g.tags.map(t=>'<span class="tag">'+esc(t)+'</span>').join("");
- $("modalActions").innerHTML=g.play?'<a class="cta primary" href="'+g.play+'">Abrir Games Lab</a>':'<a class="cta primary" href="games/providers.html">Ver pipeline de fornecedores</a><a class="cta" href="games/certification.html">Ver certificação</a>';
+ $("modalActions").innerHTML=g.play?'<a class="cta primary" href="'+g.play+'">Abrir Games Lab</a>':editorialIds.has(g.id)?'<a class="cta primary" href="catalog/'+g.id+'.html">Ver página do título</a><a class="cta" href="games/providers.html">Pipeline B2B</a>':'<a class="cta primary" href="games/providers.html">Ver pipeline de fornecedores</a><a class="cta" href="games/certification.html">Ver certificação</a>';
  $("gameModal").classList.add("open");
 }
 $("modalClose").onclick=()=>$("gameModal").classList.remove("open");
 $("gameModal").onclick=e=>{if(e.target===$("gameModal"))$("gameModal").classList.remove("open")};
-$("gameSearch").addEventListener("input",e=>{query=e.target.value.trim().toLowerCase();renderCatalog();document.querySelector("#catalogo").scrollIntoView({behavior:"smooth",block:"start"})});
-$$(".chip").forEach(b=>b.onclick=()=>{filter=b.dataset.filter;$$(".chip").forEach(x=>x.classList.toggle("active",x===b));renderCatalog();document.querySelector("#catalogo").scrollIntoView({behavior:"smooth",block:"start"})});
+let searchTrackTimer=null;$("gameSearch").addEventListener("input",e=>{query=e.target.value.trim().toLowerCase();renderCatalog();clearTimeout(searchTrackTimer);if(query.length>=2)searchTrackTimer=setTimeout(()=>track("search",{item:query,category:filter}),700);document.querySelector("#catalogo").scrollIntoView({behavior:"smooth",block:"start"})});
+$$(".chip").forEach(b=>b.onclick=()=>{filter=b.dataset.filter;track("filter",{category:filter});$$(".chip").forEach(x=>x.classList.toggle("active",x===b));renderCatalog();document.querySelector("#catalogo").scrollIntoView({behavior:"smooth",block:"start"})});
 async function loadPartners(){
  try{
    const [pr,sr]=await Promise.all([fetch("partners.json"),fetch("spa-status.json")]);
@@ -268,8 +272,9 @@ async function loadPartners(){
    $("partnerRail").innerHTML=verified.map(p=>{
      const d=spa.details&&spa.details[p.domain],auth=d&&d.portaria?d.portaria:"SPA verificada";
      const status=p.relationship==="contato_comercial_enviado"?"Contato comercial enviado":p.relationship==="cadastro_exige_aceite_contratual"?"Cadastro depende do titular":"Prospecção";
-     return '<article class="op-card"><div class="verified">✓ '+esc(p.domain)+'</div><h3>'+esc(p.name)+'</h3><p><b>'+esc(status)+'</b></p><p>'+esc(p.program||"Programa comercial")+'</p><p>'+esc(auth)+'</p><a href="'+esc(p.url)+'" target="_blank" rel="noopener">Programa comercial ↗</a></article>';
+     return '<article class="op-card"><div class="verified">✓ '+esc(p.domain)+'</div><h3>'+esc(p.name)+'</h3><p><b>'+esc(status)+'</b></p><p>'+esc(p.program||"Programa comercial")+'</p><p>'+esc(auth)+'</p><a data-partner="'+esc(p.domain)+'" href="'+esc(p.url)+'" target="_blank" rel="noopener">Programa comercial ↗</a></article>';
    }).join("");
+   $$("[data-partner]").forEach(a=>a.addEventListener("click",()=>track("partner_open",{item:a.dataset.partner}))); 
  }catch{
    $("partnerMeta").textContent="Não foi possível validar operadores agora";
    $("partnerRail").innerHTML='<article class="op-card">A validação externa está temporariamente indisponível; nenhuma marca será tratada como verificada sem o arquivo SPA.</article>';
@@ -303,8 +308,9 @@ async function loadLive(){
    grid.innerHTML='<div class="live-card">'+esc(msg.fail)+'</div>';
  }
 }
-$$(".sport-btn").forEach(b=>b.onclick=()=>{currentSport=b.dataset.sport;$$(".sport-btn").forEach(x=>x.classList.toggle("active",x===b));loadLive()});
+$$(".sport-btn").forEach(b=>b.onclick=()=>{currentSport=b.dataset.sport;track("sport_tab",{category:currentSport});$$(".sport-btn").forEach(x=>x.classList.toggle("active",x===b));loadLive()});
+$$("[data-provider]").forEach(a=>a.addEventListener("click",()=>track("provider_open",{item:a.dataset.provider}))); 
 $("langSelect").addEventListener("change",e=>{applyLang(e.target.value);loadLive()});
-applyLang(currentLang);renderTrending();renderRecent();renderPersonal();renderCatalog();loadClub();loadPartners();loadLive();setInterval(loadLive,60000);
+applyLang(currentLang);renderTrending();renderRecent();renderPersonal();renderCatalog();loadClub();loadPartners();loadLive();track("page_view",{item:"home"});setInterval(loadLive,60000);
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 </script></body></html>
