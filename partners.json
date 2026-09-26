@@ -60,6 +60,36 @@
       "program": "bet365 Partners",
       "funding_model": "participação nos lucros/comissões por clientes referidos; Brasil sujeito à aprovação e regras locais",
       "url": "https://www.bet365partners.com/pt/"
+    },
+    {
+      "slug": "stake",
+      "name": "Stake Brasil",
+      "spa_authorized": true,
+      "domain": "stake.bet.br",
+      "relationship": "contato_comercial_enviado",
+      "program": "CPA, Revenue Share e Híbrido",
+      "funding_model": "comissão mensal por novos clientes; condições definidas em contrato individual",
+      "url": "https://stake.bet.br/afiliados"
+    },
+    {
+      "slug": "betnacional",
+      "name": "Betnacional",
+      "spa_authorized": true,
+      "domain": "betnacional.bet.br",
+      "relationship": "contato_comercial_enviado",
+      "program": "CPA, RevShare e Híbrido",
+      "funding_model": "comissões negociáveis, gerente dedicado, tracking e subafiliações",
+      "url": "https://afiliados.betnacional.bet.br/"
+    },
+    {
+      "slug": "pixbet",
+      "name": "Pixbet",
+      "spa_authorized": true,
+      "domain": "pix.bet.br",
+      "relationship": "contato_comercial_enviado",
+      "program": "Programa de afiliados Pixbet",
+      "funding_model": "comissões, suporte e materiais promocionais; condições dependem de aprovação",
+      "url": "https://pixbet.com/afiliados"
     }
   ]
 }
