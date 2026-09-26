@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-26T01:44:07.651Z",
+  "checked_at": "2026-09-26T10:32:28.978Z",
   "source": "https://www.gov.br/fazenda/pt-br/composicao/orgaos/secretaria-de-premios-e-apostas/transparencia-ativa-processos-de-autorizacao-de-apostas-de-quota-fixa/planilha-de-autorizacoes-1.csv/@@download/file",
   "domains": {
     "kto.bet.br": true,
@@ -11,6 +11,110 @@
     "stake.bet.br": true,
     "betnacional.bet.br": true,
     "pix.bet.br": true,
-    "betesporte.bet.br": true
+    "betesporte.bet.br": true,
+    "betsson.bet.br": true,
+    "sportingbet.bet.br": true,
+    "betboo.bet.br": true,
+    "novibet.bet.br": true
+  },
+  "details": {
+    "kto.bet.br": {
+      "portaria": "SPA/MF nº 2.093, de 30 de dezembro de 2024",
+      "empresa": "APOLLO OPERATIONS LTDA",
+      "cnpj": "54.923.003/0001-26",
+      "marca": "KTO",
+      "requerimento": "0007/2024"
+    },
+    "betfair.bet.br": {
+      "portaria": "SPA/MF nº 248, de 07 de fevereiro de 2025",
+      "empresa": "NSX BETFAIR BRASIL S.A",
+      "cnpj": "55.229.080/0001-43",
+      "marca": "BETFAIR",
+      "requerimento": "0014/2024"
+    },
+    "betano.bet.br": {
+      "portaria": "SPA/MF nº 246, de 07 de fevereiro de 2025",
+      "empresa": "KAIZEN GAMING BRASIL LTDA",
+      "cnpj": "46.786.961/0001-74",
+      "marca": "BETANO",
+      "requerimento": "0001/2024"
+    },
+    "betmgm.bet.br": {
+      "portaria": "SPA/MF nº 2.098, de 30 de dezembro de 2024",
+      "empresa": "BOA LION S.A.",
+      "cnpj": "53.837.227/0001-52",
+      "marca": "BETMGM",
+      "requerimento": "0036/2024"
+    },
+    "superbet.bet.br": {
+      "portaria": "SPA/MF nº 2.090, de 30 de dezembro de 2024",
+      "empresa": "SPRBT INTERACTIVE BRASIL LTDA",
+      "cnpj": "54.071.596/0001-40",
+      "marca": "SUPERBET",
+      "requerimento": "0002/2024"
+    },
+    "bet365.bet.br": {
+      "portaria": "SPA/MF nº 250, de 07 de fevereiro de 2025",
+      "empresa": "HS DO BRASIL LTDA",
+      "cnpj": "47.123.407/0001-70",
+      "marca": "BET365",
+      "requerimento": "0021/2024"
+    },
+    "stake.bet.br": {
+      "portaria": "SPA/MF nº 263, de 07 de fevereiro de 2025",
+      "empresa": "STAKE BRAZIL LTDA",
+      "cnpj": "56.525.936/0001-90",
+      "marca": "STAKE",
+      "requerimento": "0079/2024"
+    },
+    "betnacional.bet.br": {
+      "portaria": "SPA/MF nº 2.092, de 30 de dezembro de 2024",
+      "empresa": "NSX BRASIL S.A.",
+      "cnpj": "55.056.104/0001-00",
+      "marca": "BETNACIONAL",
+      "requerimento": "0006/2024"
+    },
+    "pix.bet.br": {
+      "portaria": "SPA/MF nº 806, de 14 de abril de 2025",
+      "empresa": "PIXBET SOLUÇÕES TECNOLÓGICAS LTDA.",
+      "cnpj": "40.633.348/0001-30",
+      "marca": "PIXBET",
+      "requerimento": "0042/2024"
+    },
+    "betesporte.bet.br": {
+      "portaria": "SPA/MF nº 257, de 07 de fevereiro de 2025",
+      "empresa": "BETESPORTE APOSTAS ON LINE LTDA",
+      "cnpj": "56.295.104/0001-25",
+      "marca": "BETESPORTE",
+      "requerimento": "0033/2024"
+    },
+    "betsson.bet.br": {
+      "portaria": "SPA/MF nº 371, de 24 de fevereiro de 2025",
+      "empresa": "SIMULCASTING BRASIL SOM E IMAGEM S.A.",
+      "cnpj": "17.385.948/0001-05",
+      "marca": "BETSSON",
+      "requerimento": "0008/2024"
+    },
+    "sportingbet.bet.br": {
+      "portaria": "SPA/MF nº 247, de 07 de fevereiro de 2025",
+      "empresa": "VENTMEAR BRASIL S.A.",
+      "cnpj": "52.868.380/0001-84",
+      "marca": "SPORTINGBET",
+      "requerimento": "0004/2024"
+    },
+    "betboo.bet.br": {
+      "portaria": "SPA/MF nº 247, de 07 de fevereiro de 2025",
+      "empresa": "VENTMEAR BRASIL S.A.",
+      "cnpj": "52.868.380/0001-84",
+      "marca": "BETBOO",
+      "requerimento": "0004/2024"
+    },
+    "novibet.bet.br": {
+      "portaria": "SPA/MF nº 249, de 07 fevereiro de 2025",
+      "empresa": "NVBT GAMING LTDA",
+      "cnpj": "50.587.712/0001-27",
+      "marca": "NOVIBET",
+      "requerimento": "0017/2024"
+    }
   }
 }

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-25",
+  "updated_at": "2026-09-26",
   "partners": [
     {
       "slug": "kto",
@@ -100,6 +100,46 @@
       "program": "Programa de Afiliados BETesporte",
       "funding_model": "modelos comerciais e mídia em negociação; marca possui histórico de patrocínio esportivo",
       "url": "https://ajuda.betesporte.bet.br/"
+    },
+    {
+      "slug": "betsson",
+      "name": "Betsson",
+      "spa_authorized": true,
+      "domain": "betsson.bet.br",
+      "relationship": "contato_comercial_enviado",
+      "program": "Betsson Group Affiliates",
+      "funding_model": "Revenue Share, CPA e Híbrido; comissões variáveis por marca/mercado",
+      "url": "https://www.betssongroupaffiliates.com/br/"
+    },
+    {
+      "slug": "sportingbet",
+      "name": "Sportingbet",
+      "spa_authorized": true,
+      "domain": "sportingbet.bet.br",
+      "relationship": "contato_comercial_enviado",
+      "program": "Entain Partners",
+      "funding_model": "Revenue Share negociado por escrito; estrutura comercial sujeita ao IO/termos do Brasil",
+      "url": "https://www.entainpartners.com/"
+    },
+    {
+      "slug": "betboo",
+      "name": "Betboo",
+      "spa_authorized": true,
+      "domain": "betboo.bet.br",
+      "relationship": "contato_comercial_enviado",
+      "program": "Entain Partners",
+      "funding_model": "mesmo ecossistema Entain; Revenue Share e condições específicas para o Brasil",
+      "url": "https://www.entainpartners.com/"
+    },
+    {
+      "slug": "novibet",
+      "name": "Novibet",
+      "spa_authorized": true,
+      "domain": "novibet.bet.br",
+      "relationship": "contato_comercial_enviado",
+      "program": "Novi Affiliates",
+      "funding_model": "acordos de comissão flexíveis, tracking em tempo real e gestão de afiliados",
+      "url": "https://br.noviaffiliates.com/"
     }
   ]
 }

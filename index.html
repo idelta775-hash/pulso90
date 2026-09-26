@@ -19,7 +19,7 @@
 
 <main class="wrap">
 <section class="hero">
-  <div><div class="eyebrow">Pulso 90 · v0.7</div><h1>Esporte real.<br>Fonte identificada. Parcerias verificáveis.</h1><p>O Pulso 90 não preenche lacunas com jogos, placares, odds ou equipes inventadas. A agenda abaixo vem de fonte esportiva externa real. O bloco ao vivo consulta uma fonte real e só mostra partidas que ela identifica como em andamento.</p></div>
+  <div><div class="eyebrow">Pulso 90 · v0.8</div><h1>Esporte real.<br>Fonte identificada. Parcerias verificáveis.</h1><p>O Pulso 90 não preenche lacunas com jogos, placares, odds ou equipes inventadas. A agenda abaixo vem de fonte esportiva externa real. O bloco ao vivo consulta uma fonte real e só mostra partidas que ela identifica como em andamento.</p></div>
   <div class="notice"><b>Modelo comercial</b><br>O Pulso 90 atua como portal/editorial e publisher. Operadoras parceiras recebem o usuário em seus próprios domínios autorizados. Não recebemos depósitos nem liquidamos apostas.</div>
 </section>
 
@@ -41,7 +41,7 @@
 
 <div class="legal"><b>Publicidade e jogo responsável.</b> A presença de uma marca nesta página indica apenas que existe um programa comercial público verificado e que a operadora foi identificada como autorizada pela SPA nas fontes consultadas. Não significa que o Pulso 90 já foi aprovado como afiliado. Links de tracking/comissão só serão ativados depois da aprovação do respectivo programa. Ministério da Fazenda adverte: apostar pode causar dependência. Jogue com responsabilidade. Conteúdo destinado a maiores de 18 anos.</div>
 
-<footer class="foot">Pulso 90 · versão 0.7 · Dados esportivos externos identificados na interface. Sem dados fictícios. Sem custódia de fundos, depósitos, saques ou liquidação de apostas pelo Pulso 90.</footer>
+<footer class="foot">Pulso 90 · versão 0.8 · Dados esportivos externos identificados na interface. Sem dados fictícios. Sem custódia de fundos, depósitos, saques ou liquidação de apostas pelo Pulso 90.</footer>
 </main><script>
 const $=id=>document.getElementById(id);
 const $$=s=>[...document.querySelectorAll(s)];
@@ -91,7 +91,8 @@ async function loadPartners(){
     const data=await r.json(), spa=await sr.json(), ps=Array.isArray(data.partners)?data.partners:[];
     const verified=ps.filter(p=>spa.domains&&spa.domains[p.domain]===true);
     const statusText=p=>p.relationship==="contato_comercial_enviado"?"Contato comercial enviado; aguardando retorno.":p.relationship==="cadastro_exige_aceite_contratual"?"Cadastro disponível; envio depende do aceite contratual do titular.":"Candidatura/negociação disponível; sem alegação de parceria ativa.";
-    $("partners").innerHTML=verified.length?verified.map(p=>'<article class="partner"><span class="tag">SPA verificada · '+esc(p.domain)+'</span><h3>'+esc(p.name)+'</h3><p><b>Programa:</b> '+esc(p.program)+'</p><p>'+esc(p.funding_model)+'</p><p><b>Status Pulso 90:</b> '+esc(statusText(p))+'</p><a href="'+p.url+'" target="_blank" rel="noopener">Abrir programa oficial ↗</a></article>').join(""):'<div class="empty">Nenhum programa passou na verificação atual da SPA.</div>';
+    const authText=p=>{const d=spa.details&&spa.details[p.domain];if(!d)return "";const bits=[d.portaria,d.empresa,d.cnpj?"CNPJ "+d.cnpj:""].filter(Boolean);return bits.length?'<p><b>Autorização:</b> '+bits.map(esc).join(" · ")+'</p>':""};
+    $("partners").innerHTML=verified.length?verified.map(p=>'<article class="partner"><span class="tag">SPA verificada · '+esc(p.domain)+'</span><h3>'+esc(p.name)+'</h3><p><b>Programa:</b> '+esc(p.program)+'</p><p>'+esc(p.funding_model)+'</p>'+authText(p)+'<p><b>Status Pulso 90:</b> '+esc(statusText(p))+'</p><a href="'+p.url+'" target="_blank" rel="noopener">Abrir programa oficial ↗</a></article>').join(""):'<div class="empty">Nenhum programa passou na verificação atual da SPA.</div>';
   }catch{
     $("partners").innerHTML='<div class="empty">Não foi possível validar os programas contra a lista oficial da SPA.</div>';
   }
