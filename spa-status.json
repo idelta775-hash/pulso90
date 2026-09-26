@@ -1,11 +1,12 @@
 {
-  "checked_at": "2026-09-26T01:06:15.093Z",
+  "checked_at": "2026-09-26T01:11:32.016Z",
   "source": "https://www.gov.br/fazenda/pt-br/composicao/orgaos/secretaria-de-premios-e-apostas/transparencia-ativa-processos-de-autorizacao-de-apostas-de-quota-fixa/planilha-de-autorizacoes-1.csv/@@download/file",
   "domains": {
     "kto.bet.br": true,
     "betfair.bet.br": true,
     "betano.bet.br": true,
     "betmgm.bet.br": true,
-    "superbet.bet.br": true
+    "superbet.bet.br": true,
+    "bet365.bet.br": true
   }
 }

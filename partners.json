@@ -46,10 +46,20 @@
       "name": "Superbet",
       "spa_authorized": true,
       "domain": "superbet.bet.br",
-      "relationship": "programa_criadores",
-      "program": "SuperSocial / criadores de conteúdo",
-      "funding_model": "monetização condicionada a critérios de audiência e atividade definidos no painel",
-      "url": "https://superbet.bet.br/blog/supersocial-criadores-de-conteudo"
+      "relationship": "candidatura_disponivel",
+      "program": "Programa de afiliados + SuperSocial",
+      "funding_model": "portal de afiliados e programa de criadores; condições comerciais dependem de aprovação",
+      "url": "https://afiliados.superbet.com/"
+    },
+    {
+      "slug": "bet365",
+      "name": "bet365",
+      "spa_authorized": true,
+      "domain": "bet365.bet.br",
+      "relationship": "candidatura_disponivel",
+      "program": "bet365 Partners",
+      "funding_model": "participação nos lucros/comissões por clientes referidos; Brasil sujeito à aprovação e regras locais",
+      "url": "https://www.bet365partners.com/pt/"
     }
   ]
 }

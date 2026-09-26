@@ -53,7 +53,7 @@ function eventCard(e,isLive=false){
   const score=hasScore?esc(e.homeScore)+" – "+esc(e.awayScore):esc(e.time||e.status||"");
   const label=isLive?"● AO VIVO":"● DADO REAL";
   const meta=[e.league,e.country].filter(Boolean).map(esc).join(" · ");
-  const progress=isLive&&e.progress!==null&&e.progress!==undefined?" · "+esc(e.progress)+"'":"";
+  const progress=isLive&&e.liveText?" · "+esc(e.liveText):"";
   return '<article class="card"><div class="card-head"><span class="'+(isLive?"live":"real")+'">'+label+progress+'</span><span>'+meta+'</span></div><div class="event"><div class="teams">'+esc(e.home)+' × '+esc(e.away)+'<small>'+esc(e.date||"")+(e.status?" · status "+esc(e.status):"")+'</small></div><div class="score">'+score+'</div></div></article>';
 }
 async function loadSchedule(day=0){
@@ -72,17 +72,16 @@ async function loadSchedule(day=0){
 }
 async function loadLive(){
   try{
-    const data={available:false,source:null,events:[]};
-    const events=Array.isArray(data.events)?data.events:[];
-    if(!data.available){
-      $("liveMeta").textContent="Feed live premium ainda não autenticado";
-      $("liveEvents").innerHTML='<div class="empty">Nenhum dado ao vivo é exibido sem um provedor autenticado. Integração pronta para API-SPORTS ou TheSportsDB Premium.</div>';
-      return;
-    }
-    $("liveMeta").textContent=(data.source||"Fonte live")+" · "+(data.cadence||"tempo real")+" · atualizado "+new Date(data.updatedAt).toLocaleTimeString("pt-BR");
-    $("liveEvents").innerHTML=events.length?events.map(e=>eventCard(e,true)).join(""):'<div class="empty">O provedor está conectado, mas não retornou partidas em andamento neste momento.</div>';
+    const r=await fetch("https://sportscore.com/api/widget/matches/?sport=football&limit=50&src=pulso90");
+    const raw=await r.json(); if(!r.ok)throw new Error();
+    const events=(Array.isArray(raw.matches)?raw.matches:[]).filter(m=>String(m.status||"").toLowerCase()==="live").map(m=>({
+      home:String(m.home||""),away:String(m.away||""),homeScore:m.home_score??null,awayScore:m.away_score??null,
+      league:String(m.competition||""),country:"",status:String(m.status_text||m.status||"LIVE"),liveText:String(m.status_text||"AO VIVO")
+    }));
+    $("liveMeta").innerHTML=events.length+" jogo(s) em andamento · atualização ~60s · <a href=\"https://sportscore.com/\" rel=\"dofollow\" target=\"_blank\">Powered by SportScore ↗</a>";
+    $("liveEvents").innerHTML=events.length?events.map(e=>eventCard(e,true)).join(""):'<div class="empty">A fonte real não retornou partidas em andamento neste instante. Nenhum jogo foi inventado. <a href="https://sportscore.com/" rel="dofollow" target="_blank">Powered by SportScore ↗</a></div>';
   }catch{
-    $("liveMeta").textContent="Fonte live indisponível";
+    $("liveMeta").innerHTML='Fonte live indisponível · <a href="https://sportscore.com/" rel="dofollow" target="_blank">SportScore ↗</a>';
     $("liveEvents").innerHTML='<div class="empty">Falha ao consultar a fonte ao vivo. Nenhuma partida fictícia foi inserida.</div>';
   }
 }
@@ -98,7 +97,7 @@ async function loadPartners(){
 }
 $$(".date-btn").forEach(b=>b.addEventListener("click",()=>loadSchedule(Number(b.dataset.day)||0)));
 loadSchedule(0); loadLive(); loadPartners();
-setInterval(loadLive,120000);
+setInterval(loadLive,60000);
 </script>
 </body>
 </html>
