@@ -1,139 +1,310 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#08110e">
-<meta name="robots" content="index,follow">
-<meta name="description" content="Pulso 90 — portal de dados esportivos reais, placares ao vivo e parcerias comerciais verificadas.">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#070b09"><meta name="robots" content="index,follow">
+<meta name="description" content="Pulso 90 — esportes reais, games originais e catálogo global de conteúdo licenciado em evolução.">
 <link rel="canonical" href="https://idelta775-hash.github.io/pulso90/">
-<meta property="og:title" content="Pulso 90 — Esporte real e ao vivo">
-<meta property="og:description" content="Dados esportivos reais, placares ao vivo e programas comerciais verificados.">
+<link rel="manifest" href="site.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta property="og:title" content="Pulso 90 — Global Sports & Games Hub">
+<meta property="og:description" content="Dados esportivos reais, games originais e conteúdo global em integração licenciada.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://idelta775-hash.github.io/pulso90/">
-<title>Pulso 90 — Esporte real</title>
+<title>Pulso 90 — Global Sports & Games Hub</title>
 <style>
-:root{--bg:#07110d;--panel:#0d1a15;--panel2:#12251c;--line:#243b30;--text:#f2f7f4;--muted:#8ca095;--lime:#b8ff66;--green:#45d889;--amber:#ffca68;--red:#ff8585;--r:14px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}a{color:inherit;text-decoration:none}button{font:inherit;color:inherit}.top{position:sticky;top:0;z-index:20;background:#09140f;border-bottom:1px solid #1c3127}.bar{max-width:1500px;margin:auto;height:64px;padding:0 18px;display:flex;align-items:center;gap:14px}.brand{display:flex;align-items:center;gap:10px;font-weight:950}.mark{width:36px;height:36px;border-radius:10px;background:var(--lime);color:#07110d;display:grid;place-items:center}.nav{display:flex;gap:18px;margin-left:18px;font-size:13px;font-weight:800}.nav a:hover{color:var(--lime)}.spacer{flex:1}.pill{font-size:11px;border:1px solid #335142;border-radius:999px;padding:7px 10px;color:var(--lime)}.wrap{max-width:1500px;margin:auto;padding:14px}.hero{display:grid;grid-template-columns:1fr 300px;gap:16px;background:linear-gradient(115deg,#163a2a,#0f2019 55%,#182619);border:1px solid #2a4637;border-radius:18px;padding:24px}.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime);font-weight:900}.hero h1{font-size:34px;line-height:1.04;margin:8px 0}.hero p{color:#aec0b7;line-height:1.65;margin:0;max-width:780px}.notice{border:1px solid rgba(255,202,104,.35);background:rgba(255,202,104,.06);padding:14px;border-radius:12px;color:#edd2a1;font-size:12px;line-height:1.55}.section{margin-top:14px}.head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:9px}.head h2{font-size:18px;margin:0}.head span{font-size:11px;color:var(--muted)}.sportbar,.toolbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px}.sport-btn,.date-btn{border:1px solid #294638;background:#102019;border-radius:9px;padding:9px 12px;font-size:12px;font-weight:800;cursor:pointer}.sport-btn.active,.date-btn.active{border-color:var(--lime);color:var(--lime)}.grid{display:grid;gap:9px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}.card-head{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.05);font-size:11px;color:#89a096}.real{color:var(--green);font-weight:900}.live{color:var(--red);font-weight:900}.event{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:14px}.teams{font-size:14px;font-weight:850}.teams small{display:block;color:#83988e;font-size:11px;font-weight:600;margin-top:5px}.score{font-size:18px;font-weight:950}.empty{padding:18px;border:1px dashed #2a4639;border-radius:12px;color:#8da398;font-size:12px;line-height:1.6}.partners{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.partner{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}.partner h3{margin:0;font-size:15px}.partner p{margin:0;color:#9caf9f;font-size:11px;line-height:1.5}.tag{display:inline-flex;align-self:flex-start;font-size:10px;border:1px solid #31513f;border-radius:999px;padding:5px 7px;color:var(--green)}.partner a{margin-top:auto;border:1px solid #355746;border-radius:9px;padding:9px;text-align:center;font-size:11px;font-weight:850}.partner a:hover{border-color:var(--lime);color:var(--lime)}.legal{margin-top:14px;padding:14px;border:1px solid #3f3420;background:#18160f;border-radius:12px;color:#d7c597;font-size:11px;line-height:1.6}.foot{padding:22px 2px;color:#708379;font-size:10px;line-height:1.6}@media(max-width:1050px){.partners{grid-template-columns:repeat(2,1fr)}}@media(max-width:760px){.nav{display:none}.pill{display:none}.bar{padding:0 12px}.wrap{padding:9px}.hero{grid-template-columns:1fr;padding:17px}.hero h1{font-size:26px}.partners{grid-template-columns:1fr}.event{grid-template-columns:1fr}.score{font-size:16px}.head{align-items:start;flex-direction:column}}
+:root{--bg:#060a08;--panel:#0c1511;--panel2:#101f18;--line:#20382d;--txt:#f4f8f6;--mut:#8fa198;--lime:#b8ff66;--green:#46dc8d;--gold:#ffd36b;--red:#ff7373;--cyan:#69e8ff;--violet:#b78bff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 20% -10%,#1a3f2a 0,#070b09 32%,#050806 70%);color:var(--txt);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden}a{color:inherit;text-decoration:none}button,input{font:inherit;color:inherit}.shell{max-width:1500px;margin:auto;padding:0 14px}
+.top{position:sticky;top:0;z-index:50;background:rgba(6,10,8,.92);backdrop-filter:blur(16px);border-bottom:1px solid #193026}.bar{height:68px;display:flex;align-items:center;gap:14px}.brand{display:flex;align-items:center;gap:10px;font-weight:950;letter-spacing:.02em}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--lime),#65ffae);color:#07100b;display:grid;place-items:center;box-shadow:0 0 28px rgba(184,255,102,.22)}.nav{display:flex;gap:17px;margin-left:12px;font-size:12px;font-weight:850}.nav a:hover{color:var(--lime)}.spacer{flex:1}.age{font-size:10px;border:1px solid #315044;border-radius:999px;padding:7px 9px;color:#b5c5bc}.search{width:min(330px,28vw);position:relative}.search input{width:100%;background:#0d1813;border:1px solid #29483a;border-radius:11px;padding:10px 13px 10px 36px;outline:0;font-size:12px}.search input:focus{border-color:var(--lime)}.search:before{content:"⌕";position:absolute;left:12px;top:8px;color:#7e958a;font-size:18px}.lang{background:#0d1813;border:1px solid #29483a;border-radius:9px;padding:8px 7px;font-size:10px;color:#c8d5ce;outline:0}.lang:focus{border-color:var(--lime)}
+.hero{margin-top:14px;display:grid;grid-template-columns:1.45fr .75fr;gap:12px}.hero-main{min-height:290px;border:1px solid #31513f;border-radius:20px;padding:28px;position:relative;overflow:hidden;background:linear-gradient(115deg,#173923 0,#0f1d16 48%,#2a1836 100%)}.hero-main:before,.hero-main:after{content:"";position:absolute;border-radius:50%;filter:blur(3px);opacity:.45;animation:float 7s ease-in-out infinite}.hero-main:before{width:260px;height:260px;background:#9eff5a;right:-80px;top:-100px}.hero-main:after{width:180px;height:180px;background:#8b60ff;right:130px;bottom:-100px;animation-delay:-3s}.hero-copy{position:relative;z-index:2;max-width:760px}.ey{font-size:10px;text-transform:uppercase;letter-spacing:.15em;font-weight:950;color:var(--lime)}.hero h1{font-size:44px;line-height:.98;margin:10px 0 12px}.hero p{font-size:13px;line-height:1.65;color:#b7c6be;max-width:700px}.cta-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.cta{border:1px solid #426a53;border-radius:10px;padding:11px 14px;font-size:11px;font-weight:900;background:#13271c;cursor:pointer}.cta.primary{background:var(--lime);color:#07100b;border-color:var(--lime)}.hero-side{display:grid;gap:10px}.side-card{border:1px solid #263f34;border-radius:16px;background:linear-gradient(145deg,#0e1a15,#151f18);padding:16px;position:relative;overflow:hidden}.side-card b{font-size:14px}.side-card p{font-size:11px;color:#94a79d;line-height:1.5;margin:6px 0}.pulse{display:inline-flex;gap:5px;align-items:center;font-size:10px;color:var(--green);font-weight:900}.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(70,220,141,.6);animation:pulse 2s infinite}
+.quick{display:flex;gap:7px;overflow:auto;padding:11px 0 2px;scrollbar-width:none}.quick::-webkit-scrollbar{display:none}.chip{white-space:nowrap;border:1px solid #294739;background:#0e1914;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:850;cursor:pointer}.chip.active,.chip:hover{border-color:var(--lime);color:var(--lime)}
+.section{margin-top:18px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:9px}.section-head h2{margin:0;font-size:20px}.section-head span{font-size:10px;color:var(--mut)}.rail{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(180px,220px);gap:9px;overflow:auto;padding-bottom:5px;scrollbar-width:thin;scrollbar-color:#355345 transparent}
+.game-card{border:1px solid #223a2f;background:linear-gradient(160deg,#0d1712,#0a100d);border-radius:15px;overflow:hidden;min-height:230px;position:relative;transition:.2s transform,.2s border-color}.game-card:hover{transform:translateY(-3px);border-color:#4b765e}.art{height:118px;display:grid;place-items:center;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--c1,#213d2b),var(--c2,#17201b))}.art:before{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.08);left:-35px;top:-30px}.art:after{content:"";position:absolute;width:90px;height:90px;border:20px solid rgba(255,255,255,.04);border-radius:50%;right:-40px;bottom:-55px}.icon{font-size:52px;z-index:2;filter:drop-shadow(0 8px 20px rgba(0,0,0,.4));animation:bob 3s ease-in-out infinite}.rank{position:absolute;left:9px;top:9px;background:#06100bce;border:1px solid #40634f;border-radius:8px;padding:5px 7px;font-size:9px;font-weight:950;color:var(--lime);z-index:3}.badge{position:absolute;right:9px;top:9px;background:#06100bce;border:1px solid #3c5449;border-radius:999px;padding:5px 7px;font-size:8px;font-weight:850;color:#c2d2ca;z-index:3}.fav{position:absolute;right:9px;bottom:9px;z-index:4;width:29px;height:29px;border-radius:50%;border:1px solid #526b60;background:#07110ccc;display:grid;place-items:center;font-size:14px;cursor:pointer}.fav.on{color:var(--gold);border-color:var(--gold);background:#251e0bde}.gbody{padding:11px}.gtitle{font-size:13px;font-weight:900}.provider{font-size:9px;color:#80958a;margin-top:3px}.gmeta{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}.tag{font-size:8px;border:1px solid #29463a;border-radius:999px;padding:4px 6px;color:#9fb1a7}.action{margin-top:9px;width:100%;border:1px solid #345643;background:#12241a;border-radius:9px;padding:8px;font-size:9px;font-weight:900;cursor:pointer}.action:hover{border-color:var(--lime);color:var(--lime)}.action.play{background:linear-gradient(90deg,#9cff61,#60eaa0);color:#07100b;border:0}
+.originals{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.original{border:1px solid #2d4a3c;border-radius:16px;padding:17px;min-height:170px;position:relative;overflow:hidden}.original h3{font-size:17px;margin:4px 0}.original p{font-size:10px;line-height:1.55;color:#9eb0a7;max-width:72%}.original .orb{position:absolute;right:-10px;bottom:-15px;font-size:72px;filter:drop-shadow(0 12px 30px rgba(0,0,0,.35));animation:bob 4s ease-in-out infinite}.o1{background:linear-gradient(135deg,#202a12,#4f3515)}.o2{background:linear-gradient(135deg,#101c31,#241438)}.o3{background:linear-gradient(135deg,#123127,#202215)}
+.provider-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:7px}.prov{border:1px solid #253e33;background:#0c1611;border-radius:11px;padding:11px;text-align:center}.prov b{font-size:11px}.prov small{display:block;color:#80958a;font-size:8px;margin-top:4px}.partner-rail{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(190px,230px);gap:8px;overflow:auto;padding-bottom:5px}.op-card{border:1px solid #243e32;background:#0c1611;border-radius:13px;padding:12px;min-height:155px}.op-card h3{margin:3px 0 6px;font-size:14px}.op-card p{font-size:9px;line-height:1.5;color:#94a79d;margin:5px 0}.op-card a{display:inline-block;margin-top:6px;color:var(--lime);font-size:9px;font-weight:850}.verified{font-size:8px;color:var(--green);font-weight:900}
+.sports{border:1px solid #233c31;border-radius:16px;background:#0b1410;padding:13px}.sportbar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px}.sport-btn{border:1px solid #29483a;background:#101d17;border-radius:9px;padding:8px 10px;font-size:10px;font-weight:850;cursor:pointer}.sport-btn.active{color:var(--lime);border-color:var(--lime)}.live-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.live-card{border:1px solid #20372d;border-radius:11px;padding:11px;background:#0e1914}.live-card .league{font-size:8px;color:#84998e}.live-card .teams{font-size:11px;font-weight:850;margin-top:6px}.live-card .score{font-size:18px;color:var(--gold);font-weight:950;margin-top:5px}.live-card .status{font-size:8px;color:var(--red);margin-top:3px}
+.club-grid{display:grid;grid-template-columns:1.1fr repeat(3,1fr);gap:8px}.club-main,.mission{border:1px solid #263f34;background:#0c1611;border-radius:13px;padding:13px}.club-main b{font-size:18px;color:var(--lime)}.club-main p,.mission p{font-size:10px;color:#95a89e;line-height:1.55}.mission strong{display:block;font-size:12px}.progress{height:6px;border-radius:999px;background:#17251f;overflow:hidden;margin-top:9px}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--lime),var(--green));width:0}.notice{margin:18px 0;border:1px solid #4b4128;background:#17140e;border-radius:12px;padding:12px;color:#d7c696;font-size:10px;line-height:1.6}.footer{padding:18px 0 82px;color:#70847a;font-size:9px;line-height:1.6}.mobile-nav{display:none}
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:100;padding:16px}.modal.open{display:flex}.modal-card{max-width:520px;width:100%;border:1px solid #355847;background:#0d1712;border-radius:17px;padding:18px}.modal-card h3{margin:0}.modal-card p{font-size:11px;color:#a4b5ac;line-height:1.6}.close{float:right;border:0;background:transparent;font-size:20px;cursor:pointer}
+@keyframes float{50%{transform:translateY(18px) scale(1.04)}}@keyframes bob{50%{transform:translateY(-6px) rotate(2deg)}}@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(70,220,141,0)}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.hero-main:before,.hero-main:after,.icon,.original .orb,.dot{animation:none!important}.game-card{transition:none}}
+@media(max-width:1000px){.nav{display:none}.hero{grid-template-columns:1fr}.hero-side{grid-template-columns:1fr 1fr}.provider-strip{grid-template-columns:repeat(3,1fr)}.live-grid{grid-template-columns:1fr 1fr}.club-grid{grid-template-columns:1fr 1fr}.search{width:38vw}}
+@media(max-width:680px){.shell{padding:0 9px}.bar{height:60px}.age{display:none}.search{width:45vw}.hero-main{padding:20px;min-height:260px}.hero h1{font-size:33px}.hero-side{grid-template-columns:1fr}.originals{grid-template-columns:1fr}.provider-strip{grid-template-columns:repeat(2,1fr)}.live-grid{grid-template-columns:1fr}.club-grid{grid-template-columns:1fr}.rail{grid-auto-columns:72vw}.mobile-nav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;bottom:0;left:0;right:0;background:#08100deF;border-top:1px solid #22372e;z-index:60}.mobile-nav a{padding:10px 3px;text-align:center;font-size:8px;color:#a7b9b0}.mobile-nav b{display:block;font-size:17px}.footer{padding-bottom:90px}}
 </style>
-</head><body>
-<header class="top"><div class="bar">
-  <a class="brand" href="#"><span class="mark">90</span><span>PULSO 90</span></a>
-  <nav class="nav"><a href="#ao-vivo">Ao vivo</a><a href="#agenda">Agenda real</a><a href="#parcerias">Parcerias</a><a href="media-kit.html">Media Kit</a></nav>
-  <div class="spacer"></div><span class="pill">+18 · DADOS REAIS · SEM CONTEÚDO FICTÍCIO</span>
+</head><body><header class="top"><div class="shell bar">
+<a class="brand" href="#"><span class="logo">90</span><span>PULSO 90</span></a>
+<nav class="nav"><a href="#em-alta">Em alta</a><a href="#originais">Originais</a><a href="#catalogo">Cassino</a><a href="#esportes">Esportes</a><a href="games/providers.html">Provedores</a><a href="media-kit.html">Media Kit</a></nav>
+<div class="spacer"></div><div class="search"><input id="gameSearch" placeholder="Buscar jogos ou provedores…"></div><select id="langSelect" class="lang" aria-label="Idioma"><option value="pt">PT</option><option value="en">EN</option><option value="es">ES</option></select><span class="age">18+ · REAL DATA</span>
 </div></header>
 
-<main class="wrap">
+<main class="shell">
 <section class="hero">
-  <div><div class="eyebrow">Pulso 90 · v0.9</div><h1>Esporte real.<br>Fonte identificada. Parcerias verificáveis.</h1><p>O Pulso 90 não preenche lacunas com jogos, placares, odds ou equipes inventadas. A agenda abaixo vem de fonte esportiva externa real. O bloco ao vivo consulta uma fonte real e só mostra partidas que ela identifica como em andamento.</p></div>
-  <div class="notice"><b>Modelo comercial</b><br>O Pulso 90 atua como portal/editorial e publisher. Operadoras parceiras recebem o usuário em seus próprios domínios autorizados. Não recebemos depósitos nem liquidamos apostas.</div>
+<div class="hero-main">
+  <div class="hero-copy"><div class="ey">GLOBAL SPORTS & GAMES HUB · BETA</div><h1>O mundo do jogo<br>em uma única pulsação.</h1><p>Esportes reais ao vivo, originais Pulso 90 com matemática auditável e uma vitrine global dos títulos que dominam os maiores lobbies. Conteúdo de terceiros só entra jogável quando houver licença e integração oficial.</p>
+  <div class="cta-row"><a class="cta primary" href="#em-alta">Explorar os mais famosos</a><a class="cta" href="games/">Jogar Originais DEMO</a><a class="cta" href="#esportes">Ver esportes ao vivo</a></div></div>
+</div>
+<div class="hero-side">
+  <article class="side-card"><span class="pulse"><i class="dot"></i> AO VIVO AGORA</span><p id="heroLive">Consultando jogos reais em andamento…</p><a class="cta" href="#esportes">Abrir Match Center</a></article>
+  <article class="side-card"><b>⚡ Pulso Originals</b><p>Três motores próprios já funcionam em laboratório com CSPRNG no servidor, matemática fixa e auditoria por hash.</p><a class="cta" href="games/">Entrar no Games Lab</a></article>
+</div>
 </section>
 
-<div class="sportbar" id="sportbar" aria-label="Esportes reais"><button class="sport-btn active" type="button" data-sport="football">⚽ Futebol</button><button class="sport-btn" type="button" data-sport="basketball">🏀 Basquete</button><button class="sport-btn" type="button" data-sport="tennis">🎾 Tênis</button><button class="sport-btn" type="button" data-sport="cricket">🏏 Cricket</button></div>
+<div class="quick" id="quickFilters">
+<button class="chip active" data-filter="all">🔥 Em alta</button>
+<button class="chip" data-filter="slot">🎰 Slots</button>
+<button class="chip" data-filter="crash">🚀 Crash</button>
+<button class="chip" data-filter="live">🎥 Cassino ao vivo</button>
+<button class="chip" data-filter="show">🎡 Game Shows</button>
+<button class="chip" data-filter="table">🃏 Mesas</button>
+<button class="chip" data-filter="original">⚡ Originais Pulso 90</button>
+<button class="chip" data-filter="favorite">★ Favoritos</button>
+</div>
 
-<section class="section" id="ao-vivo">
-  <div class="head"><h2>🔴 Ao vivo</h2><span id="liveMeta">Verificando provedor live…</span></div>
-  <div class="grid" id="liveEvents"><div class="empty">Consultando a fonte real de placares ao vivo. Se ela não retornar partidas em andamento, nenhuma partida será inventada.</div></div>
+<section class="section" id="em-alta">
+<div class="section-head"><div><div class="ey">DISCOVERY ENGINE</div><h2>Mais famosos & mais vistos</h2></div><span>Seleção baseada em recorrência nos principais lobbies pesquisados · sem ranking inventado</span></div>
+<div class="rail" id="trendingRail"></div>
 </section>
 
-<section class="section" id="agenda">
-  <div class="head"><h2>Agenda e resultados reais</h2><span id="scheduleMeta">Carregando fonte…</span></div>
-  <div class="toolbar"><button class="date-btn" type="button" data-day="-1">Ontem</button><button class="date-btn active" type="button" data-day="0">Hoje</button><button class="date-btn" type="button" data-day="1">Amanhã</button></div>
-  <div class="grid" id="scheduleEvents"><div class="empty">Carregando eventos reais…</div></div>
+<section class="section" id="continue">
+<div class="section-head"><div><div class="ey">RECENT ACTIVITY</div><h2>Continuar explorando</h2></div><span>histórico local deste navegador</span></div>
+<div class="rail" id="recentRail"></div>
 </section>
 
-<section class="section" id="parcerias">
-  <div class="head"><h2>🤝 Programas comerciais verificados</h2><span>Operadoras autorizadas pela SPA · <a href="media-kit.html">ver Media Kit comercial ↗</a></span></div>
-  <div class="partners" id="partners"><div class="empty">Carregando programas de parceria…</div></div>
+<section class="section" id="seu-pulso">
+<div class="section-head"><div><div class="ey">LOCAL DISCOVERY AI</div><h2>Seu Pulso</h2></div><span id="personalMeta">Recomendações privadas neste navegador</span></div>
+<div class="rail" id="personalRail"></div>
 </section>
 
-<div class="legal"><b>Publicidade e jogo responsável.</b> A presença de uma marca nesta página indica apenas que existe um programa comercial público verificado e que a operadora foi identificada como autorizada pela SPA nas fontes consultadas. Não significa que o Pulso 90 já foi aprovado como afiliado. Links de tracking/comissão só serão ativados depois da aprovação do respectivo programa. Ministério da Fazenda adverte: apostar pode causar dependência. Jogue com responsabilidade. Conteúdo destinado a maiores de 18 anos.</div>
+<section class="section" id="originais">
+<div class="section-head"><div><div class="ey">PULSO 90 ORIGINALS</div><h2>Nossa propriedade intelectual</h2></div><span>DEMO ONLY · motores próprios</span></div>
+<div class="originals">
+<a class="original o1" href="games/"><div class="ey">SLOT ORIGINAL</div><h3>Pulso Tiger</h3><p>RTP teórico 96%. Matemática fixa, CSPRNG no servidor e trilha de auditoria.</p><span class="orb">🐯</span></a>
+<a class="original o2" href="games/"><div class="ey">CRASH ORIGINAL</div><h3>Pulso Launch</h3><p>Retorno teórico 97%. Resultado gerado no RGS demo, não no navegador.</p><span class="orb">🚀</span></a>
+<a class="original o3" href="games/"><div class="ey">VIRTUAL ORIGINAL</div><h3>Pulso Goal Duel</h3><p>Três resultados, quota fixa e retorno teórico ~95,9% por seleção.</p><span class="orb">⚽</span></a>
+</div>
+</section>
 
-<footer class="foot">Pulso 90 · versão 0.9 · Dados esportivos externos identificados na interface. Sem dados fictícios. Sem custódia de fundos, depósitos, saques ou liquidação de apostas pelo Pulso 90.</footer>
-</main><script>
-const $=id=>document.getElementById(id);
-const $$=s=>[...document.querySelectorAll(s)];
-const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
-const sports={football:{name:"Futebol",icon:"⚽"},basketball:{name:"Basquete",icon:"🏀"},tennis:{name:"Tênis",icon:"🎾"},cricket:{name:"Cricket",icon:"🏏"}};
-let currentSport="football",currentDay=0;
+<section class="section" id="pulso-club">
+<div class="section-head"><div><div class="ey">PULSO CLUB</div><h2>Benefícios sem mexer na sorte</h2></div><span>pontos, níveis e missões demo · separados do RNG</span></div>
+<div class="club-grid">
+  <article class="club-main"><div class="ey">SEU STATUS</div><b id="clubTier">EXPLORER</b><p id="clubText">Entre no Games Lab para iniciar sua sessão demo e acumular Pontos Pulso.</p><a class="cta" href="games/">Abrir Games Lab</a></article>
+  <article class="mission"><strong>🔎 Explorador</strong><p>Abrir 5 conteúdos diferentes no lobby.</p><div class="progress"><i id="missionExplore"></i></div><p id="missionExploreText">0/5</p></article>
+  <article class="mission"><strong>⚡ Originalista</strong><p>Completar 10 rodadas demo nos Originais Pulso 90.</p><div class="progress"><i id="missionRounds"></i></div><p id="missionRoundsText">0/10</p></article>
+  <article class="mission"><strong>🌍 Descobridor</strong><p>Explorar pelo menos 3 categorias diferentes.</p><div class="progress"><i id="missionTypes"></i></div><p id="missionTypesText">0/3</p></article>
+</div>
+</section>
 
-function localDate(offset=0){
-  const d=new Date();d.setDate(d.getDate()+offset);
-  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+<section class="section" id="catalogo">
+<div class="section-head"><div><div class="ey">GLOBAL CATALOG</div><h2>Lobby inteligente</h2></div><span id="catalogMeta">Carregando catálogo…</span></div>
+<div class="rail" id="catalogRail"></div>
+</section>
+
+<section class="section" id="providers-section">
+<div class="section-head"><div><div class="ey">PROVIDER NETWORK</div><h2>Ecossistema de conteúdo</h2></div><a href="games/providers.html">Ver negociação B2B →</a></div>
+<div class="provider-strip">
+<div class="prov"><b>PG SOFT</b><small>Fortune Series · negociação iniciada</small></div>
+<div class="prov"><b>SPRIBE</b><small>Aviator · negociação iniciada</small></div>
+<div class="prov"><b>Evolution</b><small>Live / Game Shows · negociação iniciada</small></div>
+<div class="prov"><b>Pragmatic Play</b><small>Slots / Live · contato enviado</small></div>
+<div class="prov"><b>SmartSoft</b><small>JetX · contato enviado</small></div>
+<div class="prov"><b>Games Global</b><small>Catálogo global · prospecção</small></div>
+<div class="prov"><b>Play’n GO</b><small>Slots globais · contato enviado</small></div>
+</div>
+</section>
+
+<section class="section" id="operadores">
+<div class="section-head"><div><div class="ey">COMMERCIAL DISTRIBUTION</div><h2>Operadores verificados & parcerias</h2></div><span id="partnerMeta">validando contra a SPA…</span></div>
+<div class="partner-rail" id="partnerRail"><article class="op-card">Carregando operadores verificados…</article></div>
+</section>
+
+<section class="section" id="esportes">
+<div class="section-head"><div><div class="ey">REAL SPORTS</div><h2>Match Center ao vivo</h2></div><span id="sportsMeta">Atualização real via SportScore</span></div>
+<div class="sports">
+<div class="sportbar">
+<button class="sport-btn active" data-sport="football">⚽ Futebol</button>
+<button class="sport-btn" data-sport="basketball">🏀 Basquete</button>
+<button class="sport-btn" data-sport="tennis">🎾 Tênis</button>
+<button class="sport-btn" data-sport="cricket">🏏 Cricket</button>
+</div>
+<div class="live-grid" id="liveGrid"><div class="live-card">Carregando eventos reais…</div></div>
+</div>
+</section>
+
+<div class="notice"><b>Transparência Pulso 90.</b> Fortune Tiger, Fortune Rabbit, Fortune Dragon, Fortune Ox, Fortune Mouse, Aviator, JetX, Gates of Olympus, Sweet Bonanza, Big Bass, Crazy Time, Football Studio, Bac Bo, Lightning Roulette e demais títulos de terceiros são marcas/conteúdos de seus respectivos provedores. A presença na vitrine é editorial e de descoberta; não significa integração ativa ou licença concedida ao Pulso 90. Jogos próprios permanecem DEMO e sem valor monetário.</div>
+
+<footer class="footer">Pulso 90 · Global Sports & Games Hub · Dados esportivos reais. Games próprios em laboratório. Conteúdo de terceiros sujeito a licença, certificação e integração com operador autorizado. 18+. Jogue com responsabilidade. Aposta não é investimento.</footer>
+</main>
+
+<nav class="mobile-nav"><a href="#em-alta"><b>🔥</b>Em alta</a><a href="#catalogo"><b>🎰</b>Games</a><a href="games/"><b>⚡</b>Originais</a><a href="#esportes"><b>⚽</b>Esportes</a><a href="games/providers.html"><b>🤝</b>Provedores</a></nav>
+
+<div class="modal" id="gameModal"><div class="modal-card"><button class="close" id="modalClose">×</button><div class="ey" id="modalProvider"></div><h3 id="modalTitle"></h3><p id="modalText"></p><div class="gmeta" id="modalTags"></div><div class="cta-row" id="modalActions"></div></div></div><script>
+const $=id=>document.getElementById(id), $$=s=>[...document.querySelectorAll(s)];
+let RGS_BASE="";
+async function loadRuntimeConfig(){try{const r=await fetch("runtime-config.json",{cache:"no-store"});if(r.ok){const c=await r.json();RGS_BASE=String(c.rgs_base||"").replace(/\/$/,"")}}catch{RGS_BASE=""}}
+function apiUrl(path){return RGS_BASE?RGS_BASE+path:path}
+const LANG_KEY="pulso90-lang-v1";
+let currentLang=localStorage.getItem(LANG_KEY)||((navigator.language||"pt").toLowerCase().startsWith("es")?"es":(navigator.language||"pt").toLowerCase().startsWith("en")?"en":"pt");
+const UI={
+ pt:{nav:["Em alta","Originais","Cassino","Esportes","Provedores","Media Kit"],search:"Buscar jogos ou provedores…",hero:"O mundo do jogo<br>em uma única pulsação.",heroText:"Esportes reais ao vivo, originais Pulso 90 com matemática auditável e uma vitrine global dos títulos que dominam os maiores lobbies. Conteúdo de terceiros só entra jogável quando houver licença e integração oficial.",cta:["Explorar os mais famosos","Jogar Originais DEMO","Ver esportes ao vivo"],chips:["🔥 Em alta","🎰 Slots","🚀 Crash","🎥 Cassino ao vivo","🎡 Game Shows","🃏 Mesas","⚡ Originais Pulso 90","★ Favoritos"],sections:["Mais famosos & mais vistos","Continuar explorando","Seu Pulso","Nossa propriedade intelectual","Benefícios sem mexer na sorte","Lobby inteligente","Ecossistema de conteúdo","Operadores verificados & parcerias","Match Center ao vivo"],mobile:["Em alta","Games","Originais","Esportes","Provedores"]},
+ en:{nav:["Trending","Originals","Casino","Sports","Providers","Media Kit"],search:"Search games or providers…",hero:"The world of play<br>in a single pulse.",heroText:"Real live sports, Pulso 90 originals with auditable math, and a global showcase of titles seen across leading lobbies. Third-party content becomes playable only after official licensing and integration.",cta:["Explore famous titles","Play Originals DEMO","See live sports"],chips:["🔥 Trending","🎰 Slots","🚀 Crash","🎥 Live Casino","🎡 Game Shows","🃏 Tables","⚡ Pulso 90 Originals","★ Favorites"],sections:["Famous & trending","Continue exploring","Your Pulse","Our intellectual property","Benefits without changing the odds","Smart lobby","Content ecosystem","Verified operators & partnerships","Live Match Center"],mobile:["Trending","Games","Originals","Sports","Providers"]},
+ es:{nav:["Tendencias","Originales","Casino","Deportes","Proveedores","Media Kit"],search:"Buscar juegos o proveedores…",hero:"El mundo del juego<br>en un solo pulso.",heroText:"Deportes reales en vivo, originales Pulso 90 con matemática auditable y una vitrina global de los títulos presentes en grandes lobbies. El contenido de terceros solo será jugable tras licencia e integración oficial.",cta:["Explorar títulos famosos","Jugar Originales DEMO","Ver deportes en vivo"],chips:["🔥 Tendencias","🎰 Slots","🚀 Crash","🎥 Casino en vivo","🎡 Game Shows","🃏 Mesas","⚡ Originales Pulso 90","★ Favoritos"],sections:["Famosos y tendencias","Seguir explorando","Tu Pulso","Nuestra propiedad intelectual","Beneficios sin alterar la suerte","Lobby inteligente","Ecosistema de contenido","Operadores verificados y alianzas","Match Center en vivo"],mobile:["Tendencias","Games","Originales","Deportes","Proveedores"]}
+};
+function applyLang(lang){
+ currentLang=UI[lang]?lang:"pt";localStorage.setItem(LANG_KEY,currentLang);document.documentElement.lang=currentLang==="pt"?"pt-BR":currentLang;
+ const t=UI[currentLang],nav=$$(".nav a"),chips=$$(".chip"),mobile=$$(".mobile-nav a");
+ nav.forEach((e,i)=>{if(t.nav[i])e.textContent=t.nav[i]});
+ $("gameSearch").placeholder=t.search;
+ const hc=document.querySelector(".hero-copy");hc.querySelector("h1").innerHTML=t.hero;hc.querySelector("p").textContent=t.heroText;
+ [...hc.querySelectorAll(".cta")].forEach((e,i)=>{if(t.cta[i])e.textContent=t.cta[i]});
+ chips.forEach((e,i)=>{if(t.chips[i])e.textContent=t.chips[i]});
+ const sels=["#em-alta h2","#continue h2","#seu-pulso h2","#originais h2","#pulso-club h2","#catalogo h2","#providers-section h2","#operadores h2","#esportes h2"];
+ sels.forEach((s,i)=>{const e=document.querySelector(s);if(e&&t.sections[i])e.textContent=t.sections[i]});
+ mobile.forEach((e,i)=>{const b=e.querySelector("b");e.childNodes[e.childNodes.length-1].textContent=t.mobile[i]||""});
+ $("langSelect").value=currentLang;
 }
-function brDate(v){const [y,m,d]=String(v||"").split("-");return y&&m&&d?d+"/"+m+"/"+y:v}
-function formatTime(v){
-  if(!v)return "";
-  const d=new Date(v);
-  return Number.isNaN(d.getTime())?String(v):d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+const games=[
+{id:"fortune-tiger",title:"Fortune Tiger",provider:"PG SOFT",type:"slot",icon:"🐯",c1:"#694012",c2:"#bf7920",tags:["Fortune Series","Brasil","RTP 96,81%"],status:"Licenciamento em negociação"},
+{id:"aviator",title:"Aviator",provider:"SPRIBE",type:"crash",icon:"✈️",c1:"#40161b",c2:"#b62b38",tags:["Crash","Global","RTP 97%"],status:"Licenciamento em negociação"},
+{id:"fortune-rabbit",title:"Fortune Rabbit",provider:"PG SOFT",type:"slot",icon:"🐰",c1:"#762c45",c2:"#ce6d76",tags:["Fortune Series","Top lobby"],status:"Licenciamento em negociação"},
+{id:"fortune-dragon",title:"Fortune Dragon",provider:"PG SOFT",type:"slot",icon:"🐲",c1:"#5b1818",c2:"#d06328",tags:["Fortune Series","Top lobby"],status:"Licenciamento em negociação"},
+{id:"gates-olympus",title:"Gates of Olympus 1000",provider:"Pragmatic Play",type:"slot",icon:"⚡",c1:"#29337a",c2:"#7a46b9",tags:["Slot","Popular"],status:"Contato B2B enviado"},
+{id:"crazy-time",title:"Crazy Time",provider:"Evolution",type:"show",icon:"🎡",c1:"#5a2548",c2:"#bd5f7e",tags:["Game Show","Ao vivo"],status:"Licenciamento em negociação"},
+{id:"football-studio",title:"Football Studio",provider:"Evolution",type:"live",icon:"⚽",c1:"#143d29",c2:"#24935b",tags:["Ao vivo","Futebol"],status:"Licenciamento em negociação"},
+{id:"bac-bo",title:"Bac Bo",provider:"Evolution",type:"table",icon:"🎲",c1:"#3a2121",c2:"#8d4c3c",tags:["Ao vivo","Mesa"],status:"Licenciamento em negociação"},
+{id:"fortune-ox",title:"Fortune Ox",provider:"PG SOFT",type:"slot",icon:"🐂",c1:"#4d241a",c2:"#9b5c32",tags:["Fortune Series","Top lobby"],status:"Licenciamento em negociação"},
+{id:"jetx",title:"JetX",provider:"SmartSoft",type:"crash",icon:"🚀",c1:"#102640",c2:"#275f9d",tags:["Crash","Global"],status:"Contato B2B enviado"},
+{id:"sweet-bonanza",title:"Sweet Bonanza",provider:"Pragmatic Play",type:"slot",icon:"🍭",c1:"#632c71",c2:"#dc6aa0",tags:["Slot","Popular"],status:"Contato B2B enviado"},
+{id:"big-bass",title:"Big Bass Splash",provider:"Pragmatic Play",type:"slot",icon:"🎣",c1:"#0c4050",c2:"#2c8a8e",tags:["Slot","Popular"],status:"Contato B2B enviado"},
+{id:"lightning-roulette",title:"Lightning Roulette",provider:"Evolution",type:"live",icon:"⚡",c1:"#272157",c2:"#8d69d4",tags:["Roleta","Ao vivo"],status:"Licenciamento em negociação"},
+{id:"monopoly-live",title:"Monopoly Live",provider:"Evolution",type:"show",icon:"🎩",c1:"#1e4c35",c2:"#45a86e",tags:["Game Show","Ao vivo"],status:"Licenciamento em negociação"},
+{id:"mega-wheel",title:"Mega Wheel",provider:"Pragmatic Play",type:"show",icon:"🎯",c1:"#653524",c2:"#d48642",tags:["Game Show","Ao vivo"],status:"Contato B2B enviado"},
+{id:"fortune-mouse",title:"Fortune Mouse",provider:"PG SOFT",type:"slot",icon:"🐭",c1:"#4b1c37",c2:"#ae4968",tags:["Fortune Series","Popular"],status:"Licenciamento em negociação"},
+{id:"mines",title:"Mines",provider:"Catálogo parceiro",type:"crash",icon:"💣",c1:"#24312a",c2:"#536d5e",tags:["Instant","Crash"],status:"Fornecedor específico a definir"},
+{id:"roleta-br",title:"Roleta Brasileira",provider:"Live providers",type:"live",icon:"🎯",c1:"#14402d",c2:"#2b9460",tags:["Brasil","Ao vivo"],status:"Integração futura por provedor"},
+{id:"tigre-sortudo",title:"Tigre Sortudo",provider:"Pragmatic Play",type:"slot",icon:"🐅",c1:"#6c4015",c2:"#b86e1f",tags:["Slot","Brasil","Popular"],status:"Contato B2B enviado"},
+{id:"gates-super",title:"Gates of Olympus Super Scatter",provider:"Pragmatic Play",type:"slot",icon:"🏛️",c1:"#303070",c2:"#7851b2",tags:["Slot","Popular"],status:"Contato B2B enviado"},
+{id:"spaceman",title:"Spaceman",provider:"Pragmatic Play",type:"crash",icon:"👨‍🚀",c1:"#16294d",c2:"#4b4fa0",tags:["Crash","Global"],status:"Contato B2B enviado"},
+{id:"high-flyer",title:"High Flyer",provider:"Pragmatic Play",type:"crash",icon:"🛩️",c1:"#1c3b55",c2:"#477ea2",tags:["Crash","Popular"],status:"Contato B2B enviado"},
+{id:"pinata-wins",title:"Pinata Wins",provider:"PG SOFT",type:"slot",icon:"🪅",c1:"#6e3153",c2:"#c95c78",tags:["Slot","Top lobby"],status:"Licenciamento em negociação"},
+{id:"cash-mania",title:"Cash Mania",provider:"PG SOFT",type:"slot",icon:"💰",c1:"#34401b",c2:"#7c8d24",tags:["Slot","Top lobby"],status:"Licenciamento em negociação"},
+{id:"mega-roulette",title:"Mega Roleta Brasileira",provider:"Pragmatic Play",type:"live",icon:"🎯",c1:"#173f2b",c2:"#3b9a68",tags:["Brasil","Ao vivo"],status:"Contato B2B enviado"},
+{id:"sweet-candyland",title:"Sweet Bonanza CandyLand",provider:"Pragmatic Play",type:"show",icon:"🍬",c1:"#603663",c2:"#cf6f91",tags:["Game Show","Ao vivo"],status:"Contato B2B enviado"},
+{id:"lightning-storm",title:"Lightning Storm",provider:"Evolution",type:"show",icon:"🌩️",c1:"#25225d",c2:"#6650b5",tags:["Game Show","Ao vivo"],status:"Licenciamento em negociação"},
+{id:"funky-time",title:"Funky Time",provider:"Evolution",type:"show",icon:"🪩",c1:"#55234a",c2:"#bd4c91",tags:["Game Show","Ao vivo"],status:"Licenciamento em negociação"},
+{id:"mega-ball",title:"Mega Ball",provider:"Evolution",type:"live",icon:"🔮",c1:"#283d57",c2:"#58749d",tags:["Bingo","Ao vivo"],status:"Licenciamento em negociação"},
+{id:"blackjack-live",title:"Blackjack Clássico Ao Vivo",provider:"Live providers",type:"table",icon:"🃏",c1:"#163b26",c2:"#3a8658",tags:["Mesa","Ao vivo"],status:"Integração futura por provedor"},
+{id:"sugar-rush",title:"Sugar Rush",provider:"Pragmatic Play",type:"slot",icon:"🍭",c1:"#69396a",c2:"#d8759d",tags:["Slot","Global"],status:"Contato B2B enviado"},
+{id:"roulette-lightning-br",title:"Roleta Relâmpago Brasileira",provider:"Evolution",type:"live",icon:"⚡",c1:"#1c3e2b",c2:"#4a9c67",tags:["Brasil","Ao vivo"],status:"Licenciamento em negociação"},
+{id:"plinko",title:"Plinko",provider:"Formato Instant",type:"crash",icon:"🔻",c1:"#422646",c2:"#8f4d91",tags:["Instant","Popular"],status:"Fornecedor/licença específicos a definir"},
+{id:"dice",title:"Dice",provider:"Formato Instant",type:"table",icon:"🎲",c1:"#223f35",c2:"#4a7f67",tags:["Instant","Provably Fair"],status:"Fornecedor/licença específicos a definir"},
+{id:"limbo",title:"Limbo",provider:"Formato Instant",type:"crash",icon:"📈",c1:"#183550",c2:"#437299",tags:["Instant","Multiplier"],status:"Fornecedor/licença específicos a definir"},
+{id:"tower",title:"Tower",provider:"Formato Instant",type:"crash",icon:"🗼",c1:"#3e2a20",c2:"#806047",tags:["Instant","Strategy"],status:"Fornecedor/licença específicos a definir"},
+{id:"coin-flip",title:"Coin Flip",provider:"Formato Instant",type:"table",icon:"🪙",c1:"#443c1d",c2:"#9b8137",tags:["Instant","Simple"],status:"Fornecedor/licença específicos a definir"},
+{id:"pulso-tiger",title:"Pulso Tiger",provider:"Pulso 90 Originals",type:"original",icon:"🐯",c1:"#3d3614",c2:"#85661d",tags:["Original","RTP 96%","DEMO"],status:"Jogável no Games Lab",play:"games/"},
+{id:"pulso-launch",title:"Pulso Launch",provider:"Pulso 90 Originals",type:"original",icon:"🚀",c1:"#132c51",c2:"#472b72",tags:["Original","Crash","DEMO"],status:"Jogável no Games Lab",play:"games/"},
+{id:"pulso-goal",title:"Pulso Goal Duel",provider:"Pulso 90 Originals",type:"original",icon:"⚽",c1:"#143b2d",c2:"#53601e",tags:["Original","Virtual","DEMO"],status:"Jogável no Games Lab",play:"games/"}
+];
+const trendIds=["fortune-tiger","aviator","fortune-rabbit","fortune-dragon","gates-olympus","crazy-time","football-studio","bac-bo","fortune-ox","jetx"];
+let filter="all",query="";
+const DISCOVERY_KEY="pulso90-discovery-v1";
+let discovery={types:{},providers:{},views:0,seen:[],recent:[],favorites:[]};try{discovery={...discovery,...JSON.parse(localStorage.getItem(DISCOVERY_KEY)||"{}")}}catch{}
+discovery.seen=Array.isArray(discovery.seen)?discovery.seen:[];discovery.recent=Array.isArray(discovery.recent)?discovery.recent:[];discovery.favorites=Array.isArray(discovery.favorites)?discovery.favorites:[];
+function saveDiscovery(){localStorage.setItem(DISCOVERY_KEY,JSON.stringify(discovery))}
+function remember(g){discovery.types[g.type]=(discovery.types[g.type]||0)+1;discovery.providers[g.provider]=(discovery.providers[g.provider]||0)+1;discovery.views=(discovery.views||0)+1;discovery.seen=Array.from(new Set([...(discovery.seen||[]),g.id])).slice(-50);discovery.recent=[g.id,...(discovery.recent||[]).filter(id=>id!==g.id)].slice(0,12);saveDiscovery();renderRecent();renderPersonal();loadClub()}
+function toggleFavorite(id){const set=new Set(discovery.favorites||[]);set.has(id)?set.delete(id):set.add(id);discovery.favorites=[...set];saveDiscovery();renderTrending();renderRecent();renderPersonal();renderCatalog()}
+function score(g){return (discovery.types[g.type]||0)*3+(discovery.providers[g.provider]||0)*2+(trendIds.includes(g.id)?1:0)+(g.type==="original"?0.5:0)}
+function renderPersonal(){const arr=[...games].sort((a,b)=>score(b)-score(a)).slice(0,10);$("personalRail").innerHTML=arr.map(g=>card(g)).join("");$("personalMeta").textContent=(discovery.views||0)?("Adaptado após "+discovery.views+" exploração(ões) locais"):"Começa com tendências e aprende apenas neste navegador";bindCards()}
+function setProgress(id,textId,value,target){const pct=Math.max(0,Math.min(100,(value/target)*100));$(id).style.width=pct+"%";$(textId).textContent=Math.min(value,target)+"/"+target}
+async function loadClub(){await loadRuntimeConfig();const seen=(discovery.seen||[]).length,types=Object.keys(discovery.types||{}).length;setProgress("missionExplore","missionExploreText",seen,5);setProgress("missionTypes","missionTypesText",types,3);const sid=localStorage.getItem("pulso90-demo-session-v2");if(!sid){setProgress("missionRounds","missionRoundsText",0,10);$("clubTier").textContent="EXPLORER";$("clubText").textContent="Explore o lobby e entre no Games Lab para acumular Pontos Pulso demo.";return}try{const r=await fetch(apiUrl("/api/lab/state"),{headers:{"x-demo-session":sid}});if(!r.ok)throw new Error();const s=await r.json();setProgress("missionRounds","missionRoundsText",Number(s.rounds||0),10);$("clubTier").textContent=s.tier||"EXPLORER";$("clubText").textContent=(s.points||0)+" Pontos Pulso · "+(s.rounds||0)+" rodada(s) demo · sem valor monetário."}catch{setProgress("missionRounds","missionRoundsText",0,10);$("clubTier").textContent="EXPLORER";$("clubText").textContent="Sessão demo não disponível agora. Seus dados de descoberta continuam locais no navegador."}}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
+function card(g,rank){
+ const tags=g.tags.map(t=>'<span class="tag">'+esc(t)+'</span>').join("");
+ const label=g.play?"JOGAR DEMO":"VER STATUS",fav=(discovery.favorites||[]).includes(g.id);
+ return '<article class="game-card" data-id="'+g.id+'" data-type="'+g.type+'"><div class="art" style="--c1:'+g.c1+';--c2:'+g.c2+'">'+(rank?'<span class="rank">#'+rank+' DESTAQUE</span>':'')+'<span class="badge">'+esc(g.type.toUpperCase())+'</span><span class="icon">'+g.icon+'</span><button class="fav '+(fav?"on":"")+'" type="button" data-fav="'+g.id+'" aria-label="Favoritar">'+(fav?"★":"☆")+'</button></div><div class="gbody"><div class="gtitle">'+esc(g.title)+'</div><div class="provider">'+esc(g.provider)+'</div><div class="gmeta">'+tags+'</div><button class="action '+(g.play?"play":"")+'" data-open="'+g.id+'">'+label+'</button></div></article>';
 }
-function normalizeMatch(m,date=""){
-  return {
-    home:String(m.home||""),away:String(m.away||""),
-    homeScore:m.home_score??null,awayScore:m.away_score??null,
-    league:String(m.competition||""),country:"",
-    status:String(m.status_text||m.status||""),
-    liveText:String(m.status_text||""),
-    date:String(date||""),time:String(m.time||"")
-  };
+function renderTrending(){
+ $("trendingRail").innerHTML=trendIds.map((id,i)=>card(games.find(g=>g.id===id),i+1)).join("");
+ bindCards();
 }
-function eventCard(e,isLive=false){
-  const hasScore=e.homeScore!==null&&e.homeScore!==undefined&&e.awayScore!==null&&e.awayScore!==undefined;
-  const score=hasScore?esc(e.homeScore)+" – "+esc(e.awayScore):esc(formatTime(e.time)||e.status||"");
-  const label=isLive?"● AO VIVO":"● DADO REAL";
-  const meta=[e.league,e.country].filter(Boolean).map(esc).join(" · ");
-  const progress=isLive&&e.liveText?" · "+esc(e.liveText):"";
-  const small=[e.date,e.status].filter(Boolean).map(esc).join(" · ");
-  return '<article class="card"><div class="card-head"><span class="'+(isLive?"live":"real")+'">'+label+progress+'</span><span>'+meta+'</span></div><div class="event"><div class="teams">'+esc(e.home)+' × '+esc(e.away)+'<small>'+small+'</small></div><div class="score">'+score+'</div></div></article>';
+function visibleGames(){
+ return games.filter(g=>{
+   const byFilter=filter==="all"||(filter==="favorite"?(discovery.favorites||[]).includes(g.id):g.type===filter);
+   const hay=(g.title+" "+g.provider+" "+g.tags.join(" ")).toLowerCase();
+   return byFilter&&(!query||hay.includes(query));
+ });
 }
-async function loadSchedule(day=currentDay){
-  currentDay=day;
-  $$(".date-btn").forEach(b=>b.classList.toggle("active",Number(b.dataset.day)===day));
-  const date=localDate(day),sport=sports[currentSport];
-  $("scheduleEvents").innerHTML='<div class="empty">Carregando eventos reais de '+esc(sport.name)+'…</div>';
-  try{
-    const r=await fetch("https://sportscore.com/api/v1/fixtures/?sport="+encodeURIComponent(currentSport)+"&date="+encodeURIComponent(date)+"&limit=100&src=pulso90");
-    const raw=await r.json();if(!r.ok)throw new Error();
-    const events=(Array.isArray(raw.matches)?raw.matches:[]).map(m=>normalizeMatch(m,date));
-    $("scheduleMeta").innerHTML=esc(sport.name)+" · "+brDate(date)+" · "+events.length+' evento(s) · <a href="https://sportscore.com/" rel="dofollow" target="_blank">Powered by SportScore ↗</a>';
-    $("scheduleEvents").innerHTML=events.length?events.map(e=>eventCard(e,false)).join(""):'<div class="empty">A fonte real não retornou eventos de '+esc(sport.name)+' para esta data. Nenhum dado foi preenchido artificialmente.</div>';
-  }catch{
-    $("scheduleMeta").innerHTML='Fonte indisponível · <a href="https://sportscore.com/" rel="dofollow" target="_blank">SportScore ↗</a>';
-    $("scheduleEvents").innerHTML='<div class="empty">Não foi possível obter dados reais agora. O Pulso 90 não substituirá a falha por conteúdo fictício.</div>';
-  }
+function renderRecent(){
+ const arr=(discovery.recent||[]).map(id=>games.find(g=>g.id===id)).filter(Boolean);
+ $("recentRail").innerHTML=arr.length?arr.map(g=>card(g)).join(""):'<article class="game-card"><div class="art" style="--c1:#13251b;--c2:#0c1511"><span class="icon">🧭</span></div><div class="gbody"><div class="gtitle">Comece a explorar</div><div class="provider">Seu histórico fica só neste navegador</div><div class="gmeta"><span class="tag">privado</span><span class="tag">local</span></div></div></article>';
+ bindCards();
 }
-async function loadLive(){
-  const sport=sports[currentSport];
-  try{
-    const r=await fetch("https://sportscore.com/api/widget/matches/?sport="+encodeURIComponent(currentSport)+"&limit=50&src=pulso90");
-    const raw=await r.json();if(!r.ok)throw new Error();
-    const events=(Array.isArray(raw.matches)?raw.matches:[]).filter(m=>String(m.status||"").toLowerCase()==="live").map(m=>normalizeMatch(m));
-    $("liveMeta").innerHTML=esc(sport.name)+" · "+events.length+' ao vivo · atualização ~60s · <a href="https://sportscore.com/" rel="dofollow" target="_blank">Powered by SportScore ↗</a>';
-    $("liveEvents").innerHTML=events.length?events.map(e=>eventCard(e,true)).join(""):'<div class="empty">A fonte real não retornou partidas de '+esc(sport.name)+' em andamento neste instante. Nenhum jogo foi inventado. <a href="https://sportscore.com/" rel="dofollow" target="_blank">Powered by SportScore ↗</a></div>';
-  }catch{
-    $("liveMeta").innerHTML='Fonte live indisponível · <a href="https://sportscore.com/" rel="dofollow" target="_blank">SportScore ↗</a>';
-    $("liveEvents").innerHTML='<div class="empty">Falha ao consultar a fonte ao vivo. Nenhuma partida fictícia foi inserida.</div>';
-  }
+function renderCatalog(){
+ const arr=visibleGames();
+ $("catalogRail").innerHTML=arr.map(g=>card(g)).join("");
+ $("catalogMeta").textContent=arr.length+" títulos · catálogo editorial + originais";
+ bindCards();
 }
+function bindCards(){
+ $$("[data-open]").forEach(b=>b.onclick=()=>openGame(b.dataset.open));
+ $$("[data-fav]").forEach(b=>b.onclick=e=>{e.stopPropagation();toggleFavorite(b.dataset.fav)});
+}
+function openGame(id){
+ const g=games.find(x=>x.id===id);if(!g)return;
+ remember(g);
+ $("modalProvider").textContent=g.provider;
+ $("modalTitle").textContent=g.title;
+ $("modalText").textContent=g.status+". "+(g.play?"Este é um original Pulso 90 em modo DEMO, sem dinheiro real.":"O título aparece como referência de mercado. O Pulso 90 só o tornará jogável após licença, certificação e integração aplicáveis.");
+ $("modalTags").innerHTML=g.tags.map(t=>'<span class="tag">'+esc(t)+'</span>').join("");
+ $("modalActions").innerHTML=g.play?'<a class="cta primary" href="'+g.play+'">Abrir Games Lab</a>':'<a class="cta primary" href="games/providers.html">Ver pipeline de fornecedores</a><a class="cta" href="games/certification.html">Ver certificação</a>';
+ $("gameModal").classList.add("open");
+}
+$("modalClose").onclick=()=>$("gameModal").classList.remove("open");
+$("gameModal").onclick=e=>{if(e.target===$("gameModal"))$("gameModal").classList.remove("open")};
+$("gameSearch").addEventListener("input",e=>{query=e.target.value.trim().toLowerCase();renderCatalog();document.querySelector("#catalogo").scrollIntoView({behavior:"smooth",block:"start"})});
+$$(".chip").forEach(b=>b.onclick=()=>{filter=b.dataset.filter;$$(".chip").forEach(x=>x.classList.toggle("active",x===b));renderCatalog();document.querySelector("#catalogo").scrollIntoView({behavior:"smooth",block:"start"})});
 async function loadPartners(){
-  try{
-    const [r,sr]=await Promise.all([fetch("partners.json"),fetch("spa-status.json")]);
-    const data=await r.json(),spa=await sr.json(),ps=Array.isArray(data.partners)?data.partners:[];
-    const verified=ps.filter(p=>spa.domains&&spa.domains[p.domain]===true);
-    const statusText=p=>p.relationship==="contato_comercial_enviado"?"Contato comercial enviado; aguardando retorno.":p.relationship==="cadastro_exige_aceite_contratual"?"Cadastro disponível; envio depende do aceite contratual do titular.":"Candidatura/negociação disponível; sem alegação de parceria ativa.";
-    const authText=p=>{const d=spa.details&&spa.details[p.domain];if(!d)return "";const bits=[d.portaria,d.empresa,d.cnpj?"CNPJ "+d.cnpj:""].filter(Boolean);return bits.length?'<p><b>Autorização:</b> '+bits.map(esc).join(" · ")+'</p>':""};
-    $("partners").innerHTML=verified.length?verified.map(p=>'<article class="partner"><span class="tag">SPA verificada · '+esc(p.domain)+'</span><h3>'+esc(p.name)+'</h3><p><b>Programa:</b> '+esc(p.program)+'</p><p>'+esc(p.funding_model)+'</p>'+authText(p)+'<p><b>Status Pulso 90:</b> '+esc(statusText(p))+'</p><a href="'+p.url+'" target="_blank" rel="noopener">Abrir programa oficial ↗</a></article>').join(""):'<div class="empty">Nenhum programa passou na verificação atual da SPA.</div>';
-  }catch{
-    $("partners").innerHTML='<div class="empty">Não foi possível validar os programas contra a lista oficial da SPA.</div>';
-  }
+ try{
+   const [pr,sr]=await Promise.all([fetch("partners.json"),fetch("spa-status.json")]);
+   const pdata=await pr.json(),spa=await sr.json();
+   const verified=(Array.isArray(pdata.partners)?pdata.partners:[]).filter(p=>spa.domains&&spa.domains[p.domain]===true);
+   $("partnerMeta").textContent=verified.length+" domínio(s) verificado(s) na última checagem SPA";
+   $("partnerRail").innerHTML=verified.map(p=>{
+     const d=spa.details&&spa.details[p.domain],auth=d&&d.portaria?d.portaria:"SPA verificada";
+     const status=p.relationship==="contato_comercial_enviado"?"Contato comercial enviado":p.relationship==="cadastro_exige_aceite_contratual"?"Cadastro depende do titular":"Prospecção";
+     return '<article class="op-card"><div class="verified">✓ '+esc(p.domain)+'</div><h3>'+esc(p.name)+'</h3><p><b>'+esc(status)+'</b></p><p>'+esc(p.program||"Programa comercial")+'</p><p>'+esc(auth)+'</p><a href="'+esc(p.url)+'" target="_blank" rel="noopener">Programa comercial ↗</a></article>';
+   }).join("");
+ }catch{
+   $("partnerMeta").textContent="Não foi possível validar operadores agora";
+   $("partnerRail").innerHTML='<article class="op-card">A validação externa está temporariamente indisponível; nenhuma marca será tratada como verificada sem o arquivo SPA.</article>';
+ }
 }
-$$(".date-btn").forEach(b=>b.addEventListener("click",()=>loadSchedule(Number(b.dataset.day)||0)));
-$$(".sport-btn").forEach(b=>b.addEventListener("click",()=>{
-  currentSport=b.dataset.sport||"football";
-  $$(".sport-btn").forEach(x=>x.classList.toggle("active",x===b));
-  loadLive();loadSchedule(currentDay);
-}));
-loadSchedule(0);loadLive();loadPartners();
-setInterval(loadLive,60000);
-</script>
-</body>
-</html>
+let currentSport="football";
+const SPORT_LABELS={
+ pt:{football:"Futebol",basketball:"Basquete",tennis:"Tênis",cricket:"Cricket"},
+ en:{football:"Football",basketball:"Basketball",tennis:"Tennis",cricket:"Cricket"},
+ es:{football:"Fútbol",basketball:"Baloncesto",tennis:"Tenis",cricket:"Cricket"}
+};
+const LIVE_MSG={
+ pt:{consult:"Consultando",live:"ao vivo",events:"evento(s)",hero:"realmente ao vivo neste momento.",none:"Nenhum evento ao vivo agora — nenhum jogo fictício será criado.",empty:"A fonte não retornou eventos ao vivo.",unavailable:"Fonte live temporariamente indisponível",fail:"Falha na fonte real. Nenhum evento fictício foi inserido."},
+ en:{consult:"Checking",live:"live",events:"event(s)",hero:"really live right now.",none:"No live event right now — no fictional event will be created.",empty:"The source returned no live events.",unavailable:"Live source temporarily unavailable",fail:"Real-data source failed. No fictional event was inserted."},
+ es:{consult:"Consultando",live:"en vivo",events:"evento(s)",hero:"realmente en vivo ahora.",none:"No hay eventos en vivo ahora — no se crearán eventos ficticios.",empty:"La fuente no devolvió eventos en vivo.",unavailable:"Fuente en vivo temporalmente no disponible",fail:"Falló la fuente real. No se insertó ningún evento ficticio."}
+};
+function normalize(m){return {home:String(m.home||""),away:String(m.away||""),homeScore:m.home_score??null,awayScore:m.away_score??null,league:String(m.competition||""),status:String(m.status_text||m.status||"")}}
+async function loadLive(){
+ const grid=$("liveGrid"),labels=SPORT_LABELS[currentLang]||SPORT_LABELS.pt,msg=LIVE_MSG[currentLang]||LIVE_MSG.pt,name=labels[currentSport]||currentSport;
+ grid.innerHTML='<div class="live-card">'+esc(msg.consult)+' '+esc(name)+'…</div>';
+ try{
+   const r=await fetch("https://sportscore.com/api/widget/matches/?sport="+encodeURIComponent(currentSport)+"&limit=30&src=pulso90");
+   const raw=await r.json();if(!r.ok)throw new Error();
+   const ev=(Array.isArray(raw.matches)?raw.matches:[]).filter(m=>String(m.status||"").toLowerCase()==="live").map(normalize);
+   $("sportsMeta").innerHTML=esc(name)+" · "+ev.length+" "+esc(msg.live)+' · <a href="https://sportscore.com/" target="_blank" rel="dofollow">Powered by SportScore ↗</a>';
+   $("heroLive").textContent=ev.length?ev.length+" "+msg.events+" · "+name+" "+msg.hero:msg.none;
+   grid.innerHTML=ev.length?ev.slice(0,12).map(e=>'<article class="live-card"><div class="league">'+esc(e.league)+'</div><div class="teams">'+esc(e.home)+' × '+esc(e.away)+'</div><div class="score">'+(e.homeScore??"–")+' : '+(e.awayScore??"–")+'</div><div class="status">● '+esc(e.status||msg.live.toUpperCase())+'</div></article>').join(""):'<div class="live-card">'+esc(msg.empty)+" "+esc(name)+'.</div>';
+ }catch{
+   $("sportsMeta").textContent=msg.unavailable;
+   $("heroLive").textContent=msg.unavailable;
+   grid.innerHTML='<div class="live-card">'+esc(msg.fail)+'</div>';
+ }
+}
+$$(".sport-btn").forEach(b=>b.onclick=()=>{currentSport=b.dataset.sport;$$(".sport-btn").forEach(x=>x.classList.toggle("active",x===b));loadLive()});
+$("langSelect").addEventListener("change",e=>{applyLang(e.target.value);loadLive()});
+applyLang(currentLang);renderTrending();renderRecent();renderPersonal();renderCatalog();loadClub();loadPartners();loadLive();setInterval(loadLive,60000);
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
+</script></body></html>

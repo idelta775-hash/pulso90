@@ -1,0 +1,5 @@
+index-next.html
+index-pre-global-home-*.html
+games-engine/*-backup.mjs
+tests/
+*.log

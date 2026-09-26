@@ -1,7 +1,7 @@
 const checks=[];
 async function fetchText(name,url){
   try{
-    const r=await fetch(url,{headers:{"user-agent":"Pulso90-Health/1.1"}});
+    const r=await fetch(url,{headers:{"user-agent":"Pulso90-Health/1.2"}});
     const text=await r.text();
     return {name,url,status:r.status,text,error:null};
   }catch(e){return {name,url,status:0,text:"",error:String(e.message||e)}}
@@ -13,6 +13,12 @@ add("site",site.url,site.status,site.status===200&&site.text.includes("Pulso 90"
 
 const media=await fetchText("media_kit","https://idelta775-hash.github.io/pulso90/media-kit.html");
 add("media_kit",media.url,media.status,media.status===200&&media.text.includes("Media Kit"));
+
+const games=await fetchText("games_lab","https://idelta775-hash.github.io/pulso90/games/");
+add("games_lab",games.url,games.status,games.status===200&&games.text.includes("Pulso Tiger")&&games.text.includes("Pulso Launch")&&games.text.includes("Pulso Goal Duel"));
+
+const manifest=await fetchText("games_manifest","https://idelta775-hash.github.io/pulso90/games-engine/manifest.json");
+add("games_manifest",manifest.url,manifest.status,manifest.status===200&&manifest.text.includes("DEMO_ONLY")&&manifest.text.includes("NOT_CERTIFIED"));
 
 const partners=await fetchText("partners","https://idelta775-hash.github.io/pulso90/partners.json");
 add("partners",partners.url,partners.status,partners.status===200&&partners.text.includes('"partners"'));

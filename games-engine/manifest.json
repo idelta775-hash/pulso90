@@ -1,0 +1,62 @@
+{
+  "platform": "Pulso 90 Games Lab",
+  "version": "0.3.0",
+  "money_mode": "DEMO_ONLY",
+  "certification": "NOT_CERTIFIED",
+  "outcome_policy": "FIXED_MATH_NO_PLAYER_ADAPTATION",
+  "rng": {
+    "mode": "HMAC-SHA256_COMMIT_REVEAL_DEMO",
+    "server_seed_commitment": "SHA-256",
+    "client_seed": "configurable per demo session",
+    "nonce": "monotonic per game round",
+    "result_generation": "HMAC-SHA256(serverSeed, clientSeed:nonce:game)",
+    "audit": "hash-chained JSONL",
+    "fairness_page": "/games/fairness.html"
+  },
+  "games": [
+    {
+      "id": "pulso-tiger",
+      "type": "slot",
+      "version": "0.3.0",
+      "theoretical_rtp": 0.96,
+      "math_policy": "fixed paytable",
+      "certification": "NOT_CERTIFIED"
+    },
+    {
+      "id": "pulso-launch",
+      "type": "crash",
+      "version": "0.3.0",
+      "theoretical_return": 0.97,
+      "lab_visual_cap": 100,
+      "math_policy": "fixed distribution",
+      "certification": "NOT_CERTIFIED"
+    },
+    {
+      "id": "pulso-goal-duel",
+      "type": "fixed_odds_virtual",
+      "version": "0.3.0",
+      "outcomes": {
+        "home": {"probability": 0.43, "multiplier": 2.23},
+        "draw": {"probability": 0.14, "multiplier": 6.85},
+        "away": {"probability": 0.43, "multiplier": 2.23}
+      },
+      "theoretical_return_by_pick": {
+        "home": 0.9589,
+        "draw": 0.959,
+        "away": 0.9589
+      },
+      "certification": "NOT_CERTIFIED"
+    }
+  ],
+  "test_policy": {
+    "monte_carlo_rounds": 1000000,
+    "statistical_method": "standard error and z-score",
+    "max_abs_z_for_lab_pass": 5
+  },
+  "real_money": {
+    "enabled": false,
+    "deposits": false,
+    "withdrawals": false,
+    "cash_prizes": false
+  }
+}

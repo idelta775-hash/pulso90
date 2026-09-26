@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="index,follow"><meta name="theme-color" content="#090f0c">
+<link rel="canonical" href="https://idelta775-hash.github.io/pulso90/games/">
+<title>Pulso 90 Games Lab</title>
+<style>
+:root{--bg:#070c09;--p:#0d1712;--p2:#12231a;--line:#274136;--txt:#f4f8f6;--mut:#8fa298;--lime:#b8ff66;--green:#48dc90;--red:#ff7272;--gold:#ffd56b}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 30% 0,#143624 0,#070c09 40%);color:var(--txt);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{max-width:1280px;margin:auto;padding:14px}a{color:inherit;text-decoration:none}button,input{font:inherit}.top{display:flex;align-items:center;gap:12px;padding:10px 0}.mark{width:40px;height:40px;border-radius:11px;background:var(--lime);color:#07110d;display:grid;place-items:center;font-weight:950}.top b{font-size:18px}.back{margin-left:auto;color:var(--lime);font-size:12px}.hero{border:1px solid var(--line);border-radius:18px;padding:22px;background:linear-gradient(120deg,#153824,#111d16)}.ey{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime);font-weight:900}.hero h1{margin:7px 0;font-size:34px}.hero p{max-width:860px;color:#afc0b7;line-height:1.65;font-size:13px}.warning{margin-top:12px;border:1px solid #5d4c26;border-radius:11px;padding:12px;color:#e2ca90;background:#1d170d;font-size:11px;line-height:1.6}.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0}.metric{border:1px solid var(--line);background:var(--p);padding:12px;border-radius:12px}.metric small{display:block;color:var(--mut);font-size:10px}.metric b{font-size:19px;color:var(--lime)}.games{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.game{border:1px solid var(--line);background:var(--p);border-radius:15px;overflow:hidden}.ghead{padding:14px;border-bottom:1px solid #1d3027;display:flex;align-items:center;gap:9px}.gicon{font-size:24px}.ghead h2{font-size:16px;margin:0}.ghead small{display:block;color:var(--mut);font-size:10px;margin-top:2px}.body{padding:14px}.display{min-height:108px;border:1px solid #233d31;background:#09110d;border-radius:12px;display:grid;place-items:center;text-align:center;padding:10px}.reels{display:flex;gap:8px}.reel{width:64px;height:64px;border-radius:11px;background:#13251b;display:grid;place-items:center;font-size:31px;border:1px solid #2d4b3c}.big{font-size:30px;font-weight:950;color:var(--gold)}.sub{font-size:11px;color:var(--mut);margin-top:5px}.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.controls input{width:100%;border:1px solid #2b493b;background:#0b1510;color:white;border-radius:9px;padding:10px}.btn{border:1px solid #355846;background:#143021;color:var(--lime);border-radius:9px;padding:10px;font-weight:850;cursor:pointer}.btn:hover{border-color:var(--lime)}.rules{margin-top:10px;font-size:10px;line-height:1.55;color:#91a59a}.result{font-size:12px;font-weight:800;margin-top:8px;min-height:18px}.win{color:var(--green)}.lose{color:#f09a9a}.catalog{margin-top:13px;border:1px solid var(--line);background:var(--p);border-radius:14px;padding:14px}.catalog h2{margin:0 0 8px;font-size:17px}.table{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1px;background:#1f342a;border:1px solid #1f342a}.cell{background:#0d1712;padding:9px;font-size:10px}.headcell{font-weight:900;color:var(--lime)}.foot{padding:20px 2px;color:#71857a;font-size:10px;line-height:1.6}@media(max-width:900px){.games{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}}@media(max-width:540px){.metrics{grid-template-columns:1fr 1fr}.hero h1{font-size:27px}.controls{grid-template-columns:1fr}}
+</style>
+</head><body><main class="wrap">
+<div class="top"><span class="mark">90</span><div><b>PULSO 90 GAMES LAB</b><div style="font-size:10px;color:#8fa298">Motores próprios · laboratório não monetário</div></div><div class="back"><a href="providers.html">Fornecedores</a> · <a href="fairness.html">Provably Fair</a> · <a href="certification.html">Certificação</a> · <a href="../">Pulso 90</a></div></div>
+
+<section class="hero"><div class="ey">Original game engine · v0.3</div><h1>Jogos próprios. Matemática fixa. Auditoria primeiro.</h1><p>Esta área recupera e evolui os antigos protótipos TIGRINHO/Aurum Rush em uma arquitetura mais adequada a certificação: HMAC-SHA256 no servidor, compromisso/revelação de seed, tabelas fixas e nenhuma adaptação de resultado por perfil, saldo, sequência de perdas ou comportamento individual.</p><div class="warning"><b>LABORATÓRIO — SEM DINHEIRO REAL.</b> Créditos e Pontos Pulso não têm valor monetário, não podem ser comprados, depositados, sacados ou convertidos. A versão pública serve para validar UX, matemática e telemetria antes de qualquer certificação.</div><button class="btn" id="resetLab" style="margin-top:10px">Reiniciar créditos e pontos demo</button></section>
+
+<section class="metrics">
+<div class="metric"><small>Créditos demo</small><b id="balance">1.000,00</b></div>
+<div class="metric"><small>Pontos Pulso</small><b id="points">0</b></div>
+<div class="metric"><small>Rodadas neste navegador</small><b id="rounds">0</b></div>
+<div class="metric"><small>Tier demo</small><b id="tier">EXPLORER</b></div>
+<div class="metric"><small>Motor</small><b>PROVABLY FAIR</b></div>
+</section>
+
+<section class="games">
+<article class="game">
+<div class="ghead"><span class="gicon">🐯</span><div><h2>Pulso Tiger</h2><small>slot original · RTP teórico 96,00%</small></div></div>
+<div class="body"><div class="display"><div><div class="reels"><span class="reel" id="t1">🍒</span><span class="reel" id="t2">💎</span><span class="reel" id="t3">⭐</span></div><div class="sub">Distribuição fixa de multiplicadores</div></div></div>
+<div class="controls"><input id="tigerBet" type="number" min="1" max="100" step="1" value="10"><button class="btn" id="tigerPlay">GIRAR DEMO</button></div><div id="tigerResult" class="result"></div>
+<div class="rules">Sem “near miss” programado, sem loss-streak, sem RTP dinâmico. Paytable fixa: 0x / 0,5x / 1x / 1,5x / 2x / 5x / 10x / 25x / 30x.</div></div>
+</article>
+
+<article class="game">
+<div class="ghead"><span class="gicon">🚀</span><div><h2>Pulso Launch</h2><small>crash original · edge matemático fixo 3%</small></div></div>
+<div class="body"><div class="display"><div><div class="big" id="crashPoint">1,00×</div><div class="sub">ponto de crash gerado por RNG</div></div></div>
+<div class="controls"><input id="cashTarget" type="number" min="1.10" max="20" step="0.10" value="2.00"><button class="btn" id="crashPlay">LANÇAR DEMO</button></div><div id="crashResult" class="result"></div>
+<div class="rules">O usuário escolhe o alvo antes da rodada. A distribuição é fixa e não considera histórico pessoal. Cap visual do laboratório: 100×.</div></div>
+</article>
+
+<article class="game">
+<div class="ghead"><span class="gicon">⚽</span><div><h2>Pulso Goal Duel</h2><small>quota fixa original · três resultados</small></div></div>
+<div class="body"><div class="display"><div><div class="big" id="duelOutcome">CASA · EMPATE · FORA</div><div class="sub">probabilidades fixas: 43% / 14% / 43%</div></div></div>
+<div class="controls"><select id="duelPick" style="border:1px solid #2b493b;background:#0b1510;color:white;border-radius:9px;padding:10px"><option value="home">Casa · 2,23x</option><option value="draw">Empate · 6,85x</option><option value="away">Fora · 2,23x</option></select><button class="btn" id="duelPlay">JOGAR DEMO</button></div><div id="duelResult" class="result"></div>
+<div class="rules">Inspirado apenas na lógica geral de quota fixa; não copia Football Studio, cartas, branding, layout ou propriedade intelectual de terceiros.</div></div>
+</article>
+</section>
+
+<section class="catalog"><h2>Estado de certificação</h2><div class="table"><div class="cell headcell">Jogo</div><div class="cell headcell">Matemática</div><div class="cell headcell">RNG</div><div class="cell headcell">Status</div><div class="cell">Pulso Tiger</div><div class="cell">RTP 96,00%</div><div class="cell">HMAC-SHA256 / RGS Lab</div><div class="cell">NÃO CERTIFICADO</div><div class="cell">Pulso Launch</div><div class="cell">Edge 3%</div><div class="cell">HMAC-SHA256 / RGS Lab</div><div class="cell">NÃO CERTIFICADO</div><div class="cell">Pulso Goal Duel</div><div class="cell">RTP ~95,9%</div><div class="cell">HMAC-SHA256 / RGS Lab</div><div class="cell">NÃO CERTIFICADO</div></div></section>
+
+<footer class="foot">Pulso 90 Games Lab · resultados gerados pelo motor demonstrativo. Para operação com aposta real, o jogo/RNG, RGS/integração e sistema do operador precisam seguir os requisitos aplicáveis da SPA e certificação por entidade habilitada.</footer>
+<script src="app.js"></script>
+</main></body></html>
