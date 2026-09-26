@@ -1,0 +1,25 @@
+name: Verify SPA partners
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 9 * * *"
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify authorized domains
+        run: node verify-spa.mjs
+      - name: Commit fresh verification
+        if: always()
+        run: |
+          git config user.name "pulso90-compliance-bot"
+          git config user.email "pulso90-compliance-bot@users.noreply.github.com"
+          git add spa-status.json
+          git diff --cached --quiet || git commit -m "chore: refresh SPA authorization status"
+          git push
