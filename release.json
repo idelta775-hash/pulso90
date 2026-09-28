@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.14_VISUAL_IDENTITY",
-  "built_at": "2026-09-28T05:12:12.779805+00:00",
+  "release": "GLOBAL_HUB_LAB_0.15_SUPERBET_UX",
+  "built_at": "2026-09-28T16:05:22.598089+00:00",
   "public_lab": "https://method-ftp-vip-freeze.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -37,7 +37,17 @@
     "16 branded navigation and experience icons",
     "visual experience grid",
     "mobile branded icon navigation",
-    "PWA visual asset cache v3"
+    "PWA visual asset cache v3",
+    "Meu Pulso account center",
+    "persistent demo sessions across RGS restarts",
+    "friendly player-facing error messages",
+    "player-facing technical/commercial copy removed from lobby",
+    "PWA shell v4 superbet",
+    "300 synthetic player simulation",
+    "9221 successful demo rounds in load simulation",
+    "10679 simulated requests with zero unexpected failures",
+    "80/80 sampled sessions restored after restart",
+    "quality gate 10/10"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,

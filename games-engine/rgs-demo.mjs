@@ -6,10 +6,11 @@ import { fileURLToPath } from "node:url";
 
 const here=path.dirname(fileURLToPath(import.meta.url));
 const root=path.resolve(here,"..");
-const runtime=path.resolve(root,"..","runtime");
+const runtime=process.env.PULSO90_RUNTIME_DIR?path.resolve(process.env.PULSO90_RUNTIME_DIR):path.resolve(root,"..","runtime");
 fs.mkdirSync(runtime,{recursive:true});
 const auditFile=path.join(runtime,"games-lab-audit-v03.jsonl");
 const telemetryFile=path.join(runtime,"product-telemetry-v1.jsonl");
+const sessionFile=path.join(runtime,"games-lab-sessions-v04.jsonl");
 const PORT=Number(process.env.PULSO90_GAMES_PORT||19011);
 const sessions=new Map();
 const telemetryRate=new Map();
@@ -43,6 +44,8 @@ function corsHeaders(){return {"access-control-allow-origin":"*","access-control
 function json(res,status,body){res.writeHead(status,{"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff",...corsHeaders()});res.end(JSON.stringify(body))}
 function audit(record){const base={...record,previousHash:lastAuditHash};const hash=sha256(JSON.stringify(base));const row={...base,hash};fs.appendFileSync(auditFile,JSON.stringify(row)+"\n","utf8");lastAuditHash=hash;return hash}
 function state(s){return {balance:s.balance,points:s.points,rounds:s.rounds,tier:tier(s.points),fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:s.nonce}}}
+function persistSession(s,reason="update"){const row={at:new Date().toISOString(),reason,id:s.id,balance:s.balance,points:s.points,rounds:s.rounds,createdAt:s.createdAt,serverSeed:s.serverSeed,serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:s.nonce,revealed:Array.isArray(s.revealed)?s.revealed.slice(-10):[]};fs.appendFileSync(sessionFile,JSON.stringify(row)+"\n","utf8")}
+function restoreSessions(){if(!fs.existsSync(sessionFile))return 0;const latest=new Map();for(const line of fs.readFileSync(sessionFile,"utf8").split(/\r?\n/)){if(!line.trim())continue;try{const r=JSON.parse(line);if(r&&r.id)latest.set(r.id,r)}catch{}}for(const r of latest.values()){sessions.set(r.id,{id:r.id,balance:Number(r.balance)||0,points:Number(r.points)||0,rounds:Number(r.rounds)||0,createdAt:r.createdAt||new Date().toISOString(),serverSeed:String(r.serverSeed||newServerSeed()),serverSeedHash:String(r.serverSeedHash||""),clientSeed:String(r.clientSeed||newClientSeed()),nonce:Number(r.nonce)||0,revealed:Array.isArray(r.revealed)?r.revealed:[]});const s=sessions.get(r.id);if(!s.serverSeedHash)s.serverSeedHash=sha256(s.serverSeed)}return sessions.size}
 function session(req){const id=String(req.headers["x-demo-session"]||"");return sessions.get(id)}
 async function body(req){return await new Promise((resolve,reject)=>{let raw="";req.on("data",c=>{raw+=c;if(raw.length>4096)reject(new Error("too_large"))});req.on("end",()=>{try{const clean=raw.replace(/^\uFEFF/,"").trim();resolve(clean?JSON.parse(clean):{})}catch{reject(new Error("bad_json"))}});req.on("error",reject)})}
 function safeStake(v,max=100){const n=Number(v);if(!Number.isFinite(n)||n<=0)return null;return Math.min(max,Math.round(n*100)/100)}
@@ -68,7 +71,9 @@ function telemetrySummary(days=7){
   const top=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,12).map(([name,count])=>({name,count}));
   return {window_days:windowDays,total_events:total,unique_daily_visitors:unique.size,events:counts.events,top_items:top(counts.items),top_providers:top(counts.providers),top_categories:top(counts.categories),daily:counts.daily};
 }
-function settle(s,stake,multiplier,meta,fair){const payout=Math.round(stake*multiplier*100)/100;s.balance=Math.round((s.balance-stake+payout)*100)/100;s.rounds++;s.points+=1+(payout>stake?5:0);const record={at:new Date().toISOString(),session:s.id,mode:"DEMO_ONLY",game:meta.game,version:"0.3.0",stake,payout,multiplier,balanceAfter:s.balance,outcome:meta.outcome,fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:fair.nonce,message:fair.message}};const auditHash=audit(record);return {payout,net:Math.round((payout-stake)*100)/100,auditHash,fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:fair.nonce,message:fair.message},...state(s)}}
+function settle(s,stake,multiplier,meta,fair){const payout=Math.round(stake*multiplier*100)/100;s.balance=Math.round((s.balance-stake+payout)*100)/100;s.rounds++;s.points+=1+(payout>stake?5:0);const record={at:new Date().toISOString(),session:s.id,mode:"DEMO_ONLY",game:meta.game,version:"0.3.0",stake,payout,multiplier,balanceAfter:s.balance,outcome:meta.outcome,fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:fair.nonce,message:fair.message}};const auditHash=audit(record);persistSession(s,"settle:"+meta.game);return {payout,net:Math.round((payout-stake)*100)/100,auditHash,fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:fair.nonce,message:fair.message},...state(s)}}
+restoreSessions();
+if(fs.existsSync(auditFile)){try{const lines=fs.readFileSync(auditFile,"utf8").trim().split(/\r?\n/).filter(Boolean);if(lines.length){const last=JSON.parse(lines.at(-1));if(last&&last.hash)lastAuditHash=last.hash}}catch{}}
 const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,"http://localhost");
   try{
@@ -85,7 +90,7 @@ const server=http.createServer(async(req,res)=>{
     if(req.method==="POST"&&url.pathname==="/api/lab/session"){
       const id=crypto.randomUUID(),serverSeed=newServerSeed(),clientSeed=newClientSeed();
       const s={id,balance:1000,points:0,rounds:0,createdAt:new Date().toISOString(),serverSeed,serverSeedHash:sha256(serverSeed),clientSeed,nonce:0,revealed:[]};
-      sessions.set(id,s);
+      sessions.set(id,s);persistSession(s,"created");
       const auditHash=audit({at:new Date().toISOString(),session:id,mode:"DEMO_ONLY",type:"SESSION_CREATED",balance:1000,fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:0}});
       return json(res,201,{sessionId:id,auditHash,...state(s)});
     }
@@ -102,20 +107,20 @@ const server=http.createServer(async(req,res)=>{
       const s=session(req);if(!s)return json(res,401,{error:"demo_session_required"});
       const v=await body(req),seed=String(v.clientSeed||"").trim();
       if(!/^[a-zA-Z0-9._:-]{3,64}$/.test(seed))return json(res,400,{error:"invalid_client_seed"});
-      s.clientSeed=seed;s.nonce=0;
+      s.clientSeed=seed;s.nonce=0;persistSession(s,"client_seed_changed");
       const auditHash=audit({at:new Date().toISOString(),session:s.id,mode:"DEMO_ONLY",type:"CLIENT_SEED_CHANGED",clientSeed:seed,serverSeedHash:s.serverSeedHash});
       return json(res,200,{auditHash,...state(s)});
     }
     if(req.method==="POST"&&url.pathname==="/api/lab/rotate-seed"){
       const s=session(req);if(!s)return json(res,401,{error:"demo_session_required"});
       const revealed={serverSeed:s.serverSeed,serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,finalNonce:s.nonce,revealedAt:new Date().toISOString()};
-      s.revealed.push(revealed);s.serverSeed=newServerSeed();s.serverSeedHash=sha256(s.serverSeed);s.nonce=0;
+      s.revealed.push(revealed);s.serverSeed=newServerSeed();s.serverSeedHash=sha256(s.serverSeed);s.nonce=0;persistSession(s,"server_seed_rotated");
       const auditHash=audit({at:new Date().toISOString(),session:s.id,mode:"DEMO_ONLY",type:"SERVER_SEED_ROTATED",revealed,newServerSeedHash:s.serverSeedHash});
       return json(res,200,{auditHash,revealed,current:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:s.nonce}});
     }
     if(req.method==="POST"&&url.pathname==="/api/lab/reset"){
       const s=session(req);if(!s)return json(res,401,{error:"demo_session_required"});
-      s.balance=1000;s.points=0;s.rounds=0;
+      s.balance=1000;s.points=0;s.rounds=0;persistSession(s,"reset");
       const auditHash=audit({at:new Date().toISOString(),session:s.id,mode:"DEMO_ONLY",type:"SESSION_RESET",balance:1000});
       return json(res,200,{auditHash,...state(s)});
     }

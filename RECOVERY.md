@@ -43,6 +43,16 @@ The ChatGPT web UI showed "ChatGPT stream recovery polling timed out". This is a
 - No official competitor artwork or third-party game thumbnails were embedded without authorization.
 - PWA cache version: `pulso90-shell-v3-visual`.
 
+## Release 0.15 — Superbet UX QA
+- 300 synthetic players executed in an isolated RGS runtime.
+- 9,221 successful demo rounds across 10,679 requests.
+- 0 unexpected failures.
+- Local latency: p50 46.7 ms, p95 152.4 ms, p99 316.15 ms.
+- 80/80 sampled sessions restored after an RGS restart.
+- 9,522 audit rows verified with an intact hash chain.
+- Player-facing quality gate: 10/10 PASS.
+- The main player flow hides technical/commercial pipeline language; operational details remain outside the gaming experience.
+
 ## RGS guarantees in current lab
 - HMAC-SHA256 commit/reveal
 - configurable client seed
