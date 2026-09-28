@@ -36,6 +36,13 @@ The ChatGPT web UI showed "ChatGPT stream recovery polling timed out". This is a
 - Therefore Pulso 90 continuity does not rely on Guardian auto-heal during this state; GitHub Pages + runtime bridge + release/checkpoint remain the source of truth.
 - The ChatGPT `Resume stream unavailable` message is treated as a UI/stream continuity fault, not a Pulso 90 runtime failure.
 
+## Visual identity assets
+- Release 0.14 applies Pulso 90-generated visual assets from `assets/visual/`.
+- Hero/community visual and 16 branded icons are original Pulso 90 assets generated for this project.
+- Full concept mockups containing fictional balances/bonuses were not embedded as functional product claims.
+- No official competitor artwork or third-party game thumbnails were embedded without authorization.
+- PWA cache version: `pulso90-shell-v3-visual`.
+
 ## RGS guarantees in current lab
 - HMAC-SHA256 commit/reveal
 - configurable client seed

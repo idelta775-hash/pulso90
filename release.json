@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.13_PRODUCT_INTELLIGENCE",
-  "built_at": "2026-09-26T14:47:18.924459+00:00",
+  "release": "GLOBAL_HUB_LAB_0.14_VISUAL_IDENTITY",
+  "built_at": "2026-09-28T05:12:12.779805+00:00",
   "public_lab": "https://method-ftp-vip-freeze.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -31,7 +31,13 @@
     "7 sanitized provider pages",
     "service-worker runtime/status cache bypass",
     "automatic catalog and sitemap generator",
-    "Guardian Direct support checkpoint for stream recovery incident"
+    "Guardian Direct support checkpoint for stream recovery incident",
+    "generated Pulso 90 visual identity assets",
+    "community hero visual",
+    "16 branded navigation and experience icons",
+    "visual experience grid",
+    "mobile branded icon navigation",
+    "PWA visual asset cache v3"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,
