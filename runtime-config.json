@@ -1,7 +1,7 @@
-{
-  "updated_at":"2026-09-26T09:56:00-03:00",
-  "mode":"DEMO_ONLY",
-  "rgs_base":"https://method-ftp-vip-freeze.trycloudflare.com",
-  "health_path":"/api/lab/health",
-  "fallback":"local_same_origin"
+﻿{
+    "updated_at":  "2026-10-01T12:04:33.8778591-03:00",
+    "mode":  "DEMO_ONLY",
+    "rgs_base":  "https://recovery-plants-appointments-unnecessary.trycloudflare.com",
+    "health_path":  "/api/lab/health",
+    "fallback":  "local_same_origin"
 }
