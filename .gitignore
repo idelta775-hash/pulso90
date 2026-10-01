@@ -4,3 +4,4 @@ games-engine/*-backup.mjs
 tests/
 *.log
 _snapshots/
+__pycache__/

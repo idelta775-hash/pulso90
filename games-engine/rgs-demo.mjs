@@ -19,8 +19,12 @@ const oddsCache=new Map();
 const paymentEvents=new Set(),creditedPayments=new Set();
 const ASAAS_API_KEY=String(process.env.PULSO90_ASAAS_API_KEY||process.env.ASAAS_API_KEY||"").trim();
 const ASAAS_WEBHOOK_TOKEN=String(process.env.PULSO90_ASAAS_WEBHOOK_TOKEN||"").trim();
-const ASAAS_BASE="https://api-sandbox.asaas.com/v3";
+const ASAAS_ENV=String(process.env.PULSO90_ASAAS_ENV||"sandbox").toLowerCase()==="production"?"production":"sandbox";
+const ASAAS_BASE=ASAAS_ENV==="production"?"https://api.asaas.com/v3":"https://api-sandbox.asaas.com/v3";
+const REAL_MONEY_ENABLED=ASAAS_ENV==="production"&&process.env.PULSO90_REAL_MONEY_ENABLE==="1"&&process.env.PULSO90_OPERATOR_REGULATORY_ACK==="1";
+const PAYMENT_PREFIX=ASAAS_ENV==="production"?"pulso90-prod":"pulso90-sandbox";
 const PAYMENT_METHODS=new Set(["PIX","BOLETO","CREDIT_CARD","UNDEFINED"]);
+const PIX_KEY_TYPES=new Set(["CPF","CNPJ","EMAIL","PHONE","EVP"]);
 const ODDS_API_KEY=String(process.env.THE_ODDS_API_KEY||process.env.ODDS_API_KEY||"").trim();
 const ODDS_CACHE_MS=60000,ODDS_STALE_MS=10*60000,ODDS_MARKET="h2h",ODDS_REGIONS="eu";
 const ODDS_SCOPE_KEYS={
@@ -77,7 +81,7 @@ function paymentHistory(sessionId,limit=30){
 }
 async function asaas(pathname,{method="GET",data=null}={}){
   if(!ASAAS_API_KEY)throw new Error("asaas_not_configured");
-  const r=await fetch(ASAAS_BASE+pathname,{method,headers:{"content-type":"application/json","user-agent":"Pulso90/0.18 (Node.js; sandbox)","access_token":ASAAS_API_KEY},body:data?JSON.stringify(data):undefined});
+  const r=await fetch(ASAAS_BASE+pathname,{method,headers:{"content-type":"application/json","user-agent":"Pulso90/0.19 (Node.js; "+ASAAS_ENV+")","access_token":ASAAS_API_KEY},body:data?JSON.stringify(data):undefined});
   const payload=await r.json().catch(()=>({}));
   if(!r.ok){const e=new Error("asaas_request_failed");e.status=r.status;e.payload=payload;throw e}
   return payload;
@@ -86,13 +90,14 @@ async function createAsaasLink(s,v){
   const value=safeMoney(v.value),billingType=String(v.billingType||"PIX").toUpperCase();
   if(value===null)throw new Error("invalid_payment_value");
   if(!PAYMENT_METHODS.has(billingType))throw new Error("invalid_payment_method");
-  const ref="pulso90-sandbox:"+s.id+":"+crypto.randomUUID();
-  const payload={name:"Pulso 90 Sandbox",description:"Recarga de créditos de homologação Pulso 90",value,billingType,chargeType:"DETACHED",externalReference:ref,notificationEnabled:false,isAddressRequired:false};
+  if(ASAAS_ENV==="production"&&!REAL_MONEY_ENABLED)throw new Error("real_money_gate_closed");
+  const ref=PAYMENT_PREFIX+":"+s.id+":"+crypto.randomUUID();
+  const payload={name:"Pulso 90 "+(ASAAS_ENV==="sandbox"?"Sandbox":"Operador"),description:ASAAS_ENV==="sandbox"?"Recarga de créditos de homologação Pulso 90":"Depósito Pulso 90",value,billingType,chargeType:"DETACHED",externalReference:ref,notificationEnabled:false,isAddressRequired:false};
   if(billingType==="BOLETO"||billingType==="UNDEFINED")payload.dueDateLimitDays=5;
   const x=await asaas("/paymentLinks",{method:"POST",data:payload});
-  const row={type:"payment_link_created",session:s.id,provider:"asaas",environment:"sandbox",external_reference:ref,payment_link_id:String(x.id||""),billing_type:billingType,value,status:"PENDING"};
+  const row={type:"payment_link_created",session:s.id,provider:"asaas",environment:ASAAS_ENV,external_reference:ref,payment_link_id:String(x.id||""),billing_type:billingType,value,status:"PENDING"};
   paymentRecord(row);
-  return {provider:"asaas",environment:"sandbox",id:String(x.id||""),url:String(x.url||x.invoiceUrl||""),value,billingType,externalReference:ref};
+  return {provider:"asaas",environment:ASAAS_ENV,id:String(x.id||""),url:String(x.url||x.invoiceUrl||""),value,billingType,externalReference:ref};
 }
 function historyFor(sessionId,limit=20){if(!fs.existsSync(auditFile))return[];const lines=fs.readFileSync(auditFile,"utf8").trim().split(/\r?\n/).filter(Boolean);const out=[];for(let i=lines.length-1;i>=0&&out.length<limit;i--){try{const row=JSON.parse(lines[i]);if(row.session===sessionId&&row.game)out.push(row)}catch{}}return out.reverse()}
 const telemetryEvents=new Set(["page_view","game_open","favorite_toggle","filter","search","provider_open","partner_open","sport_tab","original_open"]);
@@ -168,21 +173,22 @@ const server=http.createServer(async(req,res)=>{
   try{
     if(req.method==="OPTIONS"){res.writeHead(204,corsHeaders());return res.end()}
     if(req.method==="GET"&&url.pathname==="/api/lab/health")
-      return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.5.0",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size,telemetry:"anonymous_daily_hash_v1",odds_provider_configured:Boolean(ODDS_API_KEY),payments:{provider:"asaas",environment:"sandbox",configured:Boolean(ASAAS_API_KEY),real_money_enabled:false}});
+      return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.5.1",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size,telemetry:"anonymous_daily_hash_v1",odds_provider_configured:Boolean(ODDS_API_KEY),payments:{provider:"asaas",environment:ASAAS_ENV,configured:Boolean(ASAAS_API_KEY),real_money_enabled:REAL_MONEY_ENABLED}});
     if(req.method==="GET"&&url.pathname==="/api/platform/capabilities")
-      return json(res,200,{mode:"DEMO_ONLY",sportsbook:{prematch:true,live:true,single:true,multiple:true,bet_builder:"provider_required",cashout:"provider_required",results:true,real_odds:Boolean(ODDS_API_KEY)},games:{originals:true,provider_catalog:true,slots:"catalog_only",live_casino:"catalog_only",crash:"demo_original"},payments:{provider:"asaas",environment:"sandbox",methods:["PIX","BOLETO","CREDIT_CARD"],withdrawals:"disabled",real_money_enabled:false}});
+      return json(res,200,{mode:"DEMO_ONLY",sportsbook:{prematch:true,live:true,single:true,multiple:true,bet_builder:"provider_required",cashout:"provider_required",results:true,real_odds:Boolean(ODDS_API_KEY)},games:{originals:true,provider_catalog:true,slots:"catalog_only",live_casino:"catalog_only",crash:"demo_original"},payments:{provider:"asaas",environment:ASAAS_ENV,methods:["PIX","BOLETO","CREDIT_CARD"],withdrawals:ASAAS_ENV==="sandbox"?"sandbox_homologation":(REAL_MONEY_ENABLED?"operator_enabled":"operator_gate_closed"),real_money_enabled:REAL_MONEY_ENABLED}});
     if(req.method==="GET"&&url.pathname==="/api/payments/status")
-      return json(res,200,{provider:"asaas",environment:"sandbox",configured:Boolean(ASAAS_API_KEY),webhook_configured:Boolean(ASAAS_WEBHOOK_TOKEN),methods:["PIX","BOLETO","CREDIT_CARD"],withdrawals:"disabled",real_money_enabled:false});
+      return json(res,200,{provider:"asaas",environment:ASAAS_ENV,configured:Boolean(ASAAS_API_KEY),webhook_configured:Boolean(ASAAS_WEBHOOK_TOKEN),methods:["PIX","BOLETO","CREDIT_CARD"],withdrawals:ASAAS_ENV==="sandbox"?"sandbox_homologation":(REAL_MONEY_ENABLED?"operator_enabled":"operator_gate_closed"),real_money_enabled:REAL_MONEY_ENABLED});
     if(req.method==="GET"&&url.pathname==="/api/payments/history"){
       const s=session(req);if(!s)return json(res,401,{error:"demo_session_required"});
-      return json(res,200,{environment:"sandbox",records:paymentHistory(s.id)});
+      return json(res,200,{environment:ASAAS_ENV,records:paymentHistory(s.id)});
     }
     if(req.method==="POST"&&url.pathname==="/api/payments/create-link"){
       const s=session(req);if(!s)return json(res,401,{error:"demo_session_required"});
-      if(!ASAAS_API_KEY)return json(res,503,{error:"asaas_sandbox_not_configured"});
+      if(!ASAAS_API_KEY)return json(res,503,{error:"asaas_not_configured",environment:ASAAS_ENV});
       try{return json(res,201,await createAsaasLink(s,await body(req)))}catch(e){
         if(["invalid_payment_value","invalid_payment_method"].includes(String(e.message)))return json(res,400,{error:e.message});
-        return json(res,502,{error:"asaas_sandbox_request_failed",status:Number(e.status)||0});
+        if(String(e.message)==="real_money_gate_closed")return json(res,403,{error:"real_money_gate_closed"});
+        return json(res,502,{error:"asaas_request_failed",environment:ASAAS_ENV,status:Number(e.status)||0});
       }
     }
     if(req.method==="POST"&&url.pathname==="/api/payments/asaas/webhook"){
@@ -192,14 +198,14 @@ const server=http.createServer(async(req,res)=>{
       if(!eventId)return json(res,400,{error:"invalid_webhook_event"});
       if(paymentEvents.has(eventId))return json(res,200,{ok:true,duplicate:true});
       paymentEvents.add(eventId);
-      const ref=String(pmt.externalReference||""),parts=ref.split(":"),sid=parts[0]==="pulso90-sandbox"?parts[1]:"";
+      const ref=String(pmt.externalReference||""),parts=ref.split(":"),sid=parts[0]===PAYMENT_PREFIX?parts[1]:"";
       const row={type:"asaas_webhook",event_id:eventId,event,payment_id:String(pmt.id||""),session:sid,billing_type:String(pmt.billingType||""),value:Number(pmt.value)||0,status:String(pmt.status||""),external_reference:ref};
       let credited=false;
-      if(sid&&["PAYMENT_RECEIVED","PAYMENT_CONFIRMED"].includes(event)&&pmt.id&&!creditedPayments.has(String(pmt.id))){
+      if(sid&&(ASAAS_ENV==="sandbox"||REAL_MONEY_ENABLED)&&["PAYMENT_RECEIVED","PAYMENT_CONFIRMED"].includes(event)&&pmt.id&&!creditedPayments.has(String(pmt.id))){
         const target=sessions.get(sid),value=safeMoney(pmt.value,0.01,1000);
-        if(target&&value!==null){target.balance=Math.round((target.balance+value)*100)/100;persistSession(target,"asaas_sandbox_credit");creditedPayments.add(String(pmt.id));row.credited_payment_id=String(pmt.id);credited=true}
+        if(target&&value!==null){target.balance=Math.round((target.balance+value)*100)/100;persistSession(target,"asaas_"+ASAAS_ENV+"_credit");creditedPayments.add(String(pmt.id));row.credited_payment_id=String(pmt.id);credited=true}
       }
-      paymentRecord(row);return json(res,200,{ok:true,credited_demo_balance:credited});
+      paymentRecord(row);return json(res,200,{ok:true,environment:ASAAS_ENV,credited_balance:credited});
     }
     if(req.method==="GET"&&url.pathname==="/api/sports/odds"){
       const scope=String(url.searchParams.get("scope")||"football").toLowerCase();

@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.18_PLATFORM_PARITY_PAYMENTS",
-  "built_at": "2026-10-01T17:45:00.000000+00:00",
+  "release": "GLOBAL_HUB_LAB_0.19_SECURE_VAULT_DUAL_ENV",
+  "built_at": "2026-10-01T18:20:00.000000+00:00",
   "public_lab": "https://method-ftp-vip-freeze.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -71,7 +71,12 @@
     "Asaas hosted checkout for Pix boleto and card",
     "idempotent Asaas webhook ingestion",
     "sandbox payment history tied to demo session",
-    "production money movement hard-disabled"
+    "production money movement hard-disabled",
+    "secure local secret bridge for Asaas sandbox vault",
+    "self-healing RGS starts through secret bridge",
+    "Asaas sandbox and production base separation",
+    "operator gates for production money movement",
+    "environment-aware payment ledger and webhook crediting"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,

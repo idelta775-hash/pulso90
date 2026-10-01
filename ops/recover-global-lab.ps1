@@ -23,7 +23,12 @@ function Ensure-Rgs{
   if(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue){return}
   $out=Join-Path $Tests "rgs-auto.out.log"
   $err=Join-Path $Tests "rgs-auto.err.log"
-  Start-Process -FilePath "node" -WorkingDirectory $Engine -ArgumentList "rgs-demo.mjs" -RedirectStandardOutput $out -RedirectStandardError $err -WindowStyle Hidden | Out-Null
+  $secureLauncher=Join-Path $Deploy "ops\start-rgs-secure.py"
+  if(Test-Path $secureLauncher){
+    Start-Process -FilePath "python" -WorkingDirectory $Deploy -ArgumentList $secureLauncher -RedirectStandardOutput $out -RedirectStandardError $err -WindowStyle Hidden | Out-Null
+  }else{
+    Start-Process -FilePath "node" -WorkingDirectory $Engine -ArgumentList "rgs-demo.mjs" -RedirectStandardOutput $out -RedirectStandardError $err -WindowStyle Hidden | Out-Null
+  }
   for($i=0;$i -lt 20;$i++){
     Start-Sleep -Milliseconds 500
     if(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue){return}
