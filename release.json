@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.25_PLAYER_DEMO_REAL_SELECTOR",
-  "built_at": "2026-10-01T20:48:00.000000+00:00",
+  "release": "GLOBAL_HUB_LAB_0.26_HOME_PLAYER_MODE_SELECTOR",
+  "built_at": "2026-10-01T21:02:00.000000+00:00",
   "public_lab": "https://valuation-drivers-accidents-among.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -122,7 +122,10 @@
     "sportsbook betslip respects player mode",
     "wallet follows player mode",
     "DEMO and REAL balances are visually separated",
-    "REAL never falls back silently to DEMO"
+    "REAL never falls back silently to DEMO",
+    "DEMO REAL selector moved to homepage hero",
+    "homepage is primary player mode control",
+    "My Pulso shows player mode status only"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,
