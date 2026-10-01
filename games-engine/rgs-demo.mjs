@@ -12,11 +12,13 @@ const auditFile=path.join(runtime,"games-lab-audit-v03.jsonl");
 const telemetryFile=path.join(runtime,"product-telemetry-v1.jsonl");
 const sessionFile=path.join(runtime,"games-lab-sessions-v04.jsonl");
 const paymentFile=path.join(runtime,"payments-sandbox-v1.jsonl");
+const internalLabFile=path.join(runtime,"owner-lab-v1.json");
 const PORT=Number(process.env.PULSO90_GAMES_PORT||19011);
 const sessions=new Map();
 const telemetryRate=new Map();
 const oddsCache=new Map();
 const paymentEvents=new Set(),creditedPayments=new Set();
+const internalTokens=new Map();
 const ASAAS_API_KEY=String(process.env.PULSO90_ASAAS_API_KEY||process.env.ASAAS_API_KEY||"").trim();
 const ASAAS_WEBHOOK_TOKEN=String(process.env.PULSO90_ASAAS_WEBHOOK_TOKEN||"").trim();
 const ASAAS_ENV=String(process.env.PULSO90_ASAAS_ENV||"sandbox").toLowerCase()==="production"?"production":"sandbox";
@@ -45,6 +47,36 @@ const tigerTable=[
 const duel={home:{p:.43,m:2.23,label:"CASA"},draw:{p:.14,m:6.85,label:"EMPATE"},away:{p:.43,m:2.23,label:"FORA"}};
 
 const sha256=v=>crypto.createHash("sha256").update(v).digest("hex");
+function pinHash(pin,salt){return crypto.scryptSync(String(pin),salt,32).toString("hex")}
+function loadInternalLab(){
+  let d={version:1,users:{},ledger:[],treasury:1000000};
+  if(fs.existsSync(internalLabFile)){try{d={...d,...JSON.parse(fs.readFileSync(internalLabFile,"utf8"))}}catch{}}
+  if(!d.users||typeof d.users!=="object")d.users={};
+  if(!Array.isArray(d.ledger))d.ledger=[];
+  if(!Number.isFinite(Number(d.treasury)))d.treasury=1000000;
+  return d;
+}
+let internalLab=loadInternalLab();
+function saveInternalLab(){const tmp=internalLabFile+".tmp";fs.writeFileSync(tmp,JSON.stringify(internalLab,null,2),"utf8");fs.renameSync(tmp,internalLabFile)}
+function ensureInternalDemoSession(user){
+  if(user.demoSessionId&&sessions.has(user.demoSessionId))return sessions.get(user.demoSessionId);
+  const id=crypto.randomUUID(),serverSeed=newServerSeed(),clientSeed=newClientSeed();
+  const ss={id,balance:0,points:0,rounds:0,createdAt:new Date().toISOString(),serverSeed,serverSeedHash:sha256(serverSeed),clientSeed,nonce:0,revealed:[]};
+  sessions.set(id,ss);persistSession(ss,"owner_lab_created");user.demoSessionId=id;saveInternalLab();return ss;
+}
+function internalUserSafe(u){return {username:u.username,name:u.name,role:u.role,demoSessionId:u.demoSessionId||"",createdAt:u.createdAt}}
+function internalAuth(req){
+  const t=String(req.headers["x-lab-token"]||"");const x=internalTokens.get(t);
+  if(!x||x.expires<Date.now()){if(t)internalTokens.delete(t);return null}
+  const u=internalLab.users[x.username];return u||null;
+}
+function canCreateRole(actor,role){
+  if(!actor)return false;if(actor.role==="dono")return ["dono","socio","tecnico","tester"].includes(role);
+  if(actor.role==="socio")return ["tecnico","tester"].includes(role);
+  return actor.role==="tecnico"&&role==="tester";
+}
+function labLedger(row){const r={id:crypto.randomUUID(),at:new Date().toISOString(),...row};internalLab.ledger.push(r);if(internalLab.ledger.length>2000)internalLab.ledger=internalLab.ledger.slice(-2000);saveInternalLab();return r}
+
 const newServerSeed=()=>crypto.randomBytes(32).toString("hex");
 const newClientSeed=()=>crypto.randomBytes(16).toString("hex");
 function fairUnit(s,game){
@@ -59,7 +91,7 @@ function tiger(u){let c=0;for(const x of tigerTable){c+=x.p;if(u<c)return x}retu
 function crash(u){if(u<.03)return 1;return Math.min(100,Math.floor((.97/(1-u))*100)/100)}
 function duelOutcome(u){if(u<.43)return"home";if(u<.57)return"draw";return"away"}
 function tier(points){return points>=500?"GOLD":points>=250?"SILVER":points>=100?"BRONZE":"EXPLORER"}
-function corsHeaders(){return {"access-control-allow-origin":"*","access-control-allow-methods":"GET,POST,OPTIONS","access-control-allow-headers":"content-type,x-demo-session","access-control-max-age":"600","vary":"Origin"}}
+function corsHeaders(){return {"access-control-allow-origin":"*","access-control-allow-methods":"GET,POST,OPTIONS","access-control-allow-headers":"content-type,x-demo-session,x-lab-token","access-control-max-age":"600","vary":"Origin"}}
 function json(res,status,body){res.writeHead(status,{"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff",...corsHeaders()});res.end(JSON.stringify(body))}
 function audit(record){const base={...record,previousHash:lastAuditHash};const hash=sha256(JSON.stringify(base));const row={...base,hash};fs.appendFileSync(auditFile,JSON.stringify(row)+"\n","utf8");lastAuditHash=hash;return hash}
 function state(s){return {balance:s.balance,points:s.points,rounds:s.rounds,tier:tier(s.points),fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:s.nonce}}}
@@ -206,6 +238,56 @@ const server=http.createServer(async(req,res)=>{
         if(target&&value!==null){target.balance=Math.round((target.balance+value)*100)/100;persistSession(target,"asaas_"+ASAAS_ENV+"_credit");creditedPayments.add(String(pmt.id));row.credited_payment_id=String(pmt.id);credited=true}
       }
       paymentRecord(row);return json(res,200,{ok:true,environment:ASAAS_ENV,credited_balance:credited});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/internal/bootstrap"){
+      if(Object.keys(internalLab.users).length)return json(res,409,{error:"owner_already_bootstrapped"});
+      if(req.socket.remoteAddress!=="127.0.0.1"&&req.socket.remoteAddress!=="::1")return json(res,403,{error:"loopback_only"});
+      const v=await body(req),username=cleanText(v.username||"owner",40).toLowerCase(),name=cleanText(v.name||"Dono Pulso 90",80),pin=String(v.pin||"");
+      if(!/^[a-z0-9._-]{3,40}$/.test(username)||!/^[0-9]{6,12}$/.test(pin))return json(res,400,{error:"invalid_owner_bootstrap"});
+      const salt=crypto.randomBytes(16).toString("hex"),u={username,name,role:"dono",pinSalt:salt,pinHash:pinHash(pin,salt),createdAt:new Date().toISOString(),demoSessionId:""};
+      internalLab.users[username]=u;ensureInternalDemoSession(u);labLedger({type:"owner_bootstrap",username,role:"dono"});return json(res,201,{ok:true,user:internalUserSafe(u)});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/internal/login"){
+      const v=await body(req),username=String(v.username||"").trim().toLowerCase(),pin=String(v.pin||""),u=internalLab.users[username];
+      if(!u||!u.pinSalt||pinHash(pin,u.pinSalt)!==u.pinHash)return json(res,401,{error:"invalid_credentials"});
+      const token=crypto.randomBytes(32).toString("hex");internalTokens.set(token,{username,expires:Date.now()+12*60*60*1000});const ss=ensureInternalDemoSession(u);
+      labLedger({type:"login",username,role:u.role});return json(res,200,{token,user:internalUserSafe(u),state:state(ss)});
+    }
+    if(req.method==="GET"&&url.pathname==="/api/internal/me"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});const ss=ensureInternalDemoSession(u);
+      return json(res,200,{user:internalUserSafe(u),state:state(ss),treasury:internalLab.treasury});
+    }
+    if(req.method==="GET"&&url.pathname==="/api/internal/users"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});
+      return json(res,200,{users:Object.values(internalLab.users).map(internalUserSafe)});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/internal/users"){
+      const actor=internalAuth(req);if(!actor)return json(res,401,{error:"lab_auth_required"});
+      const v=await body(req),username=String(v.username||"").trim().toLowerCase(),name=cleanText(v.name||username,80),role=String(v.role||"tester").toLowerCase(),pin=String(v.pin||"");
+      if(!/^[a-z0-9._-]{3,40}$/.test(username)||!/^[0-9]{6,12}$/.test(pin))return json(res,400,{error:"invalid_user_data"});
+      if(internalLab.users[username])return json(res,409,{error:"username_exists"});
+      if(!canCreateRole(actor,role))return json(res,403,{error:"role_not_allowed"});
+      const salt=crypto.randomBytes(16).toString("hex"),u={username,name,role,pinSalt:salt,pinHash:pinHash(pin,salt),createdAt:new Date().toISOString(),demoSessionId:""};
+      internalLab.users[username]=u;ensureInternalDemoSession(u);labLedger({type:"user_created",actor:actor.username,username,role});return json(res,201,{user:internalUserSafe(u)});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/internal/wallet/credit"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});const v=await body(req),amount=safeMoney(v.amount,1,100000);
+      if(amount===null)return json(res,400,{error:"invalid_amount"});const ss=ensureInternalDemoSession(u);
+      ss.balance=Math.round((ss.balance+amount)*100)/100;persistSession(ss,"owner_lab_credit");internalLab.treasury=Math.round((Number(internalLab.treasury)-amount)*100)/100;
+      const entry=labLedger({type:"test_credit",username:u.username,amount,source:"laboratory_treasury",balanceAfter:ss.balance,treasuryAfter:internalLab.treasury});
+      return json(res,200,{ok:true,entry,state:state(ss),treasury:internalLab.treasury});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/internal/wallet/withdraw"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});const v=await body(req),amount=safeMoney(v.amount,1,100000);
+      if(amount===null)return json(res,400,{error:"invalid_amount"});const ss=ensureInternalDemoSession(u);if(ss.balance<amount)return json(res,400,{error:"insufficient_test_balance"});
+      ss.balance=Math.round((ss.balance-amount)*100)/100;persistSession(ss,"owner_lab_withdraw");internalLab.treasury=Math.round((Number(internalLab.treasury)+amount)*100)/100;
+      const entry=labLedger({type:"test_withdrawal",username:u.username,amount,destination:"laboratory_treasury",balanceAfter:ss.balance,treasuryAfter:internalLab.treasury,status:"completed"});
+      return json(res,200,{ok:true,entry,state:state(ss),treasury:internalLab.treasury});
+    }
+    if(req.method==="GET"&&url.pathname==="/api/internal/ledger"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});
+      const rows=u.role==="dono"||u.role==="socio"?internalLab.ledger:internalLab.ledger.filter(x=>x.username===u.username||x.actor===u.username);
+      return json(res,200,{records:rows.slice(-200).reverse(),treasury:internalLab.treasury});
     }
     if(req.method==="GET"&&url.pathname==="/api/sports/odds"){
       const scope=String(url.searchParams.get("scope")||"football").toLowerCase();

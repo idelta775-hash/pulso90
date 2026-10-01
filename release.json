@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.19_SECURE_VAULT_DUAL_ENV",
-  "built_at": "2026-10-01T18:20:00.000000+00:00",
+  "release": "GLOBAL_HUB_LAB_0.20_OWNER_OPERATIONS",
+  "built_at": "2026-10-01T18:55:00.000000+00:00",
   "public_lab": "https://method-ftp-vip-freeze.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -76,7 +76,17 @@
     "self-healing RGS starts through secret bridge",
     "Asaas sandbox and production base separation",
     "operator gates for production money movement",
-    "environment-aware payment ledger and webhook crediting"
+    "environment-aware payment ledger and webhook crediting",
+    "owner partner technician internal lab",
+    "role-based internal access",
+    "internal test user registration",
+    "closed-loop laboratory treasury",
+    "internal test credits",
+    "games share internal lab wallet session",
+    "test wins and losses settle to same internal wallet",
+    "test withdrawal returns balance to laboratory treasury",
+    "owner lab audit ledger",
+    "hashed PIN internal authentication"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,
