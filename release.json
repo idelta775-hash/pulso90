@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.24_OWNER_DUAL_MODE_VAULT",
-  "built_at": "2026-10-01T20:32:00.000000+00:00",
+  "release": "GLOBAL_HUB_LAB_0.25_PLAYER_DEMO_REAL_SELECTOR",
+  "built_at": "2026-10-01T20:48:00.000000+00:00",
   "public_lab": "https://valuation-drivers-accidents-among.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -115,7 +115,14 @@
     "provider secrets masked in owner UI",
     "public operator-mode endpoint without secrets",
     "wallet UI follows operator DEMO or REAL profile",
-    "REAL execution remains fail-closed until certified connector"
+    "REAL execution remains fail-closed until certified connector",
+    "player-selectable DEMO or REAL mode",
+    "player mode persists in browser profile",
+    "games respect player DEMO or REAL selection",
+    "sportsbook betslip respects player mode",
+    "wallet follows player mode",
+    "DEMO and REAL balances are visually separated",
+    "REAL never falls back silently to DEMO"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,

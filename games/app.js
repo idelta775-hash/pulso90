@@ -1,5 +1,5 @@
 (()=>{
-const KEY="pulso90-demo-session-v2";
+const KEY="pulso90-demo-session-v2",PLAYER_MODE="pulso90-player-mode-v1";
 let sessionId=localStorage.getItem(KEY)||"";
 let API_BASE="";
 async function loadRuntime(){try{const r=await fetch("../runtime-config.json",{cache:"no-store"});if(r.ok){const c=await r.json();API_BASE=String(c.rgs_base||"").replace(/\/$/,"")}}catch{API_BASE=""}}
@@ -8,6 +8,7 @@ const $=id=>document.getElementById(id);
 const fmt=n=>Number(n).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
 function headers(){return {"content-type":"application/json","x-demo-session":sessionId}}
 function update(s){$("balance").textContent=fmt(s.balance);$("points").textContent=String(s.points);$("rounds").textContent=String(s.rounds);$("tier").textContent=s.tier||"EXPLORER"}
+async function paintMode(){const m=(localStorage.getItem(PLAYER_MODE)||"demo")==="real"?"real":"demo";if(m==="demo"){$("gameModeBadge").textContent="PULSO 90 ORIGINALS · DEMO";$("gameModeText").textContent="Você está jogando no modo DEMO com créditos de teste.";$("gameModeWarning").innerHTML="<b>CRÉDITOS DE TESTE.</b> Eles servem apenas para experimentar os jogos e não possuem valor monetário.";return}let op={};try{const r=await fetch(api("/api/platform/operator-mode"),{cache:"no-store"}),x=await r.json();op=x.operator||{}}catch{}$("gameModeBadge").textContent="PULSO 90 ORIGINALS · REAL";$("gameModeText").textContent="Você escolheu JOGAR REAL.";$("gameModeWarning").innerHTML=op.real_execution_enabled?"<b>MODO REAL SELECIONADO.</b> A execução deste jogo depende do conector real específico.":"<b>MODO REAL INDISPONÍVEL.</b> O operador ainda não liberou execução real. Nenhuma rodada DEMO será feita por engano."}
 function show(el,data,label){
   const net=Number(data.net||0);
   el.className="result "+(net>0?"win":net<0?"lose":"");
@@ -25,12 +26,14 @@ async function ensureSession(){
   if(r.status===401){sessionId="";localStorage.removeItem(KEY);return createSession()}
   const d=await r.json();if(!r.ok)throw new Error(d.error||"state_error");update(d);
 }
+async function ensurePlayableMode(){const m=(localStorage.getItem(PLAYER_MODE)||"demo")==="real"?"real":"demo";if(m==="demo")return;let op={};try{const r=await fetch(api("/api/platform/operator-mode"),{cache:"no-store"}),x=await r.json();op=x.operator||{}}catch{}if(!op.real_execution_enabled)throw new Error("real_mode_unavailable");throw new Error("real_game_connector_required")}
 async function play(payload){
+  await ensurePlayableMode();
   let r=await fetch(api("/api/lab/play"),{method:"POST",headers:headers(),body:JSON.stringify(payload)});
   if(r.status===401){await createSession();r=await fetch(api("/api/lab/play"),{method:"POST",headers:headers(),body:JSON.stringify(payload)})}
   const d=await r.json();if(!r.ok)throw new Error(d.error||"play_error");return d;
 }
-function friendlyError(code){const m={demo_balance_insufficient:"Créditos insuficientes para esta jogada.",invalid_demo_stake:"Escolha um valor válido.",invalid_pick:"Escolha Casa, Empate ou Fora.",invalid_target:"Escolha um alvo entre 1,10× e 20×.",game_not_found:"Este jogo não está disponível agora.",session_error:"Não foi possível iniciar sua sessão.",state_error:"Não foi possível recuperar sua sessão.",play_error:"A rodada não pôde ser concluída.",reset_error:"Não foi possível recomeçar agora."};return m[String(code)]||"Algo não saiu como esperado. Tente novamente."}
+function friendlyError(code){const m={demo_balance_insufficient:"Créditos insuficientes para esta jogada.",invalid_demo_stake:"Escolha um valor válido.",invalid_pick:"Escolha Casa, Empate ou Fora.",invalid_target:"Escolha um alvo entre 1,10× e 20×.",game_not_found:"Este jogo não está disponível agora.",session_error:"Não foi possível iniciar sua sessão.",state_error:"Não foi possível recuperar sua sessão.",play_error:"A rodada não pôde ser concluída.",reset_error:"Não foi possível recomeçar agora.",real_mode_unavailable:"Você escolheu JOGAR REAL, mas o operador ainda não liberou o ambiente real.",real_game_connector_required:"Modo REAL selecionado. Este jogo ainda aguarda o conector transacional real; nenhuma aposta DEMO foi feita."};return m[String(code)]||"Algo não saiu como esperado. Tente novamente."}
 function err(el,e){el.className="result lose";el.textContent=friendlyError(e&&e.message||e)}
 
 $("tigerPlay").addEventListener("click",async()=>{
@@ -67,11 +70,12 @@ $("duelPlay").addEventListener("click",async()=>{
 
 $("resetLab").addEventListener("click",async()=>{
   try{
+    await ensurePlayableMode();
     const r=await fetch(api("/api/lab/reset"),{method:"POST",headers:headers()});
     const d=await r.json();if(!r.ok)throw new Error(d.error||"reset_error");
     update(d);["tigerResult","crashResult","duelResult"].forEach(id=>$(id).textContent="");
   }catch(e){err($("tigerResult"),e)}
 });
 
-loadRuntime().then(ensureSession).catch(e=>err($("tigerResult"),e));
+loadRuntime().then(async()=>{await paintMode();await ensureSession()}).catch(e=>err($("tigerResult"),e));
 })();

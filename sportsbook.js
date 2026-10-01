@@ -1,5 +1,5 @@
 const $=id=>document.getElementById(id),$$=s=>[...document.querySelectorAll(s)];
-const FAVORITES_KEY="pulso90-sports-favorites-v1",SLIP_KEY="pulso90-sports-slip-v1",STAKE_KEY="pulso90-sports-stake-v1",SLIP_MODE_KEY="pulso90-sports-slip-mode-v1",LAB_TOKEN_KEY="pulso90-owner-lab-token-v1";
+const FAVORITES_KEY="pulso90-sports-favorites-v1",SLIP_KEY="pulso90-sports-slip-v1",STAKE_KEY="pulso90-sports-stake-v1",SLIP_MODE_KEY="pulso90-sports-slip-mode-v1",LAB_TOKEN_KEY="pulso90-owner-lab-token-v1",PLAYER_MODE_KEY="pulso90-player-mode-v1";
 let sport="football",view="all",matches=[],favorites=new Set(),oddsEvents=[],slip=[],runtimeBase="",slipMode=localStorage.getItem(SLIP_MODE_KEY)||"multiple";
 try{favorites=new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY)||"[]"))}catch{}
 try{slip=JSON.parse(localStorage.getItem(SLIP_KEY)||"[]");if(!Array.isArray(slip))slip=[]}catch{slip=[]}
@@ -66,14 +66,17 @@ function renderSlip(){
  if(!slip.length){empty.style.display="block";host.innerHTML="";return}
  empty.style.display="none";
  const combined=slip.reduce((a,x)=>a*Number(x.price||1),1),stake=Math.max(0,Number(localStorage.getItem(STAKE_KEY)||10)||0),singleReturn=slip.reduce((a,x)=>a+stake*Number(x.price||1),0),singleStake=stake*slip.length;
- const summary=slipMode==="single"?'<b><span>Aposta total</span><span>'+singleStake.toFixed(2)+'</span></b><b><span>Retorno potencial DEMO</span><span id="slipReturn">'+singleReturn.toFixed(2)+'</span></b>':'<b><span>Odd combinada</span><span>'+combined.toFixed(2)+'</span></b><b><span>Retorno potencial DEMO</span><span id="slipReturn">'+(stake*combined).toFixed(2)+'</span></b>';
+ const playerMode=(localStorage.getItem(PLAYER_MODE_KEY)||"demo")==="real"?"real":"demo";
+ const returnLabel=playerMode==="real"?"Retorno potencial REAL":"Retorno potencial DEMO";
+ const summary=slipMode==="single"?'<b><span>Aposta total</span><span>'+singleStake.toFixed(2)+'</span></b><b><span>'+returnLabel+'</span><span id="slipReturn">'+singleReturn.toFixed(2)+'</span></b>':'<b><span>Odd combinada</span><span>'+combined.toFixed(2)+'</span></b><b><span>'+returnLabel+'</span><span id="slipReturn">'+(stake*combined).toFixed(2)+'</span></b>';
  const labToken=localStorage.getItem(LAB_TOKEN_KEY)||"";
- host.innerHTML=slip.map(x=>'<div class="slip-item"><b>'+esc(x.home)+' × '+esc(x.away)+'</b><small>'+esc(x.selection)+' · <span class="price">'+Number(x.price).toFixed(2)+'</span></small><button data-slip-remove="'+esc(x.key)+'">Remover</button></div>').join("")+'<div class="slip-total"><label>'+(slipMode==="single"?"Créditos DEMO por seleção":"Créditos DEMO")+'</label><input id="slipStake" type="number" min="1" max="1000" step="1" value="'+stake+'">'+summary+(labToken?'<button id="placeLabBet" class="open" style="width:100%;margin-top:9px">APOSTAR NO LABORATÓRIO</button><div id="labBetResult" class="meta" style="margin-top:7px"></div>':'<div class="meta" style="margin-top:7px">Entre pela Central do Dono para registrar apostas internas.</div>')+'</div>';
+ host.innerHTML=slip.map(x=>'<div class="slip-item"><b>'+esc(x.home)+' × '+esc(x.away)+'</b><small>'+esc(x.selection)+' · <span class="price">'+Number(x.price).toFixed(2)+'</span></small><button data-slip-remove="'+esc(x.key)+'">Remover</button></div>').join("")+'<div class="slip-total"><label>'+(playerMode==="real"?"Valor REAL":(slipMode==="single"?"Créditos DEMO por seleção":"Créditos DEMO"))+'</label><input id="slipStake" type="number" min="1" max="1000" step="1" value="'+stake+'">'+summary+(playerMode==="real"?'<div class="meta" style="margin-top:7px">JOGAR REAL selecionado. Apostas reais ficam bloqueadas até o conector real do operador estar certificado.</div>':(labToken?'<button id="placeLabBet" class="open" style="width:100%;margin-top:9px">APOSTAR NO LABORATÓRIO</button><div id="labBetResult" class="meta" style="margin-top:7px"></div>':'<div class="meta" style="margin-top:7px">Entre pela Central do Dono para registrar apostas internas.</div>'))+'</div>';
  $$("[data-slip-remove]").forEach(b=>b.onclick=()=>{slip=slip.filter(x=>x.key!==b.dataset.slipRemove);saveSlip();renderSlip()});
  const inp=$("slipStake");if(inp)inp.oninput=()=>{const v=Math.max(0,Number(inp.value)||0);localStorage.setItem(STAKE_KEY,String(v));$("slipReturn").textContent=(slipMode==="single"?slip.reduce((a,x)=>a+v*Number(x.price||1),0):v*combined).toFixed(2)}
  const place=$("placeLabBet");if(place)place.onclick=placeLabBet;
 }
 async function placeLabBet(){
+ const playerMode=(localStorage.getItem(PLAYER_MODE_KEY)||"demo")==="real"?"real":"demo";if(playerMode==="real")return;
  const base=await getRuntime(),token=localStorage.getItem(LAB_TOKEN_KEY)||"",stake=Math.max(1,Number($("slipStake")?.value)||0),host=$("labBetResult");
  if(!base||!token||!slip.length){if(host)host.textContent="Sessão interna necessária.";return}
  if(host)host.textContent="Registrando bilhete...";
