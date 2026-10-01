@@ -53,6 +53,16 @@ The ChatGPT web UI showed "ChatGPT stream recovery polling timed out". This is a
 - Player-facing quality gate: 10/10 PASS.
 - The main player flow hides technical/commercial pipeline language; operational details remain outside the gaming experience.
 
+## Release 0.16 — Sportsbook Core
+- Dedicated route: `sportsbook.html`.
+- Real sports events, scores, status, competition and match details via SportScore.
+- Favorites/watchlist persist locally.
+- Bet slip shell is persistent and intentionally remains without prices until a real odds provider is connected.
+- No fabricated odds are inserted into the Pulso 90 sportsbook.
+- Home sports CTAs route to the dedicated Sportsbook.
+- PWA shell includes sportsbook.html and sportsbook.js.
+- Quality gate includes the Sportsbook page and JS.
+
 ## RGS guarantees in current lab
 - HMAC-SHA256 commit/reveal
 - configurable client seed

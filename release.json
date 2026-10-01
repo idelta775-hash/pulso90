@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.15_SUPERBET_UX",
-  "built_at": "2026-09-28T16:05:22.598089+00:00",
+  "release": "GLOBAL_HUB_LAB_0.16_SPORTSBOOK_CORE",
+  "built_at": "2026-10-01T14:51:54.949506+00:00",
   "public_lab": "https://method-ftp-vip-freeze.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -47,7 +47,16 @@
     "9221 successful demo rounds in load simulation",
     "10679 simulated requests with zero unexpected failures",
     "80/80 sampled sessions restored after restart",
-    "quality gate 10/10"
+    "quality gate 10/10",
+    "dedicated sportsbook page",
+    "real sports events via SportScore",
+    "competition grouping and real score/status rendering",
+    "persistent sports favorites",
+    "real match detail modal",
+    "sportsbook watchlist",
+    "persistent empty betslip shell ready for licensed odds",
+    "no fabricated odds policy",
+    "sportsbook added to PWA shell and quality gate"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,
