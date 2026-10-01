@@ -1,0 +1,27 @@
+{
+  "version": "0.1",
+  "updated_at": "2026-10-01T19:40:00Z",
+  "policy": {
+    "no_fake_real_games": true,
+    "launch_requires_configured_provider": true,
+    "wallet_is_server_to_server": true,
+    "idempotency_required": true,
+    "rollback_required": true,
+    "sandbox_first": true
+  },
+  "contract": {
+    "catalog": ["provider_game_id","name","category","supports_demo","supports_real"],
+    "launch": ["provider","game_id","player_id","session_id","currency","locale","return_url"],
+    "wallet": ["balance","bet","win","refund","rollback"],
+    "security": ["signed_requests","timestamp_or_nonce","ip_allowlist_if_supported","secret_never_in_browser"]
+  },
+  "providers": [
+    {"id":"pgsoft","name":"PG SOFT","commercial_status":"contacted","technical_status":"credentials_missing","targets":["Fortune Tiger","Fortune Series"],"adapter":"generic_session_wallet_v1"},
+    {"id":"spribe","name":"SPRIBE","commercial_status":"contacted","technical_status":"credentials_missing","targets":["Aviator"],"adapter":"generic_session_wallet_v1"},
+    {"id":"evolution","name":"Evolution","commercial_status":"contacted","technical_status":"credentials_missing","targets":["Football Studio","Live Casino","Dedicated Live","Dream Creator"],"adapter":"generic_session_wallet_v1"},
+    {"id":"pragmatic_play","name":"Pragmatic Play","commercial_status":"contacted","technical_status":"credentials_missing","targets":["Slots","Live Casino","Game Shows","Virtual Sports"],"adapter":"generic_session_wallet_v1"},
+    {"id":"smartsoft","name":"SmartSoft","commercial_status":"contacted","technical_status":"credentials_missing","targets":["JetX"],"adapter":"generic_session_wallet_v1"},
+    {"id":"playngo","name":"Play’n GO","commercial_status":"contacted","technical_status":"credentials_missing","targets":["Slots"],"adapter":"generic_session_wallet_v1"},
+    {"id":"games_global","name":"Games Global","commercial_status":"prospecting","technical_status":"not_started","targets":["Catálogo global"],"adapter":"generic_session_wallet_v1"}
+  ]
+}

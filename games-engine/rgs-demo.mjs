@@ -13,6 +13,7 @@ const telemetryFile=path.join(runtime,"product-telemetry-v1.jsonl");
 const sessionFile=path.join(runtime,"games-lab-sessions-v04.jsonl");
 const paymentFile=path.join(runtime,"payments-sandbox-v1.jsonl");
 const internalLabFile=path.join(runtime,"owner-lab-v1.json");
+const casinoAdaptersFile=path.join(root,"data","casino-adapters.json");
 const PORT=Number(process.env.PULSO90_GAMES_PORT||19011);
 const sessions=new Map();
 const telemetryRate=new Map();
@@ -76,6 +77,8 @@ function canCreateRole(actor,role){
   return actor.role==="tecnico"&&role==="tester";
 }
 function labLedger(row){const r={id:crypto.randomUUID(),at:new Date().toISOString(),...row};internalLab.ledger.push(r);if(internalLab.ledger.length>2000)internalLab.ledger=internalLab.ledger.slice(-2000);saveInternalLab();return r}
+function casinoAdapters(){try{return JSON.parse(fs.readFileSync(casinoAdaptersFile,"utf8"))}catch{return {version:"0",policy:{},contract:{},providers:[]}}}
+function casinoProvider(id){return (casinoAdapters().providers||[]).find(x=>x.id===id)||null}
 
 const newServerSeed=()=>crypto.randomBytes(32).toString("hex");
 const newClientSeed=()=>crypto.randomBytes(16).toString("hex");
@@ -308,6 +311,23 @@ const server=http.createServer(async(req,res)=>{
       const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});
       const rows=u.role==="dono"||u.role==="socio"?internalLab.ledger:internalLab.ledger.filter(x=>x.username===u.username||x.actor===u.username);
       return json(res,200,{records:rows.slice(-200).reverse(),treasury:internalLab.treasury});
+    }
+    if(req.method==="GET"&&url.pathname==="/api/casino/providers"){
+      const x=casinoAdapters();return json(res,200,{version:x.version,policy:x.policy,contract:x.contract,providers:(x.providers||[]).map(p=>({id:p.id,name:p.name,commercial_status:p.commercial_status,technical_status:p.technical_status,targets:p.targets,adapter:p.adapter}))});
+    }
+    if(req.method==="GET"&&url.pathname==="/api/casino/catalog"){
+      const provider=String(url.searchParams.get("provider")||"");const p=casinoProvider(provider);
+      if(!p)return json(res,404,{error:"provider_not_found"});
+      if(!["ready_for_homologation","live"].includes(String(p.technical_status)))return json(res,503,{error:"provider_not_configured",provider,technical_status:p.technical_status,games:[]});
+      return json(res,200,{provider,games:[],note:"catalog_adapter_ready_but_no_provider_credentials_loaded"});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/internal/casino/launch"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});
+      const v=await body(req),provider=String(v.provider||""),gameId=String(v.game_id||""),p=casinoProvider(provider);
+      if(!p)return json(res,404,{error:"provider_not_found"});
+      if(!gameId)return json(res,400,{error:"game_id_required"});
+      if(!["ready_for_homologation","live"].includes(String(p.technical_status)))return json(res,503,{error:"provider_not_configured",provider,technical_status:p.technical_status});
+      return json(res,503,{error:"provider_launch_adapter_not_bound",provider});
     }
     if(req.method==="GET"&&url.pathname==="/api/internal/reference/sportsbook"){
       const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});
