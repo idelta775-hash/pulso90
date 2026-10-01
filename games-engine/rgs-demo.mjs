@@ -16,7 +16,13 @@ const sessions=new Map();
 const telemetryRate=new Map();
 const oddsCache=new Map();
 const ODDS_API_KEY=String(process.env.THE_ODDS_API_KEY||process.env.ODDS_API_KEY||"").trim();
-const ODDS_SCOPE_KEYS={football:["soccer_epl","soccer_spain_la_liga","soccer_germany_bundesliga","soccer_italy_serie_a","soccer_france_ligue_one","soccer_uefa_champs_league"],basketball:["basketball_nba"],tennis:["tennis"],cricket:["cricket"]};
+const ODDS_CACHE_MS=60000,ODDS_STALE_MS=10*60000,ODDS_MARKET="h2h",ODDS_REGIONS="eu";
+const ODDS_SCOPE_KEYS={
+  football:["soccer_brazil_campeonato","soccer_epl","soccer_spain_la_liga","soccer_germany_bundesliga","soccer_italy_serie_a","soccer_france_ligue_one","soccer_uefa_champs_league"],
+  basketball:["basketball_nba"],
+  tennis:[],cricket:[]
+};
+const ODDS_ALLOWED_SCOPES=new Set(Object.keys(ODDS_SCOPE_KEYS));
 let lastAuditHash="GENESIS";
 
 const tigerTable=[
@@ -76,36 +82,46 @@ function telemetrySummary(days=7){
 }
 function summarizeOddsEvent(e,sportKey){
   const best=new Map();
-  for(const b of Array.isArray(e.books)?e.books:[]){
-    if(String(b.market||"")!=="h2h")continue;
-    for(const o of Array.isArray(b.outcomes)?b.outcomes:[]){
-      const name=String(o.name||"").trim(),price=Number(o.price);
-      if(!name||!Number.isFinite(price)||price<=1)continue;
-      const prev=best.get(name);
-      if(!prev||price>prev.price)best.set(name,{name,price,book:String(b.book||"")});
+  for(const b of Array.isArray(e.bookmakers)?e.bookmakers:[]){
+    for(const m of Array.isArray(b.markets)?b.markets:[]){
+      if(String(m.key||"")!==ODDS_MARKET)continue;
+      for(const o of Array.isArray(m.outcomes)?m.outcomes:[]){
+        const name=String(o.name||"").trim(),price=Number(o.price);
+        if(!name||!Number.isFinite(price)||price<=1)continue;
+        const prev=best.get(name);
+        if(!prev||price>prev.price)best.set(name,{name,price,book:String(b.title||b.key||"")});
+      }
     }
   }
-  return {event_id:String(e.event_id||""),sport_key:sportKey,league:String(e.league||""),home_team:String(e.home_team||""),away_team:String(e.away_team||""),start_time:String(e.start_time||""),outcomes:[...best.values()]};
+  return {event_id:String(e.id||""),sport_key:String(e.sport_key||sportKey),league:String(e.sport_title||""),home_team:String(e.home_team||""),away_team:String(e.away_team||""),start_time:String(e.commence_time||""),outcomes:[...best.values()]};
 }
 async function fetchOddsScope(scope){
+  if(!ODDS_ALLOWED_SCOPES.has(scope))return {available:false,configured:Boolean(ODDS_API_KEY),scope,events:[],reason:"unsupported_scope"};
   const keys=ODDS_SCOPE_KEYS[scope]||[];
-  if(!keys.length)return {available:false,configured:Boolean(ODDS_API_KEY),scope,events:[],reason:"unsupported_scope"};
+  if(!keys.length)return {available:false,configured:Boolean(ODDS_API_KEY),scope,events:[],reason:"scope_not_configured"};
   if(!ODDS_API_KEY)return {available:false,configured:false,scope,events:[],reason:"provider_not_configured"};
-  const cacheKey=scope,hit=oddsCache.get(cacheKey);
-  if(hit&&Date.now()-hit.at<60000)return hit.value;
-  const errors=[],events=[];
+  const cacheKey=scope,hit=oddsCache.get(cacheKey),age=hit?Date.now()-hit.at:Infinity;
+  if(hit&&age<ODDS_CACHE_MS)return {...hit.value,cache:"fresh"};
+  const errors=[],events=[],quota={remaining:null,used:null,last:null};
   await Promise.all(keys.map(async sportKey=>{
     try{
-      const qs=new URLSearchParams({sport_key:sportKey,markets:"h2h",regions:"eu,uk",oddsFormat:"decimal"});
-      const r=await fetch("https://api.theoddsapi.com/odds/?"+qs.toString(),{headers:{"x-api-key":ODDS_API_KEY}});
-      const payload=await r.json().catch(()=>({}));
+      const qs=new URLSearchParams({apiKey:ODDS_API_KEY,regions:ODDS_REGIONS,markets:ODDS_MARKET,oddsFormat:"decimal",dateFormat:"iso"});
+      const endpoint="https://api.the-odds-api.com/v4/sports/"+encodeURIComponent(sportKey)+"/odds/?"+qs.toString();
+      const r=await fetch(endpoint,{headers:{accept:"application/json"}});
+      quota.remaining=r.headers.get("x-requests-remaining")??quota.remaining;
+      quota.used=r.headers.get("x-requests-used")??quota.used;
+      quota.last=r.headers.get("x-requests-last")??quota.last;
+      const payload=await r.json().catch(()=>null);
       if(!r.ok){errors.push({sport_key:sportKey,status:r.status});return}
-      const rows=Array.isArray(payload)?payload:Array.isArray(payload.data)?payload.data:[];
-      for(const row of rows){const x=summarizeOddsEvent(row,sportKey);if(x.home_team&&x.away_team&&x.outcomes.length)events.push(x)}
+      const rows=Array.isArray(payload)?payload:[];
+      for(const row of rows){const x=summarizeOddsEvent(row,sportKey);if(x.event_id&&x.home_team&&x.away_team&&x.outcomes.length)events.push(x)}
     }catch{errors.push({sport_key:sportKey,status:0})}
   }));
-  const value={available:events.length>0,configured:true,scope,events,fetched_at:new Date().toISOString(),errors};
-  oddsCache.set(cacheKey,{at:Date.now(),value});return value;
+  if(!events.length&&hit&&age<ODDS_STALE_MS){
+    return {...hit.value,available:hit.value.events.length>0,stale:true,cache:"stale",errors};
+  }
+  const value={available:events.length>0,configured:true,scope,market:ODDS_MARKET,regions:ODDS_REGIONS,events,fetched_at:new Date().toISOString(),errors,quota};
+  oddsCache.set(cacheKey,{at:Date.now(),value});return {...value,cache:"miss"};
 }
 function settle(s,stake,multiplier,meta,fair){const payout=Math.round(stake*multiplier*100)/100;s.balance=Math.round((s.balance-stake+payout)*100)/100;s.rounds++;s.points+=1+(payout>stake?5:0);const record={at:new Date().toISOString(),session:s.id,mode:"DEMO_ONLY",game:meta.game,version:"0.3.0",stake,payout,multiplier,balanceAfter:s.balance,outcome:meta.outcome,fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:fair.nonce,message:fair.message}};const auditHash=audit(record);persistSession(s,"settle:"+meta.game);return {payout,net:Math.round((payout-stake)*100)/100,auditHash,fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:fair.nonce,message:fair.message},...state(s)}}
 restoreSessions();
