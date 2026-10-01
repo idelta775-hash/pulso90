@@ -153,6 +153,26 @@ function telemetrySummary(days=7){
   const top=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,12).map(([name,count])=>({name,count}));
   return {window_days:windowDays,total_events:total,unique_daily_visitors:unique.size,events:counts.events,top_items:top(counts.items),top_providers:top(counts.providers),top_categories:top(counts.categories),daily:counts.daily};
 }
+
+const REF_SPORT_MAP={football:1,combat:2,futsal:6,snooker:18};
+async function fetchReferenceSportsbook(scope){
+  const sid=REF_SPORT_MAP[scope];if(!sid)return {available:false,scope,matches:[],events:[],reason:"unsupported_reference_scope"};
+  const r=await fetch("https://esportesgol.net/axios/data",{method:"POST",headers:{"content-type":"application/json","accept":"application/json","user-agent":"Pulso90-LabReference/0.21"},body:JSON.stringify({filtro:-1})});
+  if(!r.ok)throw new Error("reference_feed_failed");
+  const x=await r.json(),rows=Array.isArray(x.lista)?x.lista.filter(g=>Number(g.esporte_id)===sid):[];
+  const matches=[],events=[];
+  for(const g of rows){
+    const eventId="ref:"+String(g.id||"");
+    matches.push({competition:String(g.campeonato||""),home:String(g.tc||""),away:String(g.tf||""),time:String(g.data_hora||""),status:"scheduled",status_text:"AGENDADO",home_score:null,away_score:null,source:"reference_feed"});
+    const outcomes=[];
+    if(Number(g.od_casa)>1)outcomes.push({name:String(g.tc||"Casa"),price:Number(g.od_casa),book:"reference"});
+    if(Number(g.od_empate)>1)outcomes.push({name:"Draw",price:Number(g.od_empate),book:"reference"});
+    if(Number(g.od_fora)>1)outcomes.push({name:String(g.tf||"Fora"),price:Number(g.od_fora),book:"reference"});
+    if(outcomes.length)events.push({event_id:eventId,sport_key:scope,league:String(g.campeonato||""),home_team:String(g.tc||""),away_team:String(g.tf||""),start_time:String(g.data_hora||""),outcomes,reference_markets:{double_chance:{home_draw:Number(g.od_1x)||0,home_away:Number(g.od_12)||0,draw_away:Number(g.od_x2)||0},btts:{yes:Number(g.od_btsy)||0,no:Number(g.od_btsn)||0},totals_25:{over:Number(g.od_mais25)||0,under:Number(g.od_menos25)||0},more_markets:Number(g.mais_jogos)||0}});
+  }
+  return {available:true,scope,source:"public_reference_only",captured_at:new Date().toISOString(),matches,events,source_config:{min_stake:Number(x?.config?.valor_minimo)||null,max_stake:Number(x?.config?.valor_maximo)||null,max_prize:Number(x?.config?.premio_maximo)||null,max_games:Number(x?.config?.max_jogos)||null,cashout_active:Boolean(x?.config?.cashout_ativo),bet_builder_active:Boolean(x?.config?.bet_builder_ativo)}};
+}
+
 function summarizeOddsEvent(e,sportKey){
   const best=new Map();
   for(const b of Array.isArray(e.bookmakers)?e.bookmakers:[]){
@@ -288,6 +308,11 @@ const server=http.createServer(async(req,res)=>{
       const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});
       const rows=u.role==="dono"||u.role==="socio"?internalLab.ledger:internalLab.ledger.filter(x=>x.username===u.username||x.actor===u.username);
       return json(res,200,{records:rows.slice(-200).reverse(),treasury:internalLab.treasury});
+    }
+    if(req.method==="GET"&&url.pathname==="/api/internal/reference/sportsbook"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});
+      const scope=String(url.searchParams.get("scope")||"football").toLowerCase();
+      try{return json(res,200,await fetchReferenceSportsbook(scope))}catch{return json(res,502,{error:"reference_feed_unavailable",scope})}
     }
     if(req.method==="GET"&&url.pathname==="/api/sports/odds"){
       const scope=String(url.searchParams.get("scope")||"football").toLowerCase();

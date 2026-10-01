@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.20_OWNER_OPERATIONS",
-  "built_at": "2026-10-01T18:55:00.000000+00:00",
+  "release": "GLOBAL_HUB_LAB_0.21_REFERENCE_SPORTSBOOK",
+  "built_at": "2026-10-01T19:25:00.000000+00:00",
   "public_lab": "https://method-ftp-vip-freeze.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -86,7 +86,12 @@
     "test wins and losses settle to same internal wallet",
     "test withdrawal returns balance to laboratory treasury",
     "owner lab audit ledger",
-    "hashed PIN internal authentication"
+    "hashed PIN internal authentication",
+    "authenticated internal real sportsbook reference feed",
+    "reference coverage football combat futsal and snooker",
+    "reference 1X2 normalization into Pulso 90 betslip",
+    "reference double-chance BTTS totals metadata",
+    "commercial mode isolated from reference source"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,

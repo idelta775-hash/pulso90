@@ -1,5 +1,5 @@
 const $=id=>document.getElementById(id),$$=s=>[...document.querySelectorAll(s)];
-const FAVORITES_KEY="pulso90-sports-favorites-v1",SLIP_KEY="pulso90-sports-slip-v1",STAKE_KEY="pulso90-sports-stake-v1",SLIP_MODE_KEY="pulso90-sports-slip-mode-v1";
+const FAVORITES_KEY="pulso90-sports-favorites-v1",SLIP_KEY="pulso90-sports-slip-v1",STAKE_KEY="pulso90-sports-stake-v1",SLIP_MODE_KEY="pulso90-sports-slip-mode-v1",LAB_TOKEN_KEY="pulso90-owner-lab-token-v1";
 let sport="football",view="all",matches=[],favorites=new Set(),oddsEvents=[],slip=[],runtimeBase="",slipMode=localStorage.getItem(SLIP_MODE_KEY)||"multiple";
 try{favorites=new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY)||"[]"))}catch{}
 try{slip=JSON.parse(localStorage.getItem(SLIP_KEY)||"[]");if(!Array.isArray(slip))slip=[]}catch{slip=[]}
@@ -82,6 +82,10 @@ async function loadOdds(){
 }
 async function load(){
  $("events").innerHTML='<div class="panel" style="padding:18px">Atualizando partidas…</div>';
+ const base=await getRuntime(),labToken=localStorage.getItem(LAB_TOKEN_KEY)||"";
+ if(base&&labToken&&["football","combat","futsal","snooker"].includes(sport)){
+  try{const r=await fetch(base+"/api/internal/reference/sportsbook?scope="+encodeURIComponent(sport),{cache:"no-store",headers:{"x-lab-token":labToken}}),x=await r.json();if(r.ok&&x.available){matches=(x.matches||[]).map(normalized);oddsEvents=x.events||[];render();return}}catch{}
+ }
  try{
   const [sports]=await Promise.all([fetch("https://sportscore.com/api/widget/matches/?sport="+encodeURIComponent(sport)+"&limit=50&src=pulso90",{cache:"no-store"}),loadOdds()]);
   const raw=await sports.json();if(!sports.ok)throw new Error("feed");
