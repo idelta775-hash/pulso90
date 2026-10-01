@@ -39,21 +39,20 @@ const ODDS_ALLOWED_SCOPES=new Set(Object.keys(ODDS_SCOPE_KEYS));
 let lastAuditHash="GENESIS";
 
 const tigerTable=[
-  {p:.65,m:0,s:["🍒","🍋","🍊"]},{p:.10,m:.5,s:["🍒","🍒","🍋"]},
-  {p:.08,m:1,s:["🍋","🍋","🍋"]},{p:.06,m:1.5,s:["🍊","🍊","🍊"]},
-  {p:.04,m:2,s:["🍀","🍀","🍀"]},{p:.04,m:5,s:["⭐","⭐","⭐"]},
-  {p:.02,m:10,s:["7️⃣","7️⃣","7️⃣"]},{p:.008,m:25,s:["💎","💎","💎"]},
-  {p:.002,m:30,s:["🐯","🐯","🐯"]}
+  {p:.816031,m:0,symbol:""},{p:.109367,m:3,symbol:"🍊"},{p:.04,m:5,symbol:"🎆"},
+  {p:.02,m:8,symbol:"🧧"},{p:.01,m:10,symbol:"👛"},{p:.004,m:25,symbol:"🟢"},
+  {p:.0005,m:100,symbol:"🪙"},{p:.0001,m:250,symbol:"🐾"},{p:.000002,m:2500,symbol:"🐾"}
 ];
 const duel={home:{p:.43,m:2.23,label:"CASA"},draw:{p:.14,m:6.85,label:"EMPATE"},away:{p:.43,m:2.23,label:"FORA"}};
 
 const sha256=v=>crypto.createHash("sha256").update(v).digest("hex");
 function pinHash(pin,salt){return crypto.scryptSync(String(pin),salt,32).toString("hex")}
 function loadInternalLab(){
-  let d={version:1,users:{},ledger:[],treasury:1000000};
+  let d={version:1,users:{},ledger:[],sportsTickets:[],treasury:1000000};
   if(fs.existsSync(internalLabFile)){try{d={...d,...JSON.parse(fs.readFileSync(internalLabFile,"utf8"))}}catch{}}
   if(!d.users||typeof d.users!=="object")d.users={};
   if(!Array.isArray(d.ledger))d.ledger=[];
+  if(!Array.isArray(d.sportsTickets))d.sportsTickets=[];
   if(!Number.isFinite(Number(d.treasury)))d.treasury=1000000;
   return d;
 }
@@ -91,6 +90,14 @@ function fairUnit(s,game){
   return {u,nonce,message:msg};
 }
 function tiger(u){let c=0;for(const x of tigerTable){c+=x.p;if(u<c)return x}return tigerTable.at(-1)}
+function tigerGrid(outcome,fair){
+  const base=["🍊","🎆","🧧","👛","🟢","🪙","🐾","🍊","🎆"],grid=[...base];
+  const digest=crypto.createHash("sha256").update(fair.message+":grid").digest();
+  for(let i=grid.length-1,j=0;i>0;i--,j++){const k=digest[j%digest.length]%(i+1);[grid[i],grid[k]]=[grid[k],grid[i]]}
+  if(outcome.m===2500)return Array(9).fill("🐾");
+  if(outcome.m>0){const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]],line=lines[digest[20]%lines.length];for(const i of line)grid[i]=outcome.symbol}
+  return grid;
+}
 function crash(u){if(u<.03)return 1;return Math.min(100,Math.floor((.97/(1-u))*100)/100)}
 function duelOutcome(u){if(u<.43)return"home";if(u<.57)return"draw";return"away"}
 function tier(points){return points>=500?"GOLD":points>=250?"SILVER":points>=100?"BRONZE":"EXPLORER"}
@@ -174,6 +181,55 @@ async function fetchReferenceSportsbook(scope){
     if(outcomes.length)events.push({event_id:eventId,sport_key:scope,league:String(g.campeonato||""),home_team:String(g.tc||""),away_team:String(g.tf||""),start_time:String(g.data_hora||""),outcomes,reference_markets:{double_chance:{home_draw:Number(g.od_1x)||0,home_away:Number(g.od_12)||0,draw_away:Number(g.od_x2)||0},btts:{yes:Number(g.od_btsy)||0,no:Number(g.od_btsn)||0},totals_25:{over:Number(g.od_mais25)||0,under:Number(g.od_menos25)||0},more_markets:Number(g.mais_jogos)||0}});
   }
   return {available:true,scope,source:"public_reference_only",captured_at:new Date().toISOString(),matches,events,source_config:{min_stake:Number(x?.config?.valor_minimo)||null,max_stake:Number(x?.config?.valor_maximo)||null,max_prize:Number(x?.config?.premio_maximo)||null,max_games:Number(x?.config?.max_jogos)||null,cashout_active:Boolean(x?.config?.cashout_ativo),bet_builder_active:Boolean(x?.config?.bet_builder_ativo)}};
+}
+function normTeam(v){return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\b(fc|cf|ac|sc|club|clube|deportivo|sporting)\b/g,"").replace(/[^a-z0-9]+/g," ").trim()}
+async function validateSportsSelections(selections){
+  const rows=[],cache=new Map();
+  for(const raw of selections){
+    const scope=String(raw.scope||"football").toLowerCase(),eventId=String(raw.event_id||""),selection=String(raw.selection||"");
+    if(!REF_SPORT_MAP[scope]||!eventId||!selection)throw new Error("invalid_sports_selection");
+    if(!cache.has(scope))cache.set(scope,await fetchReferenceSportsbook(scope));
+    const feed=cache.get(scope),ev=(feed.events||[]).find(x=>x.event_id===eventId);
+    if(!ev)throw new Error("sports_event_not_available");
+    const out=(ev.outcomes||[]).find(x=>String(x.name)===selection);
+    if(!out||!Number.isFinite(Number(out.price))||Number(out.price)<=1)throw new Error("sports_odd_not_available");
+    rows.push({scope,event_id:eventId,league:ev.league,home:ev.home_team,away:ev.away_team,start_time:ev.start_time,selection:String(out.name),price:Number(out.price)});
+  }
+  return rows;
+}
+async function fetchFinishedFootball(){
+  const r=await fetch("https://sportscore.com/api/widget/matches/?sport=football&limit=200&src=pulso90",{headers:{accept:"application/json"}});
+  if(!r.ok)throw new Error("result_feed_failed");const x=await r.json();return (Array.isArray(x.matches)?x.matches:[]).filter(m=>String(m.status||"").toLowerCase()==="finished");
+}
+function findFootballResult(leg,finished){
+  const h=normTeam(leg.home),a=normTeam(leg.away),t=Date.parse(String(leg.start_time||"").replace(" ","T"));
+  return finished.find(m=>{
+    const names=(normTeam(m.home)===h&&normTeam(m.away)===a)||(normTeam(m.home)===a&&normTeam(m.away)===h);
+    const mt=Date.parse(m.time||"");return names&&(!Number.isFinite(t)||!Number.isFinite(mt)||Math.abs(mt-t)<36*3600000);
+  })||null;
+}
+async function settleSportsTickets(username=""){
+  const pending=internalLab.sportsTickets.filter(t=>t.status==="PENDING"&&(!username||t.username===username));if(!pending.length)return [];
+  let football=[];try{football=await fetchFinishedFootball()}catch{}
+  const settled=[];
+  for(const ticket of pending){
+    let unresolved=false,lost=false;
+    for(const leg of ticket.selections){
+      if(leg.scope!=="football"){unresolved=true;continue}
+      const m=findFootballResult(leg,football);if(!m){unresolved=true;continue}
+      const hs=Number(m.home_score),as=Number(m.away_score);if(!Number.isFinite(hs)||!Number.isFinite(as)){unresolved=true;continue}
+      const result=hs>as?String(m.home):as>hs?String(m.away):"Draw";leg.result={home_score:hs,away_score:as,winner:result,source:"SportScore",confirmed_at:new Date().toISOString()};
+      if(normTeam(leg.selection)!==normTeam(result))lost=true;
+    }
+    if(lost||(!unresolved&&ticket.selections.every(x=>x.result))){
+      ticket.status=lost?"LOST":"WON";ticket.settled_at=new Date().toISOString();ticket.payout=lost?0:Math.round(ticket.stake*ticket.combined_odds*100)/100;
+      const u=internalLab.users[ticket.username],ss=u?ensureInternalDemoSession(u):null;
+      if(ss&&ticket.payout>0){ss.balance=Math.round((ss.balance+ticket.payout)*100)/100;persistSession(ss,"sports_ticket_win");internalLab.treasury=Math.round((Number(internalLab.treasury)-ticket.payout)*100)/100}
+      labLedger({type:"sports_ticket_settled",username:ticket.username,ticket_id:ticket.id,status:ticket.status,stake:ticket.stake,payout:ticket.payout});
+      settled.push(ticket);
+    }
+  }
+  saveInternalLab();return settled;
 }
 
 function summarizeOddsEvent(e,sportKey){
@@ -329,6 +385,32 @@ const server=http.createServer(async(req,res)=>{
       if(!["ready_for_homologation","live"].includes(String(p.technical_status)))return json(res,503,{error:"provider_not_configured",provider,technical_status:p.technical_status});
       return json(res,503,{error:"provider_launch_adapter_not_bound",provider});
     }
+    if(req.method==="POST"&&url.pathname==="/api/internal/sports/bet"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});
+      const v=await body(req),mode=String(v.mode||"multiple")==="single"?"single":"multiple",stake=safeMoney(v.stake,1,1000),raw=Array.isArray(v.selections)?v.selections:[];
+      if(stake===null||!raw.length||raw.length>12)return json(res,400,{error:"invalid_sports_bet"});
+      let selections;try{selections=await validateSportsSelections(raw)}catch(e){return json(res,409,{error:String(e.message||"sports_validation_failed")})}
+      const ss=ensureInternalDemoSession(u),totalStake=mode==="single"?Math.round(stake*selections.length*100)/100:stake;
+      if(ss.balance<totalStake)return json(res,400,{error:"insufficient_test_balance"});
+      ss.balance=Math.round((ss.balance-totalStake)*100)/100;persistSession(ss,"sports_bet_placed");internalLab.treasury=Math.round((Number(internalLab.treasury)+totalStake)*100)/100;
+      const created=[];
+      if(mode==="single"){
+        for(const leg of selections){const t={id:crypto.randomUUID(),username:u.username,mode:"single",stake,combined_odds:leg.price,selections:[leg],status:"PENDING",payout:0,created_at:new Date().toISOString()};internalLab.sportsTickets.push(t);created.push(t)}
+      }else{
+        const odds=Math.round(selections.reduce((a,x)=>a*Number(x.price),1)*1000000)/1000000,t={id:crypto.randomUUID(),username:u.username,mode:"multiple",stake,combined_odds:odds,selections,status:"PENDING",payout:0,created_at:new Date().toISOString()};internalLab.sportsTickets.push(t);created.push(t);
+      }
+      labLedger({type:"sports_bet_placed",username:u.username,mode,total_stake:totalStake,tickets:created.map(x=>x.id),balanceAfter:ss.balance,treasuryAfter:internalLab.treasury});saveInternalLab();
+      return json(res,201,{ok:true,tickets:created,state:state(ss),treasury:internalLab.treasury});
+    }
+    if(req.method==="GET"&&url.pathname==="/api/internal/sports/tickets"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});
+      await settleSportsTickets(u.username);const rows=internalLab.sportsTickets.filter(t=>t.username===u.username).slice(-100).reverse();
+      return json(res,200,{tickets:rows,treasury:internalLab.treasury});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/internal/sports/settle"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});
+      const rows=await settleSportsTickets(u.username),ss=ensureInternalDemoSession(u);return json(res,200,{settled:rows,state:state(ss),treasury:internalLab.treasury});
+    }
     if(req.method==="GET"&&url.pathname==="/api/internal/reference/sportsbook"){
       const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});
       const scope=String(url.searchParams.get("scope")||"football").toLowerCase();
@@ -389,8 +471,8 @@ const server=http.createServer(async(req,res)=>{
       if(s.balance<stake)return json(res,400,{error:"demo_balance_insufficient"});
       const fair=fairUnit(s,game);
       if(game==="pulso-tiger"){
-        const o=tiger(fair.u),set=settle(s,stake,o.m,{game,outcome:{symbols:o.s}},fair);
-        return json(res,200,{game,symbols:o.s,multiplier:o.m,...set});
+        const o=tiger(fair.u),grid=tigerGrid(o,fair),set=settle(s,stake,o.m,{game,outcome:{grid,multiplier:o.m,symbol:o.symbol||""}},fair);
+        return json(res,200,{game,grid,symbols:grid,multiplier:o.m,target_rtp:0.9681,...set});
       }
       if(game==="pulso-launch"){
         const target=Math.max(1.1,Math.min(20,Number(v.target)||2)),cp=crash(fair.u),won=cp>=target;

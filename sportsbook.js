@@ -56,7 +56,7 @@ function addOdd(eventId,name){
  const e=oddsEvents.find(x=>x.event_id===eventId);if(!e)return;
  const o=e.outcomes.find(x=>x.name===name);if(!o)return;
  const key=eventId+":"+name;
- const item={key,event_id:eventId,home:e.home_team,away:e.away_team,selection:name,price:Number(o.price),book:o.book||"",start_time:e.start_time};
+ const item={key,event_id:eventId,scope:sport,home:e.home_team,away:e.away_team,selection:name,price:Number(o.price),book:o.book||"",start_time:e.start_time};
  const i=slip.findIndex(x=>x.event_id===eventId);if(i>=0)slip[i]=item;else slip.push(item);
  slip=slip.slice(-12);saveSlip();renderSlip()
 }
@@ -67,9 +67,32 @@ function renderSlip(){
  empty.style.display="none";
  const combined=slip.reduce((a,x)=>a*Number(x.price||1),1),stake=Math.max(0,Number(localStorage.getItem(STAKE_KEY)||10)||0),singleReturn=slip.reduce((a,x)=>a+stake*Number(x.price||1),0),singleStake=stake*slip.length;
  const summary=slipMode==="single"?'<b><span>Aposta total</span><span>'+singleStake.toFixed(2)+'</span></b><b><span>Retorno potencial DEMO</span><span id="slipReturn">'+singleReturn.toFixed(2)+'</span></b>':'<b><span>Odd combinada</span><span>'+combined.toFixed(2)+'</span></b><b><span>Retorno potencial DEMO</span><span id="slipReturn">'+(stake*combined).toFixed(2)+'</span></b>';
- host.innerHTML=slip.map(x=>'<div class="slip-item"><b>'+esc(x.home)+' × '+esc(x.away)+'</b><small>'+esc(x.selection)+' · <span class="price">'+Number(x.price).toFixed(2)+'</span></small><button data-slip-remove="'+esc(x.key)+'">Remover</button></div>').join("")+'<div class="slip-total"><label>'+(slipMode==="single"?"Créditos DEMO por seleção":"Créditos DEMO")+'</label><input id="slipStake" type="number" min="0" max="1000" step="1" value="'+stake+'">'+summary+'</div>';
+ const labToken=localStorage.getItem(LAB_TOKEN_KEY)||"";
+ host.innerHTML=slip.map(x=>'<div class="slip-item"><b>'+esc(x.home)+' × '+esc(x.away)+'</b><small>'+esc(x.selection)+' · <span class="price">'+Number(x.price).toFixed(2)+'</span></small><button data-slip-remove="'+esc(x.key)+'">Remover</button></div>').join("")+'<div class="slip-total"><label>'+(slipMode==="single"?"Créditos DEMO por seleção":"Créditos DEMO")+'</label><input id="slipStake" type="number" min="1" max="1000" step="1" value="'+stake+'">'+summary+(labToken?'<button id="placeLabBet" class="open" style="width:100%;margin-top:9px">APOSTAR NO LABORATÓRIO</button><div id="labBetResult" class="meta" style="margin-top:7px"></div>':'<div class="meta" style="margin-top:7px">Entre pela Central do Dono para registrar apostas internas.</div>')+'</div>';
  $$("[data-slip-remove]").forEach(b=>b.onclick=()=>{slip=slip.filter(x=>x.key!==b.dataset.slipRemove);saveSlip();renderSlip()});
  const inp=$("slipStake");if(inp)inp.oninput=()=>{const v=Math.max(0,Number(inp.value)||0);localStorage.setItem(STAKE_KEY,String(v));$("slipReturn").textContent=(slipMode==="single"?slip.reduce((a,x)=>a+v*Number(x.price||1),0):v*combined).toFixed(2)}
+ const place=$("placeLabBet");if(place)place.onclick=placeLabBet;
+}
+async function placeLabBet(){
+ const base=await getRuntime(),token=localStorage.getItem(LAB_TOKEN_KEY)||"",stake=Math.max(1,Number($("slipStake")?.value)||0),host=$("labBetResult");
+ if(!base||!token||!slip.length){if(host)host.textContent="Sessão interna necessária.";return}
+ if(host)host.textContent="Registrando bilhete...";
+ try{
+  const r=await fetch(base+"/api/internal/sports/bet",{method:"POST",headers:{"content-type":"application/json","x-lab-token":token},body:JSON.stringify({mode:slipMode,stake,selections:slip.map(x=>({scope:x.scope||sport,event_id:x.event_id,selection:x.selection}))})}),x=await r.json();
+  if(!r.ok)throw new Error(x.error||"Falha ao registrar");
+  slip=[];saveSlip();renderSlip();await loadLabTickets();
+ }catch(e){if(host)host.textContent=e.message}
+}
+async function loadLabTickets(){
+ const host=$("labTickets");if(!host)return;
+ const base=await getRuntime(),token=localStorage.getItem(LAB_TOKEN_KEY)||"";
+ if(!base||!token){host.innerHTML="";return}
+ try{
+  const r=await fetch(base+"/api/internal/sports/tickets",{cache:"no-store",headers:{"x-lab-token":token}}),x=await r.json();
+  if(!r.ok)throw new Error();
+  const rows=Array.isArray(x.tickets)?x.tickets.slice(0,8):[];
+  host.innerHTML=rows.length?'<h3 style="border:0;padding:6px 0;font-size:9px">Bilhetes do laboratório</h3>'+rows.map(t=>'<div class="watch-item"><b>'+esc(t.mode==="multiple"?"Múltipla":"Simples")+' · '+Number(t.stake).toFixed(2)+' créditos</b><small>'+esc(t.status)+' · odd '+Number(t.combined_odds||0).toFixed(2)+(t.payout?' · retorno '+Number(t.payout).toFixed(2):'')+'</small></div>').join(""):'';
+ }catch{host.innerHTML=""}
 }
 async function getRuntime(){
  if(runtimeBase)return runtimeBase;
@@ -84,13 +107,13 @@ async function load(){
  $("events").innerHTML='<div class="panel" style="padding:18px">Atualizando partidas…</div>';
  const base=await getRuntime(),labToken=localStorage.getItem(LAB_TOKEN_KEY)||"";
  if(base&&labToken&&["football","combat","futsal","snooker"].includes(sport)){
-  try{const r=await fetch(base+"/api/internal/reference/sportsbook?scope="+encodeURIComponent(sport),{cache:"no-store",headers:{"x-lab-token":labToken}}),x=await r.json();if(r.ok&&x.available){matches=(x.matches||[]).map(normalized);oddsEvents=x.events||[];render();return}}catch{}
+  try{const r=await fetch(base+"/api/internal/reference/sportsbook?scope="+encodeURIComponent(sport),{cache:"no-store",headers:{"x-lab-token":labToken}}),x=await r.json();if(r.ok&&x.available){matches=(x.matches||[]).map(normalized);oddsEvents=x.events||[];render();loadLabTickets();return}}catch{}
  }
  try{
   const [sports]=await Promise.all([fetch("https://sportscore.com/api/widget/matches/?sport="+encodeURIComponent(sport)+"&limit=50&src=pulso90",{cache:"no-store"}),loadOdds()]);
   const raw=await sports.json();if(!sports.ok)throw new Error("feed");
-  matches=(Array.isArray(raw.matches)?raw.matches:[]).map(normalized);render()
- }catch{$("events").innerHTML='<div class="panel" style="padding:18px">Não foi possível atualizar as partidas agora. Tente novamente em instantes.</div>';renderSlip()}
+  matches=(Array.isArray(raw.matches)?raw.matches:[]).map(normalized);render();loadLabTickets()
+ }catch{$("events").innerHTML='<div class="panel" style="padding:18px">Não foi possível atualizar as partidas agora. Tente novamente em instantes.</div>';renderSlip();loadLabTickets()}
 }
 function slugFrom(m){const u=String(m.url||"");const p=u.split("/").filter(Boolean);return p[p.length-1]||""}
 async function openMatch(id){

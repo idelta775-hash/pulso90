@@ -38,7 +38,7 @@ $("tigerPlay").addEventListener("click",async()=>{
   try{
     const stake=Number($("tigerBet").value);if(!Number.isFinite(stake)||stake<1||stake>100)throw new Error("invalid_demo_stake");
     const d=await play({game:"pulso-tiger",stake});
-    ["t1","t2","t3"].forEach((id,i)=>$(id).textContent=d.symbols[i]);
+    ["t1","t2","t3","t4","t5","t6","t7","t8","t9"].forEach((id,i)=>$(id).textContent=(d.grid||d.symbols||[])[i]||"·");
     show(el,d,d.multiplier===0?"Sem prêmio":Number(d.multiplier).toLocaleString("pt-BR")+"×");
   }catch(e){err(el,e)}
 });

@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.22_CASINO_GATEWAY",
-  "built_at": "2026-10-01T19:52:00.000000+00:00",
+  "release": "GLOBAL_HUB_LAB_0.23_REAL_RESULTS_TIGER",
+  "built_at": "2026-10-01T20:05:00.000000+00:00",
   "public_lab": "https://method-ftp-vip-freeze.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -97,7 +97,16 @@
     "authenticated internal casino launch gate",
     "server-to-server wallet contract",
     "provider idempotency rollback contract",
-    "no fake real games enforcement"
+    "no fake real games enforcement",
+    "Pulso Tiger 3x3 server-settled original",
+    "Pulso Tiger target RTP 96.81 percent",
+    "Pulso Tiger payouts up to 2500x demo credits",
+    "embedded PG public Fortune Tiger demo reference",
+    "external demo isolated from Pulso wallet",
+    "internal sportsbook ticket placement with captured real odds",
+    "sports ticket pending/won/lost lifecycle",
+    "football ticket settlement from real SportScore final scores",
+    "closed-loop sports stake and payout treasury"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,
