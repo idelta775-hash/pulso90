@@ -4,7 +4,7 @@ import json,re,subprocess,tempfile,sys
 
 ROOT=Path(r"D:\gpt\Pulso 90\deploy-pages")
 TESTS=Path(r"D:\gpt\Pulso 90\tests")
-PAGES=[ROOT/"index.html",ROOT/"account.html",ROOT/"games"/"index.html",ROOT/"sportsbook.html",ROOT/"catalog"/"index.html",ROOT/"providers"/"index.html"]
+PAGES=[ROOT/"index.html",ROOT/"account.html",ROOT/"wallet.html",ROOT/"games"/"index.html",ROOT/"sportsbook.html",ROOT/"catalog"/"index.html",ROOT/"providers"/"index.html"]
 
 class AuditParser(HTMLParser):
     def __init__(self):
@@ -54,7 +54,7 @@ checks["4_image_accessibility"]=all_alt_ok
 checks["5_mobile_viewport"]=all_viewport
 checks["6_player_copy_clean"]=copy_ok
 
-js_files=[ROOT/"games"/"app.js",ROOT/"sportsbook.js",ROOT/"sw.js"]
+js_files=[ROOT/"games"/"app.js",ROOT/"sportsbook.js",ROOT/"wallet.js",ROOT/"sw.js"]
 embedded=[]
 for page in [ROOT/"index.html",ROOT/"account.html"]:
     txt=page.read_text(encoding="utf-8")

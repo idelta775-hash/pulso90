@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.17.1_ODDS_BRIDGE_V4",
-  "built_at": "2026-10-01T16:59:00.000000+00:00",
+  "release": "GLOBAL_HUB_LAB_0.18_PLATFORM_PARITY_PAYMENTS",
+  "built_at": "2026-10-01T17:45:00.000000+00:00",
   "public_lab": "https://method-ftp-vip-freeze.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -64,7 +64,14 @@
     "sportsbook odds auto-match by teams/time",
     "persistent demo betslip using only real provider prices",
     "odds provider key never exposed to browser",
-    "graceful no-key fallback with zero fabricated prices"
+    "graceful no-key fallback with zero fabricated prices",
+    "sportsbook single and multiple betslip modes",
+    "platform capability manifest for prematch live bet builder cashout and games",
+    "Asaas sandbox-only server-side payment bridge",
+    "Asaas hosted checkout for Pix boleto and card",
+    "idempotent Asaas webhook ingestion",
+    "sandbox payment history tied to demo session",
+    "production money movement hard-disabled"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,

@@ -1,6 +1,6 @@
 const $=id=>document.getElementById(id),$$=s=>[...document.querySelectorAll(s)];
-const FAVORITES_KEY="pulso90-sports-favorites-v1",SLIP_KEY="pulso90-sports-slip-v1",STAKE_KEY="pulso90-sports-stake-v1";
-let sport="football",view="all",matches=[],favorites=new Set(),oddsEvents=[],slip=[],runtimeBase="";
+const FAVORITES_KEY="pulso90-sports-favorites-v1",SLIP_KEY="pulso90-sports-slip-v1",STAKE_KEY="pulso90-sports-stake-v1",SLIP_MODE_KEY="pulso90-sports-slip-mode-v1";
+let sport="football",view="all",matches=[],favorites=new Set(),oddsEvents=[],slip=[],runtimeBase="",slipMode=localStorage.getItem(SLIP_MODE_KEY)||"multiple";
 try{favorites=new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY)||"[]"))}catch{}
 try{slip=JSON.parse(localStorage.getItem(SLIP_KEY)||"[]");if(!Array.isArray(slip))slip=[]}catch{slip=[]}
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
@@ -65,10 +65,11 @@ function renderSlip(){
  let host=$("slipSelections");if(!host){host=document.createElement("div");host.id="slipSelections";note.before(host)}
  if(!slip.length){empty.style.display="block";host.innerHTML="";return}
  empty.style.display="none";
- const combined=slip.reduce((a,x)=>a*Number(x.price||1),1),stake=Math.max(0,Number(localStorage.getItem(STAKE_KEY)||10)||0);
- host.innerHTML=slip.map(x=>'<div class="slip-item"><b>'+esc(x.home)+' × '+esc(x.away)+'</b><small>'+esc(x.selection)+' · <span class="price">'+Number(x.price).toFixed(2)+'</span></small><button data-slip-remove="'+esc(x.key)+'">Remover</button></div>').join("")+'<div class="slip-total"><label>Créditos DEMO</label><input id="slipStake" type="number" min="0" max="1000" step="1" value="'+stake+'"><b><span>Odd combinada</span><span>'+combined.toFixed(2)+'</span></b><b><span>Retorno potencial DEMO</span><span id="slipReturn">'+(stake*combined).toFixed(2)+'</span></b></div>';
+ const combined=slip.reduce((a,x)=>a*Number(x.price||1),1),stake=Math.max(0,Number(localStorage.getItem(STAKE_KEY)||10)||0),singleReturn=slip.reduce((a,x)=>a+stake*Number(x.price||1),0),singleStake=stake*slip.length;
+ const summary=slipMode==="single"?'<b><span>Aposta total</span><span>'+singleStake.toFixed(2)+'</span></b><b><span>Retorno potencial DEMO</span><span id="slipReturn">'+singleReturn.toFixed(2)+'</span></b>':'<b><span>Odd combinada</span><span>'+combined.toFixed(2)+'</span></b><b><span>Retorno potencial DEMO</span><span id="slipReturn">'+(stake*combined).toFixed(2)+'</span></b>';
+ host.innerHTML=slip.map(x=>'<div class="slip-item"><b>'+esc(x.home)+' × '+esc(x.away)+'</b><small>'+esc(x.selection)+' · <span class="price">'+Number(x.price).toFixed(2)+'</span></small><button data-slip-remove="'+esc(x.key)+'">Remover</button></div>').join("")+'<div class="slip-total"><label>'+(slipMode==="single"?"Créditos DEMO por seleção":"Créditos DEMO")+'</label><input id="slipStake" type="number" min="0" max="1000" step="1" value="'+stake+'">'+summary+'</div>';
  $$("[data-slip-remove]").forEach(b=>b.onclick=()=>{slip=slip.filter(x=>x.key!==b.dataset.slipRemove);saveSlip();renderSlip()});
- const inp=$("slipStake");if(inp)inp.oninput=()=>{const v=Math.max(0,Number(inp.value)||0);localStorage.setItem(STAKE_KEY,String(v));$("slipReturn").textContent=(v*combined).toFixed(2)}
+ const inp=$("slipStake");if(inp)inp.oninput=()=>{const v=Math.max(0,Number(inp.value)||0);localStorage.setItem(STAKE_KEY,String(v));$("slipReturn").textContent=(slipMode==="single"?slip.reduce((a,x)=>a+v*Number(x.price||1),0):v*combined).toFixed(2)}
 }
 async function getRuntime(){
  if(runtimeBase)return runtimeBase;
@@ -97,6 +98,7 @@ async function openMatch(id){
  try{const r=await fetch("https://sportscore.com/api/widget/match/?sport="+encodeURIComponent(sport)+"&slug="+encodeURIComponent(slug)+"&src=pulso90",{cache:"no-store"});const x=await r.json();if(!r.ok)throw new Error();const obj=x.match||x,extra=[];if(obj.venue)extra.push("<b>Local:</b> "+esc(obj.venue));if(obj.round)extra.push("<b>Rodada:</b> "+esc(obj.round));if(obj.referee)extra.push("<b>Árbitro:</b> "+esc(obj.referee));if(obj.timeline&&Array.isArray(obj.timeline))extra.push("<b>Lances:</b> "+obj.timeline.length);$("detailExtra").innerHTML=extra.length?'<p class="meta">'+extra.join("<br>")+'</p>':'<p class="meta">Detalhes atualizados da partida.</p>'}catch{$("detailExtra").innerHTML='<p class="meta">Detalhes adicionais indisponíveis por alguns instantes.</p>'}
 }
 $$("[data-sport]").forEach(b=>b.onclick=()=>{sport=b.dataset.sport;oddsEvents=[];$$("[data-sport]").forEach(x=>x.classList.toggle("active",x===b));load()});
+$$("[data-slip-mode]").forEach(b=>{b.classList.toggle("active",b.dataset.slipMode===slipMode);b.onclick=()=>{slipMode=b.dataset.slipMode;localStorage.setItem(SLIP_MODE_KEY,slipMode);$$("[data-slip-mode]").forEach(x=>x.classList.toggle("active",x.dataset.slipMode===slipMode));renderSlip()}});
 $$("[data-view]").forEach(b=>b.onclick=()=>{view=b.dataset.view;$$("[data-view]").forEach(x=>x.classList.toggle("active",x.dataset.view===view));render()});
 $("detailClose").onclick=()=>$("detail").classList.remove("open");$("detail").onclick=e=>{if(e.target===$("detail"))$("detail").classList.remove("open")};document.addEventListener("keydown",e=>{if(e.key==="Escape")$("detail").classList.remove("open")});
 renderSlip();load();setInterval(load,60000);

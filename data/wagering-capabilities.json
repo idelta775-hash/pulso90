@@ -1,0 +1,38 @@
+{
+  "release": "0.18-platform-parity-foundation",
+  "mode": "DEMO_ONLY",
+  "reference_pattern": "sportsbook platform parity without copying proprietary source",
+  "sportsbook": {
+    "prematch": "active",
+    "live": "active",
+    "single": "active_ui",
+    "multiple": "active_ui",
+    "bet_builder": "provider_required",
+    "cashout": "provider_required",
+    "results": "active",
+    "favorites": "active",
+    "watchlist": "active",
+    "real_odds": "provider_key_required"
+  },
+  "games": {
+    "originals": "active_demo",
+    "provider_catalog": "active_editorial",
+    "slots": "provider_contract_required",
+    "live_casino": "provider_contract_required",
+    "crash": "active_demo_original",
+    "instant_games": "catalog_ready"
+  },
+  "payments": {
+    "provider": "asaas",
+    "environment": "sandbox_only",
+    "methods": [
+      "PIX",
+      "BOLETO",
+      "CREDIT_CARD"
+    ],
+    "hosted_checkout": true,
+    "webhook_idempotency": true,
+    "withdrawals": "disabled",
+    "real_money_enabled": false
+  }
+}

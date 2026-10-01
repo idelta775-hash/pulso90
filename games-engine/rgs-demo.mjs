@@ -11,10 +11,16 @@ fs.mkdirSync(runtime,{recursive:true});
 const auditFile=path.join(runtime,"games-lab-audit-v03.jsonl");
 const telemetryFile=path.join(runtime,"product-telemetry-v1.jsonl");
 const sessionFile=path.join(runtime,"games-lab-sessions-v04.jsonl");
+const paymentFile=path.join(runtime,"payments-sandbox-v1.jsonl");
 const PORT=Number(process.env.PULSO90_GAMES_PORT||19011);
 const sessions=new Map();
 const telemetryRate=new Map();
 const oddsCache=new Map();
+const paymentEvents=new Set(),creditedPayments=new Set();
+const ASAAS_API_KEY=String(process.env.PULSO90_ASAAS_API_KEY||process.env.ASAAS_API_KEY||"").trim();
+const ASAAS_WEBHOOK_TOKEN=String(process.env.PULSO90_ASAAS_WEBHOOK_TOKEN||"").trim();
+const ASAAS_BASE="https://api-sandbox.asaas.com/v3";
+const PAYMENT_METHODS=new Set(["PIX","BOLETO","CREDIT_CARD","UNDEFINED"]);
 const ODDS_API_KEY=String(process.env.THE_ODDS_API_KEY||process.env.ODDS_API_KEY||"").trim();
 const ODDS_CACHE_MS=60000,ODDS_STALE_MS=10*60000,ODDS_MARKET="h2h",ODDS_REGIONS="eu";
 const ODDS_SCOPE_KEYS={
@@ -58,6 +64,36 @@ function restoreSessions(){if(!fs.existsSync(sessionFile))return 0;const latest=
 function session(req){const id=String(req.headers["x-demo-session"]||"");return sessions.get(id)}
 async function body(req){return await new Promise((resolve,reject)=>{let raw="";req.on("data",c=>{raw+=c;if(raw.length>4096)reject(new Error("too_large"))});req.on("end",()=>{try{const clean=raw.replace(/^\uFEFF/,"").trim();resolve(clean?JSON.parse(clean):{})}catch{reject(new Error("bad_json"))}});req.on("error",reject)})}
 function safeStake(v,max=100){const n=Number(v);if(!Number.isFinite(n)||n<=0)return null;return Math.min(max,Math.round(n*100)/100)}
+function safeMoney(v,min=5,max=1000){const n=Number(v);if(!Number.isFinite(n)||n<min||n>max)return null;return Math.round(n*100)/100}
+function paymentRecord(row){fs.appendFileSync(paymentFile,JSON.stringify({at:new Date().toISOString(),...row})+"\n","utf8")}
+function restorePaymentState(){
+  if(!fs.existsSync(paymentFile))return;
+  for(const line of fs.readFileSync(paymentFile,"utf8").split(/\r?\n/)){if(!line.trim())continue;try{const r=JSON.parse(line);if(r.event_id)paymentEvents.add(r.event_id);if(r.credited_payment_id)creditedPayments.add(r.credited_payment_id)}catch{}}
+}
+function paymentHistory(sessionId,limit=30){
+  if(!fs.existsSync(paymentFile))return[];
+  const out=[];for(const line of fs.readFileSync(paymentFile,"utf8").split(/\r?\n/)){if(!line.trim())continue;try{const r=JSON.parse(line);if(r.session===sessionId)out.push(r)}catch{}}
+  return out.slice(-limit).reverse();
+}
+async function asaas(pathname,{method="GET",data=null}={}){
+  if(!ASAAS_API_KEY)throw new Error("asaas_not_configured");
+  const r=await fetch(ASAAS_BASE+pathname,{method,headers:{"content-type":"application/json","user-agent":"Pulso90/0.18 (Node.js; sandbox)","access_token":ASAAS_API_KEY},body:data?JSON.stringify(data):undefined});
+  const payload=await r.json().catch(()=>({}));
+  if(!r.ok){const e=new Error("asaas_request_failed");e.status=r.status;e.payload=payload;throw e}
+  return payload;
+}
+async function createAsaasLink(s,v){
+  const value=safeMoney(v.value),billingType=String(v.billingType||"PIX").toUpperCase();
+  if(value===null)throw new Error("invalid_payment_value");
+  if(!PAYMENT_METHODS.has(billingType))throw new Error("invalid_payment_method");
+  const ref="pulso90-sandbox:"+s.id+":"+crypto.randomUUID();
+  const payload={name:"Pulso 90 Sandbox",description:"Recarga de créditos de homologação Pulso 90",value,billingType,chargeType:"DETACHED",externalReference:ref,notificationEnabled:false,isAddressRequired:false};
+  if(billingType==="BOLETO"||billingType==="UNDEFINED")payload.dueDateLimitDays=5;
+  const x=await asaas("/paymentLinks",{method:"POST",data:payload});
+  const row={type:"payment_link_created",session:s.id,provider:"asaas",environment:"sandbox",external_reference:ref,payment_link_id:String(x.id||""),billing_type:billingType,value,status:"PENDING"};
+  paymentRecord(row);
+  return {provider:"asaas",environment:"sandbox",id:String(x.id||""),url:String(x.url||x.invoiceUrl||""),value,billingType,externalReference:ref};
+}
 function historyFor(sessionId,limit=20){if(!fs.existsSync(auditFile))return[];const lines=fs.readFileSync(auditFile,"utf8").trim().split(/\r?\n/).filter(Boolean);const out=[];for(let i=lines.length-1;i>=0&&out.length<limit;i--){try{const row=JSON.parse(lines[i]);if(row.session===sessionId&&row.game)out.push(row)}catch{}}return out.reverse()}
 const telemetryEvents=new Set(["page_view","game_open","favorite_toggle","filter","search","provider_open","partner_open","sport_tab","original_open"]);
 function cleanText(v,max=80){return String(v??"").replace(/[^a-zA-Z0-9À-ÿ _.:+\-/]/g,"").slice(0,max)}
@@ -125,13 +161,46 @@ async function fetchOddsScope(scope){
 }
 function settle(s,stake,multiplier,meta,fair){const payout=Math.round(stake*multiplier*100)/100;s.balance=Math.round((s.balance-stake+payout)*100)/100;s.rounds++;s.points+=1+(payout>stake?5:0);const record={at:new Date().toISOString(),session:s.id,mode:"DEMO_ONLY",game:meta.game,version:"0.3.0",stake,payout,multiplier,balanceAfter:s.balance,outcome:meta.outcome,fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:fair.nonce,message:fair.message}};const auditHash=audit(record);persistSession(s,"settle:"+meta.game);return {payout,net:Math.round((payout-stake)*100)/100,auditHash,fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:fair.nonce,message:fair.message},...state(s)}}
 restoreSessions();
+restorePaymentState();
 if(fs.existsSync(auditFile)){try{const lines=fs.readFileSync(auditFile,"utf8").trim().split(/\r?\n/).filter(Boolean);if(lines.length){const last=JSON.parse(lines.at(-1));if(last&&last.hash)lastAuditHash=last.hash}}catch{}}
 const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,"http://localhost");
   try{
     if(req.method==="OPTIONS"){res.writeHead(204,corsHeaders());return res.end()}
     if(req.method==="GET"&&url.pathname==="/api/lab/health")
-      return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.4.0",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size,telemetry:"anonymous_daily_hash_v1",odds_provider_configured:Boolean(ODDS_API_KEY)});
+      return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.5.0",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size,telemetry:"anonymous_daily_hash_v1",odds_provider_configured:Boolean(ODDS_API_KEY),payments:{provider:"asaas",environment:"sandbox",configured:Boolean(ASAAS_API_KEY),real_money_enabled:false}});
+    if(req.method==="GET"&&url.pathname==="/api/platform/capabilities")
+      return json(res,200,{mode:"DEMO_ONLY",sportsbook:{prematch:true,live:true,single:true,multiple:true,bet_builder:"provider_required",cashout:"provider_required",results:true,real_odds:Boolean(ODDS_API_KEY)},games:{originals:true,provider_catalog:true,slots:"catalog_only",live_casino:"catalog_only",crash:"demo_original"},payments:{provider:"asaas",environment:"sandbox",methods:["PIX","BOLETO","CREDIT_CARD"],withdrawals:"disabled",real_money_enabled:false}});
+    if(req.method==="GET"&&url.pathname==="/api/payments/status")
+      return json(res,200,{provider:"asaas",environment:"sandbox",configured:Boolean(ASAAS_API_KEY),webhook_configured:Boolean(ASAAS_WEBHOOK_TOKEN),methods:["PIX","BOLETO","CREDIT_CARD"],withdrawals:"disabled",real_money_enabled:false});
+    if(req.method==="GET"&&url.pathname==="/api/payments/history"){
+      const s=session(req);if(!s)return json(res,401,{error:"demo_session_required"});
+      return json(res,200,{environment:"sandbox",records:paymentHistory(s.id)});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/payments/create-link"){
+      const s=session(req);if(!s)return json(res,401,{error:"demo_session_required"});
+      if(!ASAAS_API_KEY)return json(res,503,{error:"asaas_sandbox_not_configured"});
+      try{return json(res,201,await createAsaasLink(s,await body(req)))}catch(e){
+        if(["invalid_payment_value","invalid_payment_method"].includes(String(e.message)))return json(res,400,{error:e.message});
+        return json(res,502,{error:"asaas_sandbox_request_failed",status:Number(e.status)||0});
+      }
+    }
+    if(req.method==="POST"&&url.pathname==="/api/payments/asaas/webhook"){
+      if(!ASAAS_WEBHOOK_TOKEN)return json(res,503,{error:"asaas_webhook_not_configured"});
+      if(String(req.headers["asaas-access-token"]||"")!==ASAAS_WEBHOOK_TOKEN)return json(res,401,{error:"invalid_webhook_token"});
+      const v=await body(req),eventId=String(v.id||""),event=String(v.event||""),pmt=v.payment||{};
+      if(!eventId)return json(res,400,{error:"invalid_webhook_event"});
+      if(paymentEvents.has(eventId))return json(res,200,{ok:true,duplicate:true});
+      paymentEvents.add(eventId);
+      const ref=String(pmt.externalReference||""),parts=ref.split(":"),sid=parts[0]==="pulso90-sandbox"?parts[1]:"";
+      const row={type:"asaas_webhook",event_id:eventId,event,payment_id:String(pmt.id||""),session:sid,billing_type:String(pmt.billingType||""),value:Number(pmt.value)||0,status:String(pmt.status||""),external_reference:ref};
+      let credited=false;
+      if(sid&&["PAYMENT_RECEIVED","PAYMENT_CONFIRMED"].includes(event)&&pmt.id&&!creditedPayments.has(String(pmt.id))){
+        const target=sessions.get(sid),value=safeMoney(pmt.value,0.01,1000);
+        if(target&&value!==null){target.balance=Math.round((target.balance+value)*100)/100;persistSession(target,"asaas_sandbox_credit");creditedPayments.add(String(pmt.id));row.credited_payment_id=String(pmt.id);credited=true}
+      }
+      paymentRecord(row);return json(res,200,{ok:true,credited_demo_balance:credited});
+    }
     if(req.method==="GET"&&url.pathname==="/api/sports/odds"){
       const scope=String(url.searchParams.get("scope")||"football").toLowerCase();
       return json(res,200,await fetchOddsScope(scope));
