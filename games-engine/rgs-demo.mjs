@@ -14,6 +14,9 @@ const sessionFile=path.join(runtime,"games-lab-sessions-v04.jsonl");
 const PORT=Number(process.env.PULSO90_GAMES_PORT||19011);
 const sessions=new Map();
 const telemetryRate=new Map();
+const oddsCache=new Map();
+const ODDS_API_KEY=String(process.env.THE_ODDS_API_KEY||process.env.ODDS_API_KEY||"").trim();
+const ODDS_SCOPE_KEYS={football:["soccer_epl","soccer_spain_la_liga","soccer_germany_bundesliga","soccer_italy_serie_a","soccer_france_ligue_one","soccer_uefa_champs_league"],basketball:["basketball_nba"],tennis:["tennis"],cricket:["cricket"]};
 let lastAuditHash="GENESIS";
 
 const tigerTable=[
@@ -71,6 +74,39 @@ function telemetrySummary(days=7){
   const top=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,12).map(([name,count])=>({name,count}));
   return {window_days:windowDays,total_events:total,unique_daily_visitors:unique.size,events:counts.events,top_items:top(counts.items),top_providers:top(counts.providers),top_categories:top(counts.categories),daily:counts.daily};
 }
+function summarizeOddsEvent(e,sportKey){
+  const best=new Map();
+  for(const b of Array.isArray(e.books)?e.books:[]){
+    if(String(b.market||"")!=="h2h")continue;
+    for(const o of Array.isArray(b.outcomes)?b.outcomes:[]){
+      const name=String(o.name||"").trim(),price=Number(o.price);
+      if(!name||!Number.isFinite(price)||price<=1)continue;
+      const prev=best.get(name);
+      if(!prev||price>prev.price)best.set(name,{name,price,book:String(b.book||"")});
+    }
+  }
+  return {event_id:String(e.event_id||""),sport_key:sportKey,league:String(e.league||""),home_team:String(e.home_team||""),away_team:String(e.away_team||""),start_time:String(e.start_time||""),outcomes:[...best.values()]};
+}
+async function fetchOddsScope(scope){
+  const keys=ODDS_SCOPE_KEYS[scope]||[];
+  if(!keys.length)return {available:false,configured:Boolean(ODDS_API_KEY),scope,events:[],reason:"unsupported_scope"};
+  if(!ODDS_API_KEY)return {available:false,configured:false,scope,events:[],reason:"provider_not_configured"};
+  const cacheKey=scope,hit=oddsCache.get(cacheKey);
+  if(hit&&Date.now()-hit.at<60000)return hit.value;
+  const errors=[],events=[];
+  await Promise.all(keys.map(async sportKey=>{
+    try{
+      const qs=new URLSearchParams({sport_key:sportKey,markets:"h2h",regions:"eu,uk",oddsFormat:"decimal"});
+      const r=await fetch("https://api.theoddsapi.com/odds/?"+qs.toString(),{headers:{"x-api-key":ODDS_API_KEY}});
+      const payload=await r.json().catch(()=>({}));
+      if(!r.ok){errors.push({sport_key:sportKey,status:r.status});return}
+      const rows=Array.isArray(payload)?payload:Array.isArray(payload.data)?payload.data:[];
+      for(const row of rows){const x=summarizeOddsEvent(row,sportKey);if(x.home_team&&x.away_team&&x.outcomes.length)events.push(x)}
+    }catch{errors.push({sport_key:sportKey,status:0})}
+  }));
+  const value={available:events.length>0,configured:true,scope,events,fetched_at:new Date().toISOString(),errors};
+  oddsCache.set(cacheKey,{at:Date.now(),value});return value;
+}
 function settle(s,stake,multiplier,meta,fair){const payout=Math.round(stake*multiplier*100)/100;s.balance=Math.round((s.balance-stake+payout)*100)/100;s.rounds++;s.points+=1+(payout>stake?5:0);const record={at:new Date().toISOString(),session:s.id,mode:"DEMO_ONLY",game:meta.game,version:"0.3.0",stake,payout,multiplier,balanceAfter:s.balance,outcome:meta.outcome,fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:fair.nonce,message:fair.message}};const auditHash=audit(record);persistSession(s,"settle:"+meta.game);return {payout,net:Math.round((payout-stake)*100)/100,auditHash,fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:fair.nonce,message:fair.message},...state(s)}}
 restoreSessions();
 if(fs.existsSync(auditFile)){try{const lines=fs.readFileSync(auditFile,"utf8").trim().split(/\r?\n/).filter(Boolean);if(lines.length){const last=JSON.parse(lines.at(-1));if(last&&last.hash)lastAuditHash=last.hash}}catch{}}
@@ -79,7 +115,11 @@ const server=http.createServer(async(req,res)=>{
   try{
     if(req.method==="OPTIONS"){res.writeHead(204,corsHeaders());return res.end()}
     if(req.method==="GET"&&url.pathname==="/api/lab/health")
-      return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.4.0",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size,telemetry:"anonymous_daily_hash_v1"});
+      return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.4.0",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size,telemetry:"anonymous_daily_hash_v1",odds_provider_configured:Boolean(ODDS_API_KEY)});
+    if(req.method==="GET"&&url.pathname==="/api/sports/odds"){
+      const scope=String(url.searchParams.get("scope")||"football").toLowerCase();
+      return json(res,200,await fetchOddsScope(scope));
+    }
     if(req.method==="POST"&&url.pathname==="/api/telemetry/event"){
       if(!telemetryAllowed(req))return json(res,429,{error:"telemetry_rate_limited"});
       const v=await body(req);appendTelemetry(v);return json(res,202,{ok:true});

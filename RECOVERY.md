@@ -63,6 +63,17 @@ The ChatGPT web UI showed "ChatGPT stream recovery polling timed out". This is a
 - PWA shell includes sportsbook.html and sportsbook.js.
 - Quality gate includes the Sportsbook page and JS.
 
+## Release 0.17 — Odds Bridge
+- RGS exposes `/api/sports/odds?scope=football|basketball|tennis|cricket`.
+- Odds provider credentials are read only from server environment variables: `THE_ODDS_API_KEY` or `ODDS_API_KEY`.
+- Browser never receives or stores the provider key.
+- The adapter requests real h2h odds, decimal format, and normalizes the best available price per outcome.
+- Results are cached for 60 seconds.
+- Sportsbook matches provider events to real SportScore events by teams and start-time tolerance.
+- Persistent betslip stores only selections that came from the real odds provider.
+- Without a configured key, the endpoint returns `configured:false` and the UI displays no fabricated price.
+- Current blocker: external provider credential/account only; no frontend rewrite is required.
+
 ## RGS guarantees in current lab
 - HMAC-SHA256 commit/reveal
 - configurable client seed

@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.16_SPORTSBOOK_CORE",
-  "built_at": "2026-10-01T14:51:54.949506+00:00",
+  "release": "GLOBAL_HUB_LAB_0.17_ODDS_BRIDGE",
+  "built_at": "2026-10-01T15:01:34.505699+00:00",
   "public_lab": "https://method-ftp-vip-freeze.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -56,7 +56,15 @@
     "sportsbook watchlist",
     "persistent empty betslip shell ready for licensed odds",
     "no fabricated odds policy",
-    "sportsbook added to PWA shell and quality gate"
+    "sportsbook added to PWA shell and quality gate",
+    "server-side odds provider bridge",
+    "TheOddsAPI-ready secure proxy",
+    "60-second odds cache",
+    "best real decimal h2h price normalization",
+    "sportsbook odds auto-match by teams/time",
+    "persistent demo betslip using only real provider prices",
+    "odds provider key never exposed to browser",
+    "graceful no-key fallback with zero fabricated prices"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,
