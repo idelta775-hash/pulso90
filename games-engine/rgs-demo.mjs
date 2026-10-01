@@ -2,6 +2,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const here=path.dirname(fileURLToPath(import.meta.url));
@@ -14,6 +15,7 @@ const sessionFile=path.join(runtime,"games-lab-sessions-v04.jsonl");
 const paymentFile=path.join(runtime,"payments-sandbox-v1.jsonl");
 const internalLabFile=path.join(runtime,"owner-lab-v1.json");
 const casinoAdaptersFile=path.join(root,"data","casino-adapters.json");
+const financeVaultBridge=path.join(root,"ops","finance-provider-vault.py");
 const PORT=Number(process.env.PULSO90_GAMES_PORT||19011);
 const sessions=new Map();
 const telemetryRate=new Map();
@@ -48,11 +50,13 @@ const duel={home:{p:.43,m:2.23,label:"CASA"},draw:{p:.14,m:6.85,label:"EMPATE"},
 const sha256=v=>crypto.createHash("sha256").update(v).digest("hex");
 function pinHash(pin,salt){return crypto.scryptSync(String(pin),salt,32).toString("hex")}
 function loadInternalLab(){
-  let d={version:1,users:{},ledger:[],sportsTickets:[],treasury:1000000};
+  let d={version:1,users:{},ledger:[],sportsTickets:[],treasury:1000000,operatorConfig:{financial_mode:"demo",selected_provider:"asaas",real_execution_state:"locked"}};
   if(fs.existsSync(internalLabFile)){try{d={...d,...JSON.parse(fs.readFileSync(internalLabFile,"utf8"))}}catch{}}
   if(!d.users||typeof d.users!=="object")d.users={};
   if(!Array.isArray(d.ledger))d.ledger=[];
   if(!Array.isArray(d.sportsTickets))d.sportsTickets=[];
+  if(!d.operatorConfig||typeof d.operatorConfig!=="object")d.operatorConfig={financial_mode:"demo",selected_provider:"asaas",real_execution_state:"locked"};
+  if(!["demo","real"].includes(String(d.operatorConfig.financial_mode)))d.operatorConfig.financial_mode="demo";
   if(!Number.isFinite(Number(d.treasury)))d.treasury=1000000;
   return d;
 }
@@ -76,6 +80,8 @@ function canCreateRole(actor,role){
   return actor.role==="tecnico"&&role==="tester";
 }
 function labLedger(row){const r={id:crypto.randomUUID(),at:new Date().toISOString(),...row};internalLab.ledger.push(r);if(internalLab.ledger.length>2000)internalLab.ledger=internalLab.ledger.slice(-2000);saveInternalLab();return r}
+function financeVault(action,payload={}){const x=spawnSync("python",[financeVaultBridge,action],{input:JSON.stringify(payload),encoding:"utf8",windowsHide:true,timeout:10000});if(x.status!==0)throw new Error("finance_vault_failed");const out=JSON.parse(String(x.stdout||"{}"));if(!out.ok)throw new Error(out.error||"finance_vault_failed");return out}
+function operatorConfig(){return {...internalLab.operatorConfig,real_execution_enabled:false,real_execution_reason:"provider_connector_not_certified"}}
 function casinoAdapters(){try{return JSON.parse(fs.readFileSync(casinoAdaptersFile,"utf8"))}catch{return {version:"0",policy:{},contract:{},providers:[]}}}
 function casinoProvider(id){return (casinoAdapters().providers||[]).find(x=>x.id===id)||null}
 
@@ -285,6 +291,7 @@ const server=http.createServer(async(req,res)=>{
     if(req.method==="OPTIONS"){res.writeHead(204,corsHeaders());return res.end()}
     if(req.method==="GET"&&url.pathname==="/api/lab/health")
       return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.5.1",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size,telemetry:"anonymous_daily_hash_v1",odds_provider_configured:Boolean(ODDS_API_KEY),payments:{provider:"asaas",environment:ASAAS_ENV,configured:Boolean(ASAAS_API_KEY),real_money_enabled:REAL_MONEY_ENABLED}});
+    if(req.method==="GET"&&url.pathname==="/api/platform/operator-mode") return json(res,200,{operator:operatorConfig()});
     if(req.method==="GET"&&url.pathname==="/api/platform/capabilities")
       return json(res,200,{mode:"DEMO_ONLY",sportsbook:{prematch:true,live:true,single:true,multiple:true,bet_builder:"provider_required",cashout:"provider_required",results:true,real_odds:Boolean(ODDS_API_KEY)},games:{originals:true,provider_catalog:true,slots:"catalog_only",live_casino:"catalog_only",crash:"demo_original"},payments:{provider:"asaas",environment:ASAAS_ENV,methods:["PIX","BOLETO","CREDIT_CARD"],withdrawals:ASAAS_ENV==="sandbox"?"sandbox_homologation":(REAL_MONEY_ENABLED?"operator_enabled":"operator_gate_closed"),real_money_enabled:REAL_MONEY_ENABLED}});
     if(req.method==="GET"&&url.pathname==="/api/payments/status")
@@ -335,6 +342,33 @@ const server=http.createServer(async(req,res)=>{
     if(req.method==="GET"&&url.pathname==="/api/internal/me"){
       const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});const ss=ensureInternalDemoSession(u);
       return json(res,200,{user:internalUserSafe(u),state:state(ss),treasury:internalLab.treasury});
+    }
+    if(req.method==="GET"&&url.pathname==="/api/internal/operator/config"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});
+      let providers={providers:[]};try{providers=financeVault("status")}catch{}
+      return json(res,200,{operator:operatorConfig(),providers:providers.providers||[]});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/internal/operator/config"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});if(u.role!=="dono")return json(res,403,{error:"owner_required"});
+      const v=await body(req),mode=String(v.financial_mode||"demo").toLowerCase(),provider=String(v.selected_provider||"asaas").toLowerCase();
+      if(!["demo","real"].includes(mode))return json(res,400,{error:"invalid_financial_mode"});
+      if(!["asaas","mercado_pago","generic"].includes(provider))return json(res,400,{error:"invalid_provider"});
+      internalLab.operatorConfig={...internalLab.operatorConfig,financial_mode:mode,selected_provider:provider,real_execution_state:"locked",updated_at:new Date().toISOString(),updated_by:u.username};
+      saveInternalLab();labLedger({type:"operator_mode_changed",username:u.username,financial_mode:mode,selected_provider:provider});
+      return json(res,200,{ok:true,operator:operatorConfig()});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/internal/operator/provider"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});if(u.role!=="dono")return json(res,403,{error:"owner_required"});
+      const v=await body(req),provider=String(v.provider||"").toLowerCase();
+      if(!["asaas","mercado_pago","generic"].includes(provider))return json(res,400,{error:"invalid_provider"});
+      try{const out=financeVault("save",v);labLedger({type:"provider_vault_updated",username:u.username,provider,environment:String(v.environment||"")});return json(res,200,out)}
+      catch{return json(res,500,{error:"provider_vault_failed"})}
+    }
+    if(req.method==="POST"&&url.pathname==="/api/internal/operator/provider/delete"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});if(u.role!=="dono")return json(res,403,{error:"owner_required"});
+      const v=await body(req),provider=String(v.provider||"").toLowerCase();
+      try{const out=financeVault("delete",{provider});labLedger({type:"provider_vault_removed",username:u.username,provider});return json(res,200,out)}
+      catch{return json(res,500,{error:"provider_vault_failed"})}
     }
     if(req.method==="GET"&&url.pathname==="/api/internal/users"){
       const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});
