@@ -1,0 +1,14 @@
+{
+  "updated_at": "2026-10-05T20:12:00Z",
+  "project": "Pulso 90",
+  "contact": "Joaldo Soares",
+  "public_prototype": "https://idelta775-hash.github.io/pulso90/",
+  "brief": "Pulso90_B2B_Integration_Brief.pdf",
+  "pipeline": [
+    {"provider":"Hub88","priority":1,"channel":"email","contact":"sales@hub88.io","status":"sent","message_id":"1a10dae03ac0b299","requested":["staging","operator_id","signing keys","catalogue","wallet callbacks","commercial proposal","licensing guidance"],"next_action":"await reply; if no reply, follow up in 3 business days"},
+    {"provider":"SOFTSWISS Game Aggregator","priority":2,"channel":"email","contact":"order@softswiss.com","status":"sent","message_id":"1a10dae108956c95","requested":["proposal","sandbox","API docs","accepted licences","commercial terms","catalogue"],"next_action":"await reply; if no reply, follow up in 3 business days"},
+    {"provider":"Digitain","priority":3,"channel":"email","contact":"ani.mkrtchyan@digitain.com; info@digitain.com","status":"sent","message_id":"1a10dae1e8155d98","requested":["casino API sandbox","technical docs","commercial proposal","licensing guidance"],"next_action":"await reply; if no reply, follow up in 3 business days"},
+    {"provider":"EveryMatrix","priority":4,"channel":"official sales form","contact":"https://everymatrix.com/contact/","status":"form_submission_pending","requested_product":"Gaming Content (Aggregation, in-house slots & live)","next_action":"submit official sales form using prepared company brief"},
+    {"provider":"BetConstruct","priority":5,"channel":"official sales/contact form","status":"form_submission_pending","next_action":"submit official sales form using prepared company brief"}
+  ]
+}

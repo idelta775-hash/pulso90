@@ -1,0 +1,18 @@
+PULSO 90 - OFFICIAL SALES FORM TEXT
+
+Company: Delta Informatica e Multimidia / Joaldo Soares da Silva ME
+Project/Brand: Pulso 90
+Contact: Joaldo Soares
+Public prototype: https://idelta775-hash.github.io/pulso90/
+Current operation: Platform under development / staging. No claim of live regulated real-money operation.
+Market interest: LatAm and international regulated jurisdictions.
+Product interest: Gaming Content / Casino Aggregation / Casino API / Live Casino / Crash / Instant.
+
+Message:
+We are building Pulso 90, an iGaming platform with a working web frontend, player account layer, server-side wallet/ledger, separated DEMO and REAL environments, provider gateway, idempotency and rollback requirements, sportsbook and original-games laboratory.
+
+We are looking for an official B2B aggregation partner and want to begin with staging/sandbox as soon as possible. Priority studios include PG SOFT, SPRIBE, Pragmatic Play, Evolution, SmartSoft and Play'n GO.
+
+Please provide onboarding prerequisites, accepted operator licences/jurisdictions, recommended compliant licensing path, setup fee, minimum monthly commitment, revenue-share/content fees, catalogue/providers, sandbox/API documentation, wallet callback specification, supported currencies, signing/IP allowlisting requirements, SLA/support and estimated timeline to staging credentials and production.
+
+Real-money access will only be enabled in jurisdictions where legally permitted. We are ready to start technical staging immediately after credentials are issued.
