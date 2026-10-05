@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.29_BORAWIN_21_BENCHMARK",
-  "built_at": "2026-10-05T17:57:42.376852+00:00",
+  "release": "GLOBAL_HUB_LAB_0.30_PROVIDER_READINESS",
+  "built_at": "2026-10-05T18:43:28.809000+00:00",
   "public_lab": "https://valuation-drivers-accidents-among.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -151,7 +151,12 @@
     "quick invite share entry point",
     "campaign attribution extended with t5 t8 t10",
     "live sports activity counter from SportScore",
-    "favorites and player mode activity counters"
+    "favorites and player mode activity counters",
+    "global aggregator readiness matrix",
+    "Hub88 staging-first integration target",
+    "SOFTSWISS EveryMatrix Digitain BetConstruct onboarding matrix",
+    "casino provider endpoint now exposes aggregators",
+    "Brazil real-money gate under MP 1.394/2026"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,

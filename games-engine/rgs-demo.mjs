@@ -403,7 +403,7 @@ const server=http.createServer(async(req,res)=>{
       return json(res,200,{records:rows.slice(-200).reverse(),treasury:internalLab.treasury});
     }
     if(req.method==="GET"&&url.pathname==="/api/casino/providers"){
-      const x=casinoAdapters();return json(res,200,{version:x.version,policy:x.policy,contract:x.contract,providers:(x.providers||[]).map(p=>({id:p.id,name:p.name,commercial_status:p.commercial_status,technical_status:p.technical_status,targets:p.targets,adapter:p.adapter}))});
+      const x=casinoAdapters();return json(res,200,{version:x.version,policy:x.policy,contract:x.contract,aggregators:(x.aggregators||[]).map(p=>({id:p.id,name:p.name,commercial_status:p.commercial_status,technical_status:p.technical_status,supports_demo:!!p.supports_demo,supports_real:!!p.supports_real,priority:p.priority,adapter:p.adapter,notes:p.notes||""})),providers:(x.providers||[]).map(p=>({id:p.id,name:p.name,commercial_status:p.commercial_status,technical_status:p.technical_status,targets:p.targets,adapter:p.adapter}))});
     }
     if(req.method==="GET"&&url.pathname==="/api/casino/catalog"){
       const provider=String(url.searchParams.get("provider")||"");const p=casinoProvider(provider);

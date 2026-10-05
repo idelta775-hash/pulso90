@@ -1,13 +1,14 @@
 {
-  "version": "0.1",
-  "updated_at": "2026-10-01T19:40:00Z",
+  "version": "0.2",
+  "updated_at": "2026-10-05T18:45:00Z",
   "policy": {
     "no_fake_real_games": true,
     "launch_requires_configured_provider": true,
     "wallet_is_server_to_server": true,
     "idempotency_required": true,
     "rollback_required": true,
-    "sandbox_first": true
+    "sandbox_first": true,
+    "brazil_real_money_blocked_under_mp_1394_2026": true
   },
   "contract": {
     "catalog": ["provider_game_id","name","category","supports_demo","supports_real"],
@@ -15,6 +16,13 @@
     "wallet": ["balance","bet","win","refund","rollback"],
     "security": ["signed_requests","timestamp_or_nonce","ip_allowlist_if_supported","secret_never_in_browser"]
   },
+  "aggregators": [
+    {"id":"hub88","name":"Hub88","commercial_status":"onboarding_required","technical_status":"credentials_missing","adapter":"hub88_operator_api_v2","staging":"https://api.server1.ih.testenv.io","latam_base":"https://api.am.hub88.io","supports_demo":true,"supports_real":true,"priority":1,"notes":"Public docs expose staging, game list, products list, game URL and seamless wallet callbacks."},
+    {"id":"softswiss","name":"SOFTSWISS Game Aggregator","commercial_status":"proposal_required","technical_status":"credentials_missing","adapter":"generic_aggregator_wallet_v1","supports_demo":true,"supports_real":true,"priority":2,"notes":"40k+ titles, 300+ providers; certified B2B stack for Brazil before MP 1.394/2026."},
+    {"id":"everymatrix","name":"EveryMatrix CasinoEngine / SlotMatrix","commercial_status":"proposal_required","technical_status":"credentials_missing","adapter":"generic_aggregator_wallet_v1","supports_demo":true,"supports_real":true,"priority":3,"notes":"Strong LatAm coverage, unified casino APIs, wallet and content feeds."},
+    {"id":"digitain","name":"Digitain / Relum","commercial_status":"proposal_required","technical_status":"credentials_missing","adapter":"generic_aggregator_wallet_v1","supports_demo":true,"supports_real":true,"priority":4,"notes":"Single casino API, 55k+ games, sportsbook and turnkey options."},
+    {"id":"betconstruct","name":"BetConstruct","commercial_status":"proposal_required","technical_status":"credentials_missing","adapter":"generic_rgs_wallet_v1","supports_demo":true,"supports_real":true,"priority":5,"notes":"Public casino integration API describes iframe plus operator wallet callbacks."}
+  ],
   "providers": [
     {"id":"pgsoft","name":"PG SOFT","commercial_status":"contacted","technical_status":"credentials_missing","targets":["Fortune Tiger","Fortune Series"],"adapter":"generic_session_wallet_v1"},
     {"id":"spribe","name":"SPRIBE","commercial_status":"contacted","technical_status":"credentials_missing","targets":["Aviator"],"adapter":"generic_session_wallet_v1"},
