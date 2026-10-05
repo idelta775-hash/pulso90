@@ -1,6 +1,6 @@
 const $=id=>document.getElementById(id),$$=s=>[...document.querySelectorAll(s)];
 const FAVORITES_KEY="pulso90-sports-favorites-v1",SLIP_KEY="pulso90-sports-slip-v1",STAKE_KEY="pulso90-sports-stake-v1",SLIP_MODE_KEY="pulso90-sports-slip-mode-v1",LAB_TOKEN_KEY="pulso90-owner-lab-token-v1",PLAYER_MODE_KEY="pulso90-player-mode-v1";
-let sport="football",view="all",matches=[],favorites=new Set(),oddsEvents=[],slip=[],runtimeBase="",slipMode=localStorage.getItem(SLIP_MODE_KEY)||"multiple";
+let sport="football",view="all",competitionFilter="",matches=[],favorites=new Set(),oddsEvents=[],slip=[],runtimeBase="",slipMode=localStorage.getItem(SLIP_MODE_KEY)||"multiple";
 try{favorites=new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY)||"[]"))}catch{}
 try{slip=JSON.parse(localStorage.getItem(SLIP_KEY)||"[]");if(!Array.isArray(slip))slip=[]}catch{slip=[]}
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
@@ -12,7 +12,8 @@ function statusClass(s){s=String(s||"").toLowerCase();return s==="live"?"live":s
 function statusLabel(m){const s=String(m.status||"").toLowerCase();if(s==="live")return "● AO VIVO";if(s==="finished")return "ENCERRADO";return (m.status_text||s||"AGENDADO").toUpperCase()}
 function when(t){try{return new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}).format(new Date(t))}catch{return t||""}}
 function normalized(m){return {...m,_id:idOf(m),home_score:m.home_score??"–",away_score:m.away_score??"–"}}
-function visible(){return matches.filter(m=>view==="all"||view==="favorite"?view!=="favorite"||favorites.has(m._id):String(m.status||"").toLowerCase()===view)}
+function visible(){const rank=s=>String(s||"").toLowerCase()==="live"?0:String(s||"").toLowerCase()==="finished"?2:1;return matches.filter(m=>(view==="all"||view==="favorite"?view!=="favorite"||favorites.has(m._id):String(m.status||"").toLowerCase()===view)&&(!competitionFilter||m.competition===competitionFilter)).sort((a,b)=>rank(a.status)-rank(b.status)||(Date.parse(a.time||0)||0)-(Date.parse(b.time||0)||0))}
+function renderCompetitionQuick(){const host=$("competitionQuick");if(!host)return;const counts={};for(const m of matches){const k=String(m.competition||"Outros");counts[k]=(counts[k]||0)+1}const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,7);host.innerHTML='<button class="competition-btn '+(!competitionFilter?"active":"")+'" data-competition="">Todas</button>'+top.map(([k,n])=>'<button class="competition-btn '+(competitionFilter===k?"active":"")+'" data-competition="'+esc(k)+'">'+esc(k)+' · '+n+'</button>').join("");$$("[data-competition]").forEach(b=>b.onclick=()=>{competitionFilter=b.dataset.competition||"";render()})}
 function findOdds(m){
  const h=norm(m.home),a=norm(m.away),mt=Date.parse(m.time||0);
  return oddsEvents.find(o=>{
@@ -33,6 +34,7 @@ function marketsHtml(m){
  return '<div class="markets">'+sorted.slice(0,3).map(x=>'<button class="odd-btn" data-odd-event="'+esc(o.event_id)+'" data-odd-name="'+esc(encodeURIComponent(x.name))+'"><span>'+outcomeLabel(x,o)+'</span><b>'+Number(x.price).toFixed(2)+'</b></button>').join("")+'</div>'
 }
 function render(){
+ renderCompetitionQuick();
  const arr=visible();
  if(!arr.length){$("events").innerHTML='<div class="panel" style="padding:18px">Nenhuma partida nesta visualização agora.</div>';renderWatch();renderSlip();return}
  const groups={};for(const m of arr)(groups[m.competition||"Outros"]??=[]).push(m);
@@ -127,8 +129,9 @@ async function openMatch(id){
  const slug=slugFrom(m);if(!slug)return;
  try{const r=await fetch("https://sportscore.com/api/widget/match/?sport="+encodeURIComponent(sport)+"&slug="+encodeURIComponent(slug)+"&src=pulso90",{cache:"no-store"});const x=await r.json();if(!r.ok)throw new Error();const obj=x.match||x,extra=[];if(obj.venue)extra.push("<b>Local:</b> "+esc(obj.venue));if(obj.round)extra.push("<b>Rodada:</b> "+esc(obj.round));if(obj.referee)extra.push("<b>Árbitro:</b> "+esc(obj.referee));if(obj.timeline&&Array.isArray(obj.timeline))extra.push("<b>Lances:</b> "+obj.timeline.length);$("detailExtra").innerHTML=extra.length?'<p class="meta">'+extra.join("<br>")+'</p>':'<p class="meta">Detalhes atualizados da partida.</p>'}catch{$("detailExtra").innerHTML='<p class="meta">Detalhes adicionais indisponíveis por alguns instantes.</p>'}
 }
-$$("[data-sport]").forEach(b=>b.onclick=()=>{sport=b.dataset.sport;oddsEvents=[];$$("[data-sport]").forEach(x=>x.classList.toggle("active",x===b));load()});
+$$("[data-sport]").forEach(b=>b.onclick=()=>{sport=b.dataset.sport;competitionFilter="";oddsEvents=[];$$("[data-sport]").forEach(x=>x.classList.toggle("active",x===b));load()});
 $$("[data-slip-mode]").forEach(b=>{b.classList.toggle("active",b.dataset.slipMode===slipMode);b.onclick=()=>{slipMode=b.dataset.slipMode;localStorage.setItem(SLIP_MODE_KEY,slipMode);$$("[data-slip-mode]").forEach(x=>x.classList.toggle("active",x.dataset.slipMode===slipMode));renderSlip()}});
 $$("[data-view]").forEach(b=>b.onclick=()=>{view=b.dataset.view;$$("[data-view]").forEach(x=>x.classList.toggle("active",x.dataset.view===view));render()});
 $("detailClose").onclick=()=>$("detail").classList.remove("open");$("detail").onclick=e=>{if(e.target===$("detail"))$("detail").classList.remove("open")};document.addEventListener("keydown",e=>{if(e.key==="Escape")$("detail").classList.remove("open")});
-renderSlip();load();setInterval(load,60000);
+function paintSportsMode(){const m=(localStorage.getItem(PLAYER_MODE_KEY)||"demo")==="real"?"real":"demo",el=$("sportsModeStatus");if(el){el.textContent=m==="real"?"JOGAR REAL":"JOGAR DEMO";el.style.color=m==="real"?"var(--gold)":"var(--lime)";el.style.borderColor=m==="real"?"#6c5b2a":"#3b624c"}}
+paintSportsMode();renderSlip();load();setInterval(load,60000);
