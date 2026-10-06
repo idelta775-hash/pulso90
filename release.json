@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.31_ONBOARDING_READY",
-  "built_at": "2026-10-06T18:44:47.389737+00:00",
+  "release": "GLOBAL_HUB_LAB_0.32_OWNER_AGGREGATOR_READINESS",
+  "built_at": "2026-10-06T19:05:20.335414+00:00",
   "public_lab": "https://valuation-drivers-accidents-among.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -160,7 +160,11 @@
     "Hub88 environment readiness detector",
     "authenticated casino aggregator readiness endpoint",
     "provider onboarding follow-up pipeline",
-    "Hub88 staging environment guide"
+    "Hub88 staging environment guide",
+    "owner console casino aggregator readiness panel",
+    "Hub88 credential readiness visibility without secret disclosure",
+    "aggregator DEMO REAL capability visibility",
+    "provider technical and commercial status visibility"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,
