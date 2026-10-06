@@ -1,0 +1,84 @@
+/* Pulso 90 refined UI — shared visual layer */
+:root{--p90-bg:#050806;--p90-surface:#0b1510;--p90-surface2:#101e17;--p90-line:#28483a;--p90-text:#f5faf7;--p90-muted:#9db0a6;--p90-lime:#b8ff66;--p90-gold:#ffd56b;--p90-shadow:0 18px 50px rgba(0,0,0,.22)}
+html{scroll-behavior:smooth}
+body.pulso-refined{min-height:100vh;background:radial-gradient(circle at 12% -10%,rgba(49,113,72,.32),transparent 34%),radial-gradient(circle at 92% 10%,rgba(184,255,102,.045),transparent 22%),var(--p90-bg)!important;color:var(--p90-text)}
+body.pulso-refined ::selection{background:rgba(184,255,102,.28);color:#fff}
+body.pulso-refined a,body.pulso-refined button,body.pulso-refined input,body.pulso-refined select{transition:border-color .18s ease,background .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease}
+body.pulso-refined :focus-visible{outline:2px solid var(--p90-lime)!important;outline-offset:3px}
+body.pulso-refined .wrap{max-width:1260px!important;padding:18px clamp(14px,2vw,28px)!important}
+body.pulso-refined .top{min-height:58px;padding:7px 0;position:sticky;top:0;z-index:40;background:rgba(5,8,6,.88);backdrop-filter:blur(14px);border-bottom:1px solid rgba(88,132,105,.16)}
+body.pulso-refined .mark{box-shadow:0 0 28px rgba(184,255,102,.16)}
+body.pulso-refined .back{font-size:12px!important;border:1px solid var(--p90-line);border-radius:10px;padding:9px 12px}
+body.pulso-refined .hero,body.pulso-refined .panel,body.pulso-refined .card,body.pulso-refined .kpi{border-color:rgba(69,111,87,.72)!important;background:linear-gradient(155deg,rgba(16,31,23,.98),rgba(8,15,11,.98))!important;box-shadow:0 1px 0 rgba(255,255,255,.025) inset,0 16px 42px rgba(0,0,0,.12)}
+body.pulso-refined .hero{padding:clamp(20px,2.5vw,32px)!important;border-radius:20px!important;position:relative;overflow:hidden}
+body.pulso-refined .hero:after{content:"";position:absolute;width:240px;height:240px;border-radius:50%;right:-110px;top:-120px;background:rgba(184,255,102,.065);pointer-events:none}
+body.pulso-refined .hero h1{font-size:clamp(30px,4vw,48px)!important;line-height:1.02!important;letter-spacing:-.035em;margin:8px 0 12px!important}
+body.pulso-refined .hero p,body.pulso-refined .panel p,body.pulso-refined .card p,body.pulso-refined .mut{font-size:13px!important;line-height:1.62!important;color:var(--p90-muted)!important}
+body.pulso-refined .ey{font-size:10px!important;letter-spacing:.17em}
+body.pulso-refined .status,body.pulso-refined .tag{font-size:10px!important;line-height:1.15}
+body.pulso-refined .cta,body.pulso-refined .btn,body.pulso-refined .method,body.pulso-refined .mode-choice{min-height:42px;font-size:11px!important}
+body.pulso-refined .cta:hover,body.pulso-refined .btn:hover,body.pulso-refined .card:hover{transform:translateY(-2px);border-color:#79b75a!important}
+body.pulso-refined .panel{padding:18px!important;border-radius:16px!important}
+body.pulso-refined .panel h2{font-size:18px!important;letter-spacing:-.015em}
+body.pulso-refined .grid{gap:14px!important;margin-top:14px!important}
+body.pulso-refined .foot{font-size:10px!important;color:#7f9388!important;padding:22px 0 36px!important}
+body.pulso-refined input,body.pulso-refined select{min-height:44px;font-size:13px!important}
+body.pulso-refined .item{font-size:11px!important}
+body.pulso-refined .kpi small{font-size:9px!important}
+body.pulso-refined .kpi b{font-size:22px!important}
+body.catalog-ui .catalog{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important;gap:12px!important;margin-top:16px!important}
+body.catalog-ui .catalog .card{min-height:210px;padding:13px!important;display:flex;flex-direction:column;align-items:flex-start;overflow:hidden}
+body.catalog-ui .catalog .card b{font-size:14px!important;margin-top:8px}
+body.catalog-ui .catalog .card p{font-size:11px!important;margin:5px 0 8px!important}
+body.catalog-ui .catalog .card .status{margin-top:auto!important}
+body.catalog-ui .ico{width:100%;height:116px;border-radius:12px!important;display:grid;place-items:center;font-size:40px!important;background:linear-gradient(135deg,#183322,#171d19);overflow:hidden}
+body.catalog-ui .ico img{width:100%;height:100%;display:block;object-fit:cover;object-position:center}
+body.catalog-detail .hero{grid-template-columns:minmax(220px,300px) 1fr!important;gap:26px!important;align-items:center}
+body.catalog-detail .art{height:220px!important;border-radius:16px!important;overflow:hidden;background:linear-gradient(135deg,#183322,#24202d)!important}
+body.catalog-detail .art img{width:100%;height:100%;display:block;object-fit:cover;object-position:center}
+body.catalog-detail .related{gap:10px!important}
+body.catalog-detail .related .card{min-height:150px}
+body.catalog-detail .related .ico{width:100%;height:78px;border-radius:10px;overflow:hidden;display:grid;place-items:center;background:#14251b}
+body.catalog-detail .related .ico img{width:100%;height:100%;object-fit:cover;display:block}
+body.provider-ui .catalog{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))!important;gap:12px!important}
+body.provider-ui .catalog .card{min-height:155px;padding:17px!important;position:relative;overflow:hidden}
+body.provider-ui .catalog .card:after{content:"B2B";position:absolute;right:12px;top:12px;border:1px solid #335746;border-radius:999px;padding:4px 6px;font-size:8px;color:#8ea298}
+body.provider-ui .catalog .card b{font-size:15px!important}
+body.provider-ui .related .card{min-height:145px}
+body.utility-ui .wrap{max-width:1180px!important}
+body.utility-ui .hero{background:linear-gradient(135deg,#102219,#0a120e)!important}
+body.utility-ui .grid{gap:14px!important}
+body.utility-ui .panel{min-width:0}
+body.utility-ui .methods{gap:10px!important}
+body.utility-ui .method{font-weight:850}
+body.utility-ui .status{font-size:11px!important;line-height:1.5}
+body.utility-ui .mission,body.utility-ui .item{background:rgba(6,13,9,.42)}
+body.utility-ui .favorite-grid{gap:10px!important}
+body.lab-ui .wrap{max-width:1240px!important}
+body.lab-ui .panel{box-shadow:var(--p90-shadow)}
+body.lab-ui .hero{min-height:150px}
+body.lab-ui .hero p{max-width:820px}
+.finder{display:grid;grid-template-columns:minmax(240px,1fr) 190px 190px auto;gap:8px;align-items:center;margin:14px 0 4px;padding:11px;border:1px solid #29483a;background:rgba(8,16,12,.72);border-radius:13px}
+.finder input,.finder select{width:100%;min-height:42px;border:1px solid #315242;background:#08110d;color:#eef6f1;border-radius:9px;padding:9px 11px;font-size:12px}
+.finder .count{font-size:11px;color:#9fb2a8;white-space:nowrap}
+.finder .clear-filter{min-height:42px;border:1px solid #365847;background:#102019;color:#b8ff66;border-radius:9px;padding:8px 11px;font-size:10px;font-weight:900;cursor:pointer}
+.empty-state{grid-column:1/-1;border:1px dashed #365847;border-radius:14px;padding:26px;text-align:center;color:#9fb2a8;font-size:12px}
+@media(hover:hover){body.pulso-refined .card:hover,body.pulso-refined .panel.interactive:hover{box-shadow:0 18px 46px rgba(0,0,0,.24);transform:translateY(-2px)}}
+@media(max-width:760px){
+ body.pulso-refined .wrap{padding:10px!important}
+ body.pulso-refined .top{min-height:54px}
+ body.pulso-refined .hero{padding:18px!important;border-radius:16px!important}
+ body.pulso-refined .hero h1{font-size:30px!important}
+ body.pulso-refined .hero p,body.pulso-refined .panel p,body.pulso-refined .card p{font-size:12px!important}
+ body.catalog-detail .hero{grid-template-columns:1fr!important;gap:14px!important}
+ body.catalog-detail .art{height:180px!important}
+ body.catalog-ui .catalog{grid-template-columns:1fr 1fr!important;gap:8px!important}
+ body.catalog-ui .catalog .card{min-height:185px;padding:10px!important}
+ body.catalog-ui .ico{height:96px}
+ body.provider-ui .catalog{grid-template-columns:1fr!important}
+ body.pulso-refined .back{font-size:10px!important;padding:8px 9px}
+ .finder{grid-template-columns:1fr 1fr}.finder input{grid-column:1/-1}.finder .count{align-self:center}.finder .clear-filter{width:100%}
+}
+@media(max-width:460px){.finder{grid-template-columns:1fr}.finder input{grid-column:auto}}
+@media(max-width:430px){body.catalog-ui .catalog{grid-template-columns:1fr!important}}
+@media(prefers-reduced-motion:reduce){body.pulso-refined *,body.pulso-refined *:before,body.pulso-refined *:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}

@@ -4,7 +4,7 @@ import json,re,subprocess,tempfile,sys
 
 ROOT=Path(r"D:\gpt\Pulso 90\deploy-pages")
 TESTS=Path(r"D:\gpt\Pulso 90\tests")
-PAGES=[ROOT/"index.html",ROOT/"account.html",ROOT/"wallet.html",ROOT/"lab-admin.html",ROOT/"games"/"index.html",ROOT/"sportsbook.html",ROOT/"catalog"/"index.html",ROOT/"providers"/"index.html"]
+PAGES=[ROOT/"index.html",ROOT/"account.html",ROOT/"wallet.html",ROOT/"responsible.html",ROOT/"lab-admin.html",ROOT/"games"/"index.html",ROOT/"sportsbook.html",ROOT/"catalog"/"index.html",ROOT/"providers"/"index.html"]
 
 class AuditParser(HTMLParser):
     def __init__(self):
@@ -56,7 +56,7 @@ checks["6_player_copy_clean"]=copy_ok
 
 js_files=[ROOT/"games"/"app.js",ROOT/"sportsbook.js",ROOT/"wallet.js",ROOT/"lab-admin.js",ROOT/"sw.js"]
 embedded=[]
-for page in [ROOT/"index.html",ROOT/"account.html"]:
+for page in [ROOT/"index.html",ROOT/"account.html",ROOT/"responsible.html"]:
     txt=page.read_text(encoding="utf-8")
     for i,s in enumerate(re.findall(r"<script(?:\s[^>]*)?>(.*?)</script>",txt,re.S|re.I)):
         if s.strip():
