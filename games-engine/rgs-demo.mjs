@@ -82,8 +82,11 @@ function canCreateRole(actor,role){
 function labLedger(row){const r={id:crypto.randomUUID(),at:new Date().toISOString(),...row};internalLab.ledger.push(r);if(internalLab.ledger.length>2000)internalLab.ledger=internalLab.ledger.slice(-2000);saveInternalLab();return r}
 function financeVault(action,payload={}){const x=spawnSync("python",[financeVaultBridge,action],{input:JSON.stringify(payload),encoding:"utf8",windowsHide:true,timeout:10000});if(x.status!==0)throw new Error("finance_vault_failed");const out=JSON.parse(String(x.stdout||"{}"));if(!out.ok)throw new Error(out.error||"finance_vault_failed");return out}
 function operatorConfig(){return {...internalLab.operatorConfig,real_execution_enabled:false,real_execution_reason:"provider_connector_not_certified"}}
-function casinoAdapters(){try{return JSON.parse(fs.readFileSync(casinoAdaptersFile,"utf8"))}catch{return {version:"0",policy:{},contract:{},providers:[]}}}
+function casinoAdapters(){try{return JSON.parse(fs.readFileSync(casinoAdaptersFile,"utf8"))}catch{return {version:"0",policy:{},contract:{},aggregators:[],providers:[]}}}
 function casinoProvider(id){return (casinoAdapters().providers||[]).find(x=>x.id===id)||null}
+function casinoAggregator(id){return (casinoAdapters().aggregators||[]).find(x=>x.id===id)||null}
+function hub88Config(){const operatorId=String(process.env.PULSO90_HUB88_OPERATOR_ID||"").trim(),privateKey=String(process.env.PULSO90_HUB88_PRIVATE_KEY_PEM||"").trim(),subPartnerId=String(process.env.PULSO90_HUB88_SUB_PARTNER_ID||"").trim(),base=String(process.env.PULSO90_HUB88_BASE||"https://api.server1.ih.testenv.io").trim(),publicKey=String(process.env.PULSO90_HUB88_PUBLIC_KEY_PEM||"").trim();return {configured:Boolean(operatorId&&privateKey),operator_id_set:Boolean(operatorId),private_key_set:Boolean(privateKey),public_key_set:Boolean(publicKey),sub_partner_id_set:Boolean(subPartnerId),base,is_staging:/testenv|server1\.ih\.testenv/i.test(base)}}
+function aggregatorReadiness(){const x=casinoAdapters();return (x.aggregators||[]).map(a=>{const extra=a.id==="hub88"?hub88Config():{configured:false};return {id:a.id,name:a.name,priority:a.priority,commercial_status:a.commercial_status,technical_status:extra.configured?"credentials_loaded_pending_certification":a.technical_status,supports_demo:!!a.supports_demo,supports_real:!!a.supports_real,configured:!!extra.configured,environment:a.id==="hub88"?(extra.is_staging?"staging":"custom"):"not_configured"}})}
 
 const newServerSeed=()=>crypto.randomBytes(32).toString("hex");
 const newClientSeed=()=>crypto.randomBytes(16).toString("hex");
@@ -403,7 +406,10 @@ const server=http.createServer(async(req,res)=>{
       return json(res,200,{records:rows.slice(-200).reverse(),treasury:internalLab.treasury});
     }
     if(req.method==="GET"&&url.pathname==="/api/casino/providers"){
-      const x=casinoAdapters();return json(res,200,{version:x.version,policy:x.policy,contract:x.contract,aggregators:(x.aggregators||[]).map(p=>({id:p.id,name:p.name,commercial_status:p.commercial_status,technical_status:p.technical_status,supports_demo:!!p.supports_demo,supports_real:!!p.supports_real,priority:p.priority,adapter:p.adapter,notes:p.notes||""})),providers:(x.providers||[]).map(p=>({id:p.id,name:p.name,commercial_status:p.commercial_status,technical_status:p.technical_status,targets:p.targets,adapter:p.adapter}))});
+      const x=casinoAdapters(),ready=new Map(aggregatorReadiness().map(a=>[a.id,a]));return json(res,200,{version:x.version,policy:x.policy,contract:x.contract,aggregators:(x.aggregators||[]).map(p=>({id:p.id,name:p.name,commercial_status:p.commercial_status,technical_status:ready.get(p.id)?.technical_status||p.technical_status,supports_demo:!!p.supports_demo,supports_real:!!p.supports_real,priority:p.priority,adapter:p.adapter,configured:!!ready.get(p.id)?.configured,environment:ready.get(p.id)?.environment||"not_configured",notes:p.notes||""})),providers:(x.providers||[]).map(p=>({id:p.id,name:p.name,commercial_status:p.commercial_status,technical_status:p.technical_status,targets:p.targets,adapter:p.adapter}))});
+    }
+    if(req.method==="GET"&&url.pathname==="/api/internal/casino/readiness"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});return json(res,200,{aggregators:aggregatorReadiness(),hub88:{...hub88Config(),operator_id_set:hub88Config().operator_id_set,private_key_set:hub88Config().private_key_set,public_key_set:hub88Config().public_key_set,sub_partner_id_set:hub88Config().sub_partner_id_set},real_execution:operatorConfig()});
     }
     if(req.method==="GET"&&url.pathname==="/api/casino/catalog"){
       const provider=String(url.searchParams.get("provider")||"");const p=casinoProvider(provider);

@@ -1,7 +1,7 @@
 {
   "product": "Pulso 90",
-  "release": "GLOBAL_HUB_LAB_0.30_PROVIDER_READINESS",
-  "built_at": "2026-10-05T18:43:28.809000+00:00",
+  "release": "GLOBAL_HUB_LAB_0.31_ONBOARDING_READY",
+  "built_at": "2026-10-06T18:44:47.389737+00:00",
   "public_lab": "https://valuation-drivers-accidents-among.trycloudflare.com/",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
@@ -156,7 +156,11 @@
     "Hub88 staging-first integration target",
     "SOFTSWISS EveryMatrix Digitain BetConstruct onboarding matrix",
     "casino provider endpoint now exposes aggregators",
-    "Brazil real-money gate under MP 1.394/2026"
+    "Brazil real-money gate under MP 1.394/2026",
+    "Hub88 environment readiness detector",
+    "authenticated casino aggregator readiness endpoint",
+    "provider onboarding follow-up pipeline",
+    "Hub88 staging environment guide"
   ],
   "real_money_enabled": false,
   "third_party_games_integrated": false,
