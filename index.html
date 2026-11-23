@@ -227,7 +227,7 @@ async function setPlayerMode(mode){localStorage.setItem(PLAYER_MODE_KEY,mode==="
 const ANON_KEY="pulso90-anon-v1";
 let anonId=localStorage.getItem(ANON_KEY)||"";if(!anonId){anonId=(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now().toString(36));localStorage.setItem(ANON_KEY,anonId)}
 const ATTR_KEY="pulso90-attribution-v1";
-function captureAttribution(){const q=new URLSearchParams(location.search),keys=["utm_source","utm_medium","utm_campaign","utm_content","utm_term","affiliateId","trackerId","t5","t6","t7","t8","t10"];let a={};try{a=JSON.parse(localStorage.getItem(ATTR_KEY)||"{}")}catch{};for(const k of keys){const v=q.get(k);if(v)a[k]=String(v).slice(0,180)}if(Object.keys(a).length){a.last_seen_at=new Date().toISOString();localStorage.setItem(ATTR_KEY,JSON.stringify(a))}return a}
+function captureAttribution(){const q=new URLSearchParams(location.search),keys=["code","utm_source","utm_medium","utm_campaign","utm_content","utm_term","affiliateId","trackerId","t5","t6","t7","t8","t10"];let a={};try{a=JSON.parse(localStorage.getItem(ATTR_KEY)||"{}")}catch{};for(const k of keys){const v=q.get(k);if(v)a[k]=String(v).slice(0,180)}if(Object.keys(a).length){a.last_seen_at=new Date().toISOString();localStorage.setItem(ATTR_KEY,JSON.stringify(a))}return a}
 const attribution=captureAttribution();
 async function track(event,data={}){try{await loadRuntimeConfig();if(!RGS_BASE)return;fetch(apiUrl("/api/telemetry/event"),{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({event,clientId:anonId,lang:document.documentElement.lang||"pt-BR",surface:"home",attribution,...data}),keepalive:true}).catch(()=>{})}catch{}}
 const LANG_KEY="pulso90-lang-v1";
@@ -322,7 +322,7 @@ function applyLang(lang){
  applyLangExtra();
  $("langSelect").value=currentLang;
 }
-const games=[
+let games=[
 {id:"fortune-tiger",title:"Fortune Tiger",provider:"PG SOFT",type:"slot",icon:"🐯",art:"assets/games/fortune-tiger.webp",c1:"#694012",c2:"#bf7920",tags:["Fortune Series","Brasil","Popular"],status:"Em breve"},
 {id:"aviator",title:"Aviator",provider:"SPRIBE",type:"crash",icon:"✈️",art:"assets/games/aviator.webp",c1:"#40161b",c2:"#b62b38",tags:["Crash","Global","Popular"],status:"Em breve"},
 {id:"fortune-rabbit",title:"Fortune Rabbit",provider:"PG SOFT",type:"slot",icon:"🐰",art:"assets/games/fortune-rabbit.webp",c1:"#762c45",c2:"#ce6d76",tags:["Fortune Series","Top lobby"],status:"Em breve"},
@@ -362,10 +362,40 @@ const games=[
 {id:"coin-flip",title:"Coin Flip",provider:"Formato Instant",type:"table",icon:"🪙",c1:"#443c1d",c2:"#9b8137",tags:["Instant","Simple"],status:"Em breve"},
 {id:"pulso-tiger",title:"Pulso Tiger",provider:"Pulso 90 Originals",type:"original",icon:"🐯",c1:"#3d3614",c2:"#85661d",tags:["Original","Slot","Pulso 90"],status:"Disponível",play:"games/"},
 {id:"pulso-launch",title:"Pulso Launch",provider:"Pulso 90 Originals",type:"original",icon:"🚀",c1:"#132c51",c2:"#472b72",tags:["Original","Crash","Pulso 90"],status:"Disponível",play:"games/"},
-{id:"pulso-goal",title:"Pulso Goal Duel",provider:"Pulso 90 Originals",type:"original",icon:"⚽",c1:"#143b2d",c2:"#53601e",tags:["Original","Virtual","Pulso 90"],status:"Disponível",play:"games/"}
+{id:"pulso-goal-duel",title:"Pulso Goal Duel",provider:"Pulso 90 Originals",type:"original",icon:"⚽",c1:"#143b2d",c2:"#53601e",tags:["Original","Virtual","Pulso 90"],status:"Disponível",play:"games/"}
 ];
 const trendIds=["fortune-tiger","aviator","fortune-rabbit","fortune-dragon","gates-olympus","crazy-time","football-studio","bac-bo","fortune-ox","jetx"];
 const editorialIds=new Set(["fortune-tiger","aviator","fortune-rabbit","fortune-dragon","gates-olympus","crazy-time","football-studio","bac-bo","fortune-ox","jetx","sweet-bonanza","big-bass","lightning-roulette","monopoly-live","spaceman","high-flyer","lightning-storm","funky-time"]);
+let platformBootstrap=null,enginePromotions=[];
+function normalizeEngineGame(g){
+ const old=games.find(x=>x.id===g.id)||{};
+ return {...old,...g,icon:old.icon||"🎮",c1:old.c1||"#173323",c2:old.c2||"#0f2118",tags:Array.isArray(g.tags)?g.tags:(old.tags||[]),status:g.status==="demo_live"?"DEMO disponível":(old.status||"Em breve")};
+}
+function mergeEngineCatalog(x){
+ const incoming=Array.isArray(x?.catalog?.games)?x.catalog.games:[];if(!incoming.length)return;
+ const ids=new Set(incoming.map(g=>g.id));games=games.map(g=>ids.has(g.id)?normalizeEngineGame(incoming.find(x=>x.id===g.id)):g);
+ for(const g of incoming)if(!games.some(x=>x.id===g.id))games.push(normalizeEngineGame(g));
+}
+function applyTenantConfig(){
+ const t=platformBootstrap?.tenant||{};if(t.name){const b=document.querySelector(".brand span:last-child");if(b)b.textContent=t.name;document.title=t.name+" — universo de jogos, esportes e comunidade"}
+ const theme=t.theme||{},root=document.documentElement;if(theme.primary)root.style.setProperty("--lime",theme.primary);if(theme.accent)root.style.setProperty("--gold",theme.accent);
+}
+async function loadPlatformBootstrap(){
+ let x=null;
+ try{
+   await loadRuntimeConfig();
+   if(RGS_BASE){const c=new AbortController(),tm=setTimeout(()=>c.abort(),1800);try{const r=await fetch(apiUrl("/api/platform/bootstrap"),{cache:"no-store",signal:c.signal});if(r.ok)x=await r.json()}finally{clearTimeout(tm)}}
+ }catch{}
+ if(!x)try{const r=await fetch("data/platform-engine.json",{cache:"no-store"});if(r.ok)x=await r.json()}catch{}
+ if(x){platformBootstrap=x;enginePromotions=Array.isArray(x.promotions)?x.promotions:[];mergeEngineCatalog(x);applyTenantConfig()}
+ return x;
+}
+async function syncAffiliate(){
+ const a=attribution||{};if(!Object.keys(a).some(k=>["code","affiliateId","trackerId","utm_source","utm_campaign","t5","t6","t7","t8","t10"].includes(k)))return;
+ const key=JSON.stringify(a),last=localStorage.getItem("pulso90-affiliate-touch-v1");if(last===key)return;
+ try{await loadRuntimeConfig();if(!RGS_BASE)return;const r=await fetch(apiUrl("/api/platform/affiliate/touch"),{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({clientId:anonId,code:a.code||a.affiliateId||"",attribution:a}),keepalive:true});if(r.ok)localStorage.setItem("pulso90-affiliate-touch-v1",key)}catch{}
+}
+
 const newIds=["pinata-wins","cash-mania","gates-super","lightning-storm","funky-time","mega-ball","sugar-rush","high-flyer","spaceman","fortune-dragon"];
 const crashIds=["aviator","jetx","spaceman","high-flyer","mines","plinko","limbo","tower"];
 const liveIds=["crazy-time","football-studio","lightning-roulette","monopoly-live","mega-wheel","mega-roulette","sweet-candyland","lightning-storm","funky-time","blackjack-live"];
@@ -442,9 +472,12 @@ const GAME_MODAL_TEXT={
  es:{play:"Original Pulso 90 disponible con créditos de prueba.",locked:"Este título todavía no está disponible para jugar dentro de Pulso 90. Puedes conocerlo y guardarlo en favoritos mientras llega la integración.",playNow:"Jugar ahora",learn:"Conocer título",favorite:"Favorito",save:"Guardar en favoritos",related:"También te puede gustar"}
 };
 function renderPromos(){
- const m=playerMode(),seen=(discovery.seen||[]).length,favs=(discovery.favorites||[]).length,t=PROMO_TEXT[currentLang]||PROMO_TEXT.pt,src=m==="demo"?t.demo:t.real,links=m==="demo"?["#catalogo","#seu-pulso","account.html"]:["wallet.html","responsible.html","#seu-pulso"];
- const cards=src.map((v,i)=>({k:v[0],t:v[1],p:v[2],a:links[i],s:i===0&&m==="demo"?Math.min(seen,5)+v[3]:(v[3]==="favoritos"||v[3]==="favorites"?favs+t.fav:v[3])}));
- $("promoGrid").innerHTML=cards.map((x,i)=>'<article class="promo-card '+(i===0?"primary":"")+'"><div class="ey">'+x.k+'</div><h3>'+x.t+'</h3><p>'+x.p+'</p><span class="promo-state">'+x.s+'</span><div class="cta-row"><a class="cta" href="'+x.a+'">'+t.open+'</a></div></article>').join("");
+ const m=playerMode(),seen=(discovery.seen||[]).length,favs=(discovery.favorites||[]).length,t=PROMO_TEXT[currentLang]||PROMO_TEXT.pt;
+ const remote=enginePromotions.filter(p=>p&&p.active!==false&&(p.environment==="all"||p.environment===m)).sort((a,b)=>(a.priority||100)-(b.priority||100)).slice(0,3);
+ let cards;
+ if(remote.length){cards=remote.map(p=>{const c=p.copy?.[currentLang]||p.copy?.pt||{};let state=c.state||"";if(p.id==="discover-five")state=Math.min(seen,5)+"/5";if(p.id==="your-pulse")state=favs+t.fav;return{k:c.kicker||p.type,t:c.title||p.id,p:c.text||"",a:p.cta||"#catalogo",s:state}})}
+ else{const src=m==="demo"?t.demo:t.real,links=m==="demo"?["#catalogo","#seu-pulso","account.html"]:["wallet.html","responsible.html","#seu-pulso"];cards=src.map((v,i)=>({k:v[0],t:v[1],p:v[2],a:links[i],s:i===0&&m==="demo"?Math.min(seen,5)+v[3]:(v[3]==="favoritos"||v[3]==="favorites"?favs+t.fav:v[3])}))}
+ $("promoGrid").innerHTML=cards.map((x,i)=>'<article class="promo-card '+(i===0?"primary":"")+'"><div class="ey">'+esc(x.k)+'</div><h3>'+esc(x.t)+'</h3><p>'+esc(x.p)+'</p><span class="promo-state">'+esc(x.s)+'</span><div class="cta-row"><a class="cta" href="'+esc(x.a)+'">'+t.open+'</a></div></article>').join("");
  $("promoMeta").textContent=m==="demo"?t.metaDemo:t.metaReal;
 }
 function visibleGames(){
@@ -524,6 +557,7 @@ $$("[data-provider]").forEach(a=>a.addEventListener("click",()=>track("provider_
 $("homeChooseDemo").addEventListener("click",()=>setPlayerMode("demo"));$("homeChooseReal").addEventListener("click",()=>setPlayerMode("real"));$("accountBtn").addEventListener("click",openAccount);$("accountClose").addEventListener("click",closeAccount);$("accountModal").addEventListener("click",e=>{if(e.target===$("accountModal"))closeAccount()});$$("[data-avatar]").filter(b=>b.closest("#avatarPick")).forEach(b=>b.addEventListener("click",()=>selectAvatar(b.dataset.avatar)));$("saveProfile").addEventListener("click",saveProfile);$("sharePulso").addEventListener("click",()=>sharePulso($("sharePulso")));$("inviteQuick").addEventListener("click",()=>sharePulso($("inviteQuick")));$("installQuick").addEventListener("click",installPulso);
 $("langSelect").addEventListener("change",e=>{applyLang(e.target.value);paintHomeMode();renderPromos();updateActivity();renderCatalog();loadLive()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("gameModal").classList.remove("open");closeAccount()}});
-applyLang(currentLang);updateAccountButton();paintHomeMode();initCatalogControls();updateActivity();renderTrending();renderShelves();renderPromos();renderRecent();renderPersonal();renderCatalog();loadClub();loadLive();track("page_view",{item:"home",player_mode:playerMode()});setInterval(loadLive,60000);
+async function bootPlatform(){applyLang(currentLang);updateAccountButton();await loadPlatformBootstrap();await paintHomeMode();initCatalogControls();updateActivity();renderTrending();renderShelves();renderPromos();renderRecent();renderPersonal();renderCatalog();loadClub();loadLive();syncAffiliate();track("page_view",{item:"home",player_mode:playerMode(),platform_engine:platformBootstrap?"loaded":"fallback"});setInterval(loadLive,60000)}
+bootPlatform();
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 </script></body></html>

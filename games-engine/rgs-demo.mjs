@@ -15,6 +15,9 @@ const sessionFile=path.join(runtime,"games-lab-sessions-v04.jsonl");
 const paymentFile=path.join(runtime,"payments-sandbox-v1.jsonl");
 const internalLabFile=path.join(runtime,"owner-lab-v1.json");
 const casinoAdaptersFile=path.join(root,"data","casino-adapters.json");
+const platformEngineFile=path.join(root,"data","platform-engine.json");
+const platformEngineRuntimeFile=path.join(runtime,"platform-engine-runtime.json");
+const affiliateEventsFile=path.join(runtime,"affiliate-events-v1.jsonl");
 const financeVaultBridge=path.join(root,"ops","finance-provider-vault.py");
 const PORT=Number(process.env.PULSO90_GAMES_PORT||19011);
 const sessions=new Map();
@@ -87,6 +90,38 @@ function casinoProvider(id){return (casinoAdapters().providers||[]).find(x=>x.id
 function casinoAggregator(id){return (casinoAdapters().aggregators||[]).find(x=>x.id===id)||null}
 function hub88Config(){const operatorId=String(process.env.PULSO90_HUB88_OPERATOR_ID||"").trim(),privateKey=String(process.env.PULSO90_HUB88_PRIVATE_KEY_PEM||"").trim(),subPartnerId=String(process.env.PULSO90_HUB88_SUB_PARTNER_ID||"").trim(),base=String(process.env.PULSO90_HUB88_BASE||"https://api.server1.ih.testenv.io").trim(),publicKey=String(process.env.PULSO90_HUB88_PUBLIC_KEY_PEM||"").trim();return {configured:Boolean(operatorId&&privateKey),operator_id_set:Boolean(operatorId),private_key_set:Boolean(privateKey),public_key_set:Boolean(publicKey),sub_partner_id_set:Boolean(subPartnerId),base,is_staging:/testenv|server1\.ih\.testenv/i.test(base)}}
 function aggregatorReadiness(){const x=casinoAdapters();return (x.aggregators||[]).map(a=>{const extra=a.id==="hub88"?hub88Config():{configured:false};return {id:a.id,name:a.name,priority:a.priority,commercial_status:a.commercial_status,technical_status:extra.configured?"credentials_loaded_pending_certification":a.technical_status,supports_demo:!!a.supports_demo,supports_real:!!a.supports_real,configured:!!extra.configured,environment:a.id==="hub88"?(extra.is_staging?"staging":"custom"):"not_configured"}})}
+function loadJsonFile(file,fallback={}){try{return JSON.parse(fs.readFileSync(file,"utf8"))}catch{return fallback}}
+function platformEngine(){
+  const base=loadJsonFile(platformEngineFile,{version:1,tenant:{id:"pulso90",name:"Pulso 90",features:{real_execution:false}},catalog:{games:[]},promotions:[],affiliate:{enabled:false}});
+  const over=loadJsonFile(platformEngineRuntimeFile,{});
+  return {...base,...over,tenant:{...(base.tenant||{}),...(over.tenant||{}),theme:{...(base.tenant?.theme||{}),...(over.tenant?.theme||{})},features:{...(base.tenant?.features||{}),...(over.tenant?.features||{}),real_execution:false}},catalog:base.catalog||{games:[]},promotions:Array.isArray(over.promotions)?over.promotions:(base.promotions||[]),affiliate:{...(base.affiliate||{}),...(over.affiliate||{}),real_commission_enabled:false}};
+}
+function savePlatformRuntime(v){const tmp=platformEngineRuntimeFile+".tmp";fs.writeFileSync(tmp,JSON.stringify(v,null,2),"utf8");fs.renameSync(tmp,platformEngineRuntimeFile)}
+function platformPublic(){
+  const x=platformEngine(),games=Array.isArray(x.catalog?.games)?x.catalog.games:[];
+  return {version:x.version,updated_at:x.updated_at,tenant:x.tenant,catalog:{mode:x.catalog?.mode||"server_driven",count:games.length,games},promotions:(x.promotions||[]).filter(p=>p&&p.active!==false),affiliate:x.affiliate};
+}
+function catalogView(url){
+  const x=platformEngine(),provider=String(url.searchParams.get("provider")||"").toLowerCase(),type=String(url.searchParams.get("type")||"").toLowerCase(),tag=String(url.searchParams.get("tag")||"").toLowerCase(),q=String(url.searchParams.get("q")||"").trim().toLowerCase();
+  let games=Array.isArray(x.catalog?.games)?x.catalog.games:[];
+  games=games.filter(g=>(!provider||String(g.provider||"").toLowerCase()===provider)&&(!type||String(g.type||"").toLowerCase()===type)&&(!tag||(g.tags||[]).some(t=>String(t).toLowerCase()===tag))&&(!q||(String(g.title||"")+" "+String(g.provider||"")+" "+(g.tags||[]).join(" ")).toLowerCase().includes(q)));
+  return {tenant:x.tenant?.id||"pulso90",mode:x.catalog?.mode||"server_driven",count:games.length,games};
+}
+function affiliateTouch(v){
+  const x=platformEngine(),a=x.affiliate||{};if(!a.enabled)return {accepted:false,reason:"affiliate_disabled"};
+  const at=new Date().toISOString(),accepted=new Set(a.accepted_params||[]),raw=v.attribution&&typeof v.attribution==="object"?v.attribution:{},attrs={};
+  for(const [k,val] of Object.entries(raw)){if(accepted.has(k)&&String(val||"").trim())attrs[k]=cleanText(val,180)}
+  const code=cleanText(v.code||attrs.code||attrs.affiliateId||"",80);if(code)attrs.code=code;
+  if(!Object.keys(attrs).length)return {accepted:false,reason:"no_attribution"};
+  const row={at,tenant:x.tenant?.id||"pulso90",anon:dailyAnon(v.clientId||"anonymous",at),attrs,mode:"attribution_only",commission:false};
+  fs.appendFileSync(affiliateEventsFile,JSON.stringify(row)+"\n","utf8");return {accepted:true,code:code||"",window_days:Number(a.attribution_window_days)||30,commission:false};
+}
+function affiliateSummary(days=30){
+  const cutoff=Date.now()-Math.max(1,Math.min(90,Number(days)||30))*86400000,codes={},sources={};let total=0;
+  if(fs.existsSync(affiliateEventsFile))for(const line of fs.readFileSync(affiliateEventsFile,"utf8").split(/\r?\n/)){if(!line.trim())continue;try{const r=JSON.parse(line),t=Date.parse(r.at);if(!Number.isFinite(t)||t<cutoff)continue;total++;const c=String(r.attrs?.code||"");if(c)codes[c]=(codes[c]||0)+1;const s=String(r.attrs?.utm_source||r.attrs?.t10||"");if(s)sources[s]=(sources[s]||0)+1}catch{}}
+  const top=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([name,count])=>({name,count}));
+  return {days:Math.max(1,Math.min(90,Number(days)||30)),total_attributions:total,top_codes:top(codes),top_sources:top(sources),real_commission_enabled:false};
+}
 
 const newServerSeed=()=>crypto.randomBytes(32).toString("hex");
 const newClientSeed=()=>crypto.randomBytes(16).toString("hex");
@@ -404,6 +439,37 @@ const server=http.createServer(async(req,res)=>{
       const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});
       const rows=u.role==="dono"||u.role==="socio"?internalLab.ledger:internalLab.ledger.filter(x=>x.username===u.username||x.actor===u.username);
       return json(res,200,{records:rows.slice(-200).reverse(),treasury:internalLab.treasury});
+    }
+    if(req.method==="GET"&&url.pathname==="/api/platform/bootstrap"){
+      return json(res,200,platformPublic());
+    }
+    if(req.method==="GET"&&url.pathname==="/api/platform/tenant"){
+      const x=platformEngine();return json(res,200,{version:x.version,tenant:x.tenant});
+    }
+    if(req.method==="GET"&&url.pathname==="/api/platform/catalog"){
+      return json(res,200,catalogView(url));
+    }
+    if(req.method==="GET"&&url.pathname==="/api/platform/promotions"){
+      const x=platformEngine(),env=String(url.searchParams.get("environment")||"all").toLowerCase(),rows=(x.promotions||[]).filter(p=>p&&p.active!==false&&(env==="all"||p.environment==="all"||p.environment===env)).sort((a,b)=>Number(a.priority||100)-Number(b.priority||100));return json(res,200,{tenant:x.tenant?.id||"pulso90",environment:env,promotions:rows});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/platform/affiliate/touch"){
+      if(!telemetryAllowed(req))return json(res,429,{error:"affiliate_rate_limited"});
+      const result=affiliateTouch(await body(req));return json(res,result.accepted?202:200,result);
+    }
+    if(req.method==="GET"&&url.pathname==="/api/internal/platform/engine"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});const x=platformPublic();return json(res,200,{...x,affiliate_summary:affiliateSummary(Number(url.searchParams.get("days")||30)),runtime_override:fs.existsSync(platformEngineRuntimeFile)});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/internal/platform/tenant"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});if(u.role!=="dono")return json(res,403,{error:"owner_required"});
+      const v=await body(req),over=loadJsonFile(platformEngineRuntimeFile,{}),cur=platformEngine(),name=cleanText(v.name||cur.tenant?.name||"Pulso 90",80),locale=String(v.default_locale||cur.tenant?.default_locale||"pt-BR"),domain=cleanText(v.domain||"",160),theme=v.theme&&typeof v.theme==="object"?v.theme:{};
+      if(!["pt-BR","en","es"].includes(locale))return json(res,400,{error:"invalid_locale"});
+      const colors={};for(const k of ["primary","background","surface","accent"]){const val=String(theme[k]||"");if(val&&/^#[0-9a-fA-F]{6}$/.test(val))colors[k]=val}
+      over.tenant={...(over.tenant||{}),name,default_locale:locale,...(domain?{domains:[domain]}:{}),theme:{...(over.tenant?.theme||{}),...colors},features:{...(over.tenant?.features||{}),real_execution:false}};savePlatformRuntime(over);labLedger({type:"platform_tenant_updated",username:u.username,name,default_locale:locale});return json(res,200,{ok:true,tenant:platformEngine().tenant});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/internal/platform/promotion"){
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});if(u.role!=="dono")return json(res,403,{error:"owner_required"});
+      const v=await body(req),id=cleanText(v.id,80),active=Boolean(v.active),x=platformEngine(),rows=(x.promotions||[]).map(p=>p.id===id?{...p,active}:p);if(!rows.some(p=>p.id===id))return json(res,404,{error:"promotion_not_found"});
+      const over=loadJsonFile(platformEngineRuntimeFile,{});over.promotions=rows;savePlatformRuntime(over);labLedger({type:"platform_promotion_changed",username:u.username,promotion:id,active});return json(res,200,{ok:true,promotions:platformEngine().promotions});
     }
     if(req.method==="GET"&&url.pathname==="/api/casino/providers"){
       const x=casinoAdapters(),ready=new Map(aggregatorReadiness().map(a=>[a.id,a]));return json(res,200,{version:x.version,policy:x.policy,contract:x.contract,aggregators:(x.aggregators||[]).map(p=>({id:p.id,name:p.name,commercial_status:p.commercial_status,technical_status:ready.get(p.id)?.technical_status||p.technical_status,supports_demo:!!p.supports_demo,supports_real:!!p.supports_real,priority:p.priority,adapter:p.adapter,configured:!!ready.get(p.id)?.configured,environment:ready.get(p.id)?.environment||"not_configured",notes:p.notes||""})),providers:(x.providers||[]).map(p=>({id:p.id,name:p.name,commercial_status:p.commercial_status,technical_status:p.technical_status,targets:p.targets,adapter:p.adapter}))});

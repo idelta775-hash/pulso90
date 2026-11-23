@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "updated_at": "2026-11-23T20:10:00-03:00",
+  "tenant": {
+    "id": "pulso90",
+    "name": "Pulso 90",
+    "legal_mode": "demo_first",
+    "default_locale": "pt-BR",
+    "locales": ["pt-BR", "en", "es"],
+    "domains": ["idelta775-hash.github.io/pulso90"],
+    "theme": {
+      "primary": "#b8ff66",
+      "background": "#050806",
+      "surface": "#0b1510",
+      "accent": "#ffd56b"
+    },
+    "features": {
+      "casino_catalog": true,
+      "sportsbook": true,
+      "pulso_originals": true,
+      "affiliate_attribution": true,
+      "promotions": true,
+      "pwa": true,
+      "real_execution": false
+    }
+  },
+  "catalog": {
+    "mode": "server_driven",
+    "games": [
+      {"id":"fortune-tiger","title":"Fortune Tiger","provider":"PG SOFT","type":"slot","tags":["Fortune Series","Brasil","Popular"],"art":"assets/games/fortune-tiger.webp","status":"editorial_pending_provider","supports_demo":false,"supports_real":false,"launch_mode":"editorial"},
+      {"id":"aviator","title":"Aviator","provider":"SPRIBE","type":"crash","tags":["Crash","Global","Popular"],"art":"assets/games/aviator.webp","status":"editorial_pending_provider","supports_demo":false,"supports_real":false,"launch_mode":"editorial"},
+      {"id":"fortune-rabbit","title":"Fortune Rabbit","provider":"PG SOFT","type":"slot","tags":["Fortune Series","Top lobby"],"art":"assets/games/fortune-rabbit.webp","status":"editorial_pending_provider","supports_demo":false,"supports_real":false,"launch_mode":"editorial"},
+      {"id":"fortune-dragon","title":"Fortune Dragon","provider":"PG SOFT","type":"slot","tags":["Fortune Series","Top lobby"],"art":"assets/games/fortune-dragon.webp","status":"editorial_pending_provider","supports_demo":false,"supports_real":false,"launch_mode":"editorial"},
+      {"id":"gates-olympus","title":"Gates of Olympus 1000","provider":"Pragmatic Play","type":"slot","tags":["Slot","Popular"],"art":"assets/games/gates-olympus.webp","status":"editorial_pending_provider","supports_demo":false,"supports_real":false,"launch_mode":"editorial"},
+      {"id":"crazy-time","title":"Crazy Time","provider":"Evolution","type":"show","tags":["Game Show","Ao vivo"],"art":"assets/games/crazy-time.webp","status":"editorial_pending_provider","supports_demo":false,"supports_real":false,"launch_mode":"editorial"},
+      {"id":"football-studio","title":"Football Studio","provider":"Evolution","type":"live","tags":["Ao vivo","Futebol"],"art":"assets/games/football-studio.webp","status":"editorial_pending_provider","supports_demo":false,"supports_real":false,"launch_mode":"editorial"},
+      {"id":"fortune-ox","title":"Fortune Ox","provider":"PG SOFT","type":"slot","tags":["Fortune Series","Top lobby"],"status":"editorial_pending_provider","supports_demo":false,"supports_real":false,"launch_mode":"editorial"},
+      {"id":"jetx","title":"JetX","provider":"SmartSoft","type":"crash","tags":["Crash","Global"],"status":"editorial_pending_provider","supports_demo":false,"supports_real":false,"launch_mode":"editorial"},
+      {"id":"sweet-bonanza","title":"Sweet Bonanza","provider":"Pragmatic Play","type":"slot","tags":["Slot","Popular"],"status":"editorial_pending_provider","supports_demo":false,"supports_real":false,"launch_mode":"editorial"},
+      {"id":"lightning-roulette","title":"Lightning Roulette","provider":"Evolution","type":"live","tags":["Roleta","Ao vivo"],"status":"editorial_pending_provider","supports_demo":false,"supports_real":false,"launch_mode":"editorial"},
+      {"id":"monopoly-live","title":"Monopoly Live","provider":"Evolution","type":"show","tags":["Game Show","Ao vivo"],"status":"editorial_pending_provider","supports_demo":false,"supports_real":false,"launch_mode":"editorial"},
+      {"id":"spaceman","title":"Spaceman","provider":"Pragmatic Play","type":"crash","tags":["Crash","Global"],"status":"editorial_pending_provider","supports_demo":false,"supports_real":false,"launch_mode":"editorial"},
+      {"id":"high-flyer","title":"High Flyer","provider":"Pragmatic Play","type":"crash","tags":["Crash","Popular"],"status":"editorial_pending_provider","supports_demo":false,"supports_real":false,"launch_mode":"editorial"},
+      {"id":"funky-time","title":"Funky Time","provider":"Evolution","type":"show","tags":["Game Show","Ao vivo"],"status":"editorial_pending_provider","supports_demo":false,"supports_real":false,"launch_mode":"editorial"},
+      {"id":"pulso-tiger","title":"Pulso Tiger","provider":"Pulso 90 Originals","type":"original","tags":["Original","Provably Fair","DEMO"],"status":"demo_live","supports_demo":true,"supports_real":false,"launch_mode":"internal","play":"games/?game=pulso-tiger"},
+      {"id":"pulso-launch","title":"Pulso Launch","provider":"Pulso 90 Originals","type":"original","tags":["Original","Crash","DEMO"],"status":"demo_live","supports_demo":true,"supports_real":false,"launch_mode":"internal","play":"games/?game=pulso-launch"},
+      {"id":"pulso-goal-duel","title":"Pulso Goal Duel","provider":"Pulso 90 Originals","type":"original","tags":["Original","Esportes","DEMO"],"status":"demo_live","supports_demo":true,"supports_real":false,"launch_mode":"internal","play":"games/?game=pulso-goal-duel"}
+    ]
+  },
+  "promotions": [
+    {
+      "id": "discover-five",
+      "active": true,
+      "environment": "demo",
+      "type": "mission",
+      "priority": 10,
+      "cta": "#catalogo",
+      "copy": {
+        "pt": {"kicker":"MISSÃO DEMO","title":"Descubra 5 jogos","text":"Explore o lobby e monte seus favoritos sem usar dinheiro real.","state":"progresso local"},
+        "en": {"kicker":"DEMO MISSION","title":"Discover 5 games","text":"Explore the lobby and build favorites without using real money.","state":"local progress"},
+        "es": {"kicker":"MISIÓN DEMO","title":"Descubre 5 juegos","text":"Explora el lobby y crea favoritos sin usar dinero real.","state":"progreso local"}
+      }
+    },
+    {
+      "id": "your-pulse",
+      "active": true,
+      "environment": "all",
+      "type": "retention",
+      "priority": 20,
+      "cta": "#seu-pulso",
+      "copy": {
+        "pt": {"kicker":"SEU PULSO","title":"Continue de onde parou","text":"Favoritos e histórico deste navegador ajudam a reorganizar o lobby.","state":"personalização local"},
+        "en": {"kicker":"YOUR PULSE","title":"Continue where you left off","text":"Favorites and local history help reorganize your lobby.","state":"local personalization"},
+        "es": {"kicker":"TU PULSO","title":"Continúa donde lo dejaste","text":"Favoritos e historial local ayudan a reorganizar tu lobby.","state":"personalización local"}
+      }
+    },
+    {
+      "id": "invite-discovery",
+      "active": true,
+      "environment": "demo",
+      "type": "referral",
+      "priority": 30,
+      "cta": "account.html",
+      "copy": {
+        "pt": {"kicker":"CONVIDE","title":"Compartilhe a experiência","text":"Use seu link de indicação para apresentar a Pulso 90. Comissão real permanece desativada.","state":"atribuição DEMO"},
+        "en": {"kicker":"INVITE","title":"Share the experience","text":"Use your referral link to introduce Pulso 90. Real commission remains disabled.","state":"DEMO attribution"},
+        "es": {"kicker":"INVITA","title":"Comparte la experiencia","text":"Usa tu enlace de referencia para presentar Pulso 90. La comisión real permanece desactivada.","state":"atribución DEMO"}
+      }
+    }
+  ],
+  "affiliate": {
+    "enabled": true,
+    "mode": "attribution_only",
+    "real_commission_enabled": false,
+    "attribution_window_days": 30,
+    "accepted_params": ["code","affiliateId","trackerId","utm_source","utm_medium","utm_campaign","utm_content","utm_term","t5","t6","t7","t8","t10"]
+  }
+}
