@@ -1,9 +1,10 @@
 (()=>{
-const KEY="pulso90-demo-session-v2",PLAYER_MODE="pulso90-player-mode-v1";
+const KEY="pulso90-demo-session-v2",PLAYER_MODE="pulso90-player-mode-v1",PLAYER_TOKEN="pulso90-player-token-v1";
 let sessionId=localStorage.getItem(KEY)||"";
 let API_BASE="";
 async function loadRuntime(){try{const r=await fetch("../runtime-config.json",{cache:"no-store"});if(r.ok){const c=await r.json();API_BASE=String(c.rgs_base||"").replace(/\/$/,"")}}catch{API_BASE=""}}
 function api(path){return API_BASE?API_BASE+path:".."+path}
+async function hydrateIdentity(){const token=localStorage.getItem(PLAYER_TOKEN)||"";if(!token||!API_BASE)return;try{const r=await fetch(api("/api/identity/me"),{cache:"no-store",headers:{"x-player-token":token}});if(r.status===401){localStorage.removeItem(PLAYER_TOKEN);return}if(!r.ok)return;const x=await r.json(),sid=x.player?.demoSessionId||"";if(sid){sessionId=sid;localStorage.setItem(KEY,sid)}}catch{}}
 const $=id=>document.getElementById(id);
 const fmt=n=>Number(n).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
 function headers(){return {"content-type":"application/json","x-demo-session":sessionId}}
@@ -77,5 +78,5 @@ $("resetLab").addEventListener("click",async()=>{
   }catch(e){err($("tigerResult"),e)}
 });
 
-loadRuntime().then(async()=>{await paintMode();await ensureSession()}).catch(e=>err($("tigerResult"),e));
+loadRuntime().then(async()=>{await hydrateIdentity();await paintMode();await ensureSession()}).catch(e=>err($("tigerResult"),e));
 })();

@@ -18,6 +18,8 @@ const casinoAdaptersFile=path.join(root,"data","casino-adapters.json");
 const platformEngineFile=path.join(root,"data","platform-engine.json");
 const platformEngineRuntimeFile=path.join(runtime,"platform-engine-runtime.json");
 const affiliateEventsFile=path.join(runtime,"affiliate-events-v1.jsonl");
+const playersFile=path.join(runtime,"players-v1.json");
+const identityEventsFile=path.join(runtime,"identity-events-v1.jsonl");
 const financeVaultBridge=path.join(root,"ops","finance-provider-vault.py");
 const PORT=Number(process.env.PULSO90_GAMES_PORT||19011);
 const sessions=new Map();
@@ -25,6 +27,7 @@ const telemetryRate=new Map();
 const oddsCache=new Map();
 const paymentEvents=new Set(),creditedPayments=new Set();
 const internalTokens=new Map();
+const authRate=new Map();
 const ASAAS_API_KEY=String(process.env.PULSO90_ASAAS_API_KEY||process.env.ASAAS_API_KEY||"").trim();
 const ASAAS_WEBHOOK_TOKEN=String(process.env.PULSO90_ASAAS_WEBHOOK_TOKEN||"").trim();
 const ASAAS_ENV=String(process.env.PULSO90_ASAAS_ENV||"sandbox").toLowerCase()==="production"?"production":"sandbox";
@@ -52,6 +55,58 @@ const duel={home:{p:.43,m:2.23,label:"CASA"},draw:{p:.14,m:6.85,label:"EMPATE"},
 
 const sha256=v=>crypto.createHash("sha256").update(v).digest("hex");
 function pinHash(pin,salt){return crypto.scryptSync(String(pin),salt,32).toString("hex")}
+function loadPlayers(){
+  let d={version:1,players:{}};
+  if(fs.existsSync(playersFile)){try{d={...d,...JSON.parse(fs.readFileSync(playersFile,"utf8"))}}catch{}}
+  if(!d.players||typeof d.players!=="object")d.players={};
+  return d;
+}
+let playerStore=loadPlayers();
+function savePlayers(){const tmp=playersFile+".tmp";fs.writeFileSync(tmp,JSON.stringify(playerStore,null,2),"utf8");fs.renameSync(tmp,playersFile)}
+function playerPasswordHash(password,salt){return crypto.scryptSync(String(password),salt,32).toString("hex")}
+function secureHexEqual(a,b){try{const x=Buffer.from(String(a),"hex"),y=Buffer.from(String(b),"hex");return x.length===y.length&&x.length>0&&crypto.timingSafeEqual(x,y)}catch{return false}}
+function identityEvent(type,u,extra={}){fs.appendFileSync(identityEventsFile,JSON.stringify({at:new Date().toISOString(),type,player_id:u?.id||"",username:u?.username||"",...extra})+"\n","utf8")}
+function safePlayer(u){
+  const referrals=Object.values(playerStore.players).filter(x=>x.referredByCode&&x.referredByCode===u.referralCode).length;
+  return {id:u.id,username:u.username,displayName:u.displayName,referralCode:u.referralCode,referredByCode:u.referredByCode||"",demoSessionId:u.demoSessionId||"",createdAt:u.createdAt,lastLoginAt:u.lastLoginAt||"",referrals,real_account_enabled:false};
+}
+function uniqueReferralCode(){
+  for(let i=0;i<20;i++){const code="P90"+crypto.randomBytes(5).toString("hex").toUpperCase();if(!Object.values(playerStore.players).some(p=>p.referralCode===code))return code}
+  return "P90"+crypto.randomUUID().replace(/-/g,"").slice(0,10).toUpperCase();
+}
+function createDemoSession(balance=1000,reason="player_identity_created"){
+  const id=crypto.randomUUID(),serverSeed=newServerSeed(),clientSeed=newClientSeed();
+  const s={id,balance,points:0,rounds:0,createdAt:new Date().toISOString(),serverSeed,serverSeedHash:sha256(serverSeed),clientSeed,nonce:0,revealed:[]};
+  sessions.set(id,s);persistSession(s,reason);return s;
+}
+function demoSessionClaimed(id,exceptId=""){return Object.values(playerStore.players).some(p=>p.id!==exceptId&&p.demoSessionId===id)}
+function ensurePlayerDemoSession(u,requested=""){
+  if(u.demoSessionId&&sessions.has(u.demoSessionId))return sessions.get(u.demoSessionId);
+  const wanted=String(requested||"");
+  if(wanted&&sessions.has(wanted)&&!demoSessionClaimed(wanted,u.id)){u.demoSessionId=wanted;savePlayers();return sessions.get(wanted)}
+  const s=createDemoSession(1000);u.demoSessionId=s.id;savePlayers();return s;
+}
+function issuePlayerToken(u){
+  const token=u.id+"."+crypto.randomBytes(32).toString("hex"),hash=sha256(token),now=Date.now(),expires=now+7*24*60*60*1000;
+  const tokens=Array.isArray(u.tokens)?u.tokens.filter(t=>Number(t.expires)>now):[];
+  tokens.push({hash,createdAt:new Date(now).toISOString(),expires});u.tokens=tokens.slice(-5);u.lastLoginAt=new Date().toISOString();savePlayers();
+  return {token,expiresAt:new Date(expires).toISOString()};
+}
+function playerAuth(req){
+  const raw=String(req.headers["x-player-token"]||"");if(!raw||!raw.includes("."))return null;
+  const id=raw.split(".")[0],u=playerStore.players[id];if(!u)return null;
+  const hash=sha256(raw),now=Date.now(),tokens=Array.isArray(u.tokens)?u.tokens:[];
+  const hit=tokens.find(t=>t.hash===hash&&Number(t.expires)>now);return hit?u:null;
+}
+function revokePlayerToken(req,u){
+  const raw=String(req.headers["x-player-token"]||""),hash=sha256(raw);u.tokens=(Array.isArray(u.tokens)?u.tokens:[]).filter(t=>t.hash!==hash);savePlayers();
+}
+function authAllowed(req){
+  const now=Date.now(),key=sha256(String(req.socket.remoteAddress||"unknown")).slice(0,16),cur=authRate.get(key);
+  if(!cur||now-cur.start>=60000){authRate.set(key,{start:now,count:1});return true}
+  cur.count++;return cur.count<=20;
+}
+function identitySummary(){const rows=Object.values(playerStore.players),now=Date.now(),activeTokens=rows.reduce((n,p)=>n+(Array.isArray(p.tokens)?p.tokens.filter(t=>Number(t.expires)>now).length:0),0),referred=rows.filter(p=>p.referredByCode).length,recent=rows.filter(p=>Date.parse(p.createdAt||"")>now-7*86400000).length;return {players:rows.length,referred_players:referred,created_last_7d:recent,active_tokens:activeTokens,real_accounts_enabled:false}}
 function loadInternalLab(){
   let d={version:1,users:{},ledger:[],sportsTickets:[],treasury:1000000,operatorConfig:{financial_mode:"demo",selected_provider:"asaas",real_execution_state:"locked"}};
   if(fs.existsSync(internalLabFile)){try{d={...d,...JSON.parse(fs.readFileSync(internalLabFile,"utf8"))}}catch{}}
@@ -145,7 +200,7 @@ function tigerGrid(outcome,fair){
 function crash(u){if(u<.03)return 1;return Math.min(100,Math.floor((.97/(1-u))*100)/100)}
 function duelOutcome(u){if(u<.43)return"home";if(u<.57)return"draw";return"away"}
 function tier(points){return points>=500?"GOLD":points>=250?"SILVER":points>=100?"BRONZE":"EXPLORER"}
-function corsHeaders(){return {"access-control-allow-origin":"*","access-control-allow-methods":"GET,POST,OPTIONS","access-control-allow-headers":"content-type,x-demo-session,x-lab-token","access-control-max-age":"600","vary":"Origin"}}
+function corsHeaders(){return {"access-control-allow-origin":"*","access-control-allow-methods":"GET,POST,OPTIONS","access-control-allow-headers":"content-type,x-demo-session,x-lab-token,x-player-token","access-control-max-age":"600","vary":"Origin"}}
 function json(res,status,body){res.writeHead(status,{"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff",...corsHeaders()});res.end(JSON.stringify(body))}
 function audit(record){const base={...record,previousHash:lastAuditHash};const hash=sha256(JSON.stringify(base));const row={...base,hash};fs.appendFileSync(auditFile,JSON.stringify(row)+"\n","utf8");lastAuditHash=hash;return hash}
 function state(s){return {balance:s.balance,points:s.points,rounds:s.rounds,tier:tier(s.points),fairness:{serverSeedHash:s.serverSeedHash,clientSeed:s.clientSeed,nonce:s.nonce}}}
@@ -328,8 +383,35 @@ const server=http.createServer(async(req,res)=>{
   try{
     if(req.method==="OPTIONS"){res.writeHead(204,corsHeaders());return res.end()}
     if(req.method==="GET"&&url.pathname==="/api/lab/health")
-      return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.5.1",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size,telemetry:"anonymous_daily_hash_v1",odds_provider_configured:Boolean(ODDS_API_KEY),payments:{provider:"asaas",environment:ASAAS_ENV,configured:Boolean(ASAAS_API_KEY),real_money_enabled:REAL_MONEY_ENABLED}});
+      return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.6.0",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size,identity:{enabled:true,players:identitySummary().players,real_accounts_enabled:false},telemetry:"anonymous_daily_hash_v1",odds_provider_configured:Boolean(ODDS_API_KEY),payments:{provider:"asaas",environment:ASAAS_ENV,configured:Boolean(ASAAS_API_KEY),real_money_enabled:REAL_MONEY_ENABLED}});
     if(req.method==="GET"&&url.pathname==="/api/platform/operator-mode") return json(res,200,{operator:operatorConfig()});
+    if(req.method==="POST"&&url.pathname==="/api/identity/register"){
+      if(!authAllowed(req))return json(res,429,{error:"auth_rate_limited"});
+      const v=await body(req),username=String(v.username||"").trim().toLowerCase(),displayName=cleanText(v.displayName||v.username||"",60).trim(),password=String(v.password||""),requested=String(v.demo_session||""),ref=cleanText(v.referral_code||"",80).toUpperCase();
+      if(!/^[a-z0-9._-]{3,32}$/.test(username)||displayName.length<2||password.length<8||password.length>72)return json(res,400,{error:"invalid_registration"});
+      if(Object.values(playerStore.players).some(p=>p.username===username))return json(res,409,{error:"username_exists"});
+      let referredByCode="";if(ref){const inviter=Object.values(playerStore.players).find(p=>String(p.referralCode||"").toUpperCase()===ref);if(inviter)referredByCode=inviter.referralCode}
+      const id=crypto.randomUUID(),salt=crypto.randomBytes(16).toString("hex"),u={id,username,displayName,passwordSalt:salt,passwordHash:playerPasswordHash(password,salt),referralCode:uniqueReferralCode(),referredByCode,createdAt:new Date().toISOString(),lastLoginAt:"",demoSessionId:"",tokens:[]};
+      playerStore.players[id]=u;const ss=ensurePlayerDemoSession(u,requested);const issued=issuePlayerToken(u);identityEvent("register",u,{referred_by:referredByCode,claimed_existing_demo:requested===ss.id});
+      return json(res,201,{token:issued.token,expiresAt:issued.expiresAt,player:safePlayer(u),state:state(ss)});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/identity/login"){
+      if(!authAllowed(req))return json(res,429,{error:"auth_rate_limited"});
+      const v=await body(req),username=String(v.username||"").trim().toLowerCase(),password=String(v.password||""),u=Object.values(playerStore.players).find(p=>p.username===username);
+      const candidate=u&&u.passwordSalt?playerPasswordHash(password,u.passwordSalt):playerPasswordHash(password,crypto.randomBytes(16).toString("hex"));
+      if(!u||!secureHexEqual(candidate,u.passwordHash))return json(res,401,{error:"invalid_player_credentials"});
+      const ss=ensurePlayerDemoSession(u),issued=issuePlayerToken(u);identityEvent("login",u);return json(res,200,{token:issued.token,expiresAt:issued.expiresAt,player:safePlayer(u),state:state(ss)});
+    }
+    if(req.method==="GET"&&url.pathname==="/api/identity/me"){
+      const u=playerAuth(req);if(!u)return json(res,401,{error:"player_auth_required"});const ss=ensurePlayerDemoSession(u);return json(res,200,{player:safePlayer(u),state:state(ss),operator:operatorConfig()});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/identity/logout"){
+      const u=playerAuth(req);if(!u)return json(res,401,{error:"player_auth_required"});revokePlayerToken(req,u);identityEvent("logout",u);return json(res,200,{ok:true});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/identity/profile"){
+      const u=playerAuth(req);if(!u)return json(res,401,{error:"player_auth_required"});const v=await body(req),displayName=cleanText(v.displayName||"",60).trim();if(displayName.length<2)return json(res,400,{error:"invalid_display_name"});u.displayName=displayName;savePlayers();identityEvent("profile_updated",u);return json(res,200,{ok:true,player:safePlayer(u)});
+    }
+
     if(req.method==="GET"&&url.pathname==="/api/platform/capabilities")
       return json(res,200,{mode:"DEMO_ONLY",sportsbook:{prematch:true,live:true,single:true,multiple:true,bet_builder:"provider_required",cashout:"provider_required",results:true,real_odds:Boolean(ODDS_API_KEY)},games:{originals:true,provider_catalog:true,slots:"catalog_only",live_casino:"catalog_only",crash:"demo_original"},payments:{provider:"asaas",environment:ASAAS_ENV,methods:["PIX","BOLETO","CREDIT_CARD"],withdrawals:ASAAS_ENV==="sandbox"?"sandbox_homologation":(REAL_MONEY_ENABLED?"operator_enabled":"operator_gate_closed"),real_money_enabled:REAL_MONEY_ENABLED}});
     if(req.method==="GET"&&url.pathname==="/api/payments/status")
@@ -457,7 +539,7 @@ const server=http.createServer(async(req,res)=>{
       const result=affiliateTouch(await body(req));return json(res,result.accepted?202:200,result);
     }
     if(req.method==="GET"&&url.pathname==="/api/internal/platform/engine"){
-      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});const x=platformPublic();return json(res,200,{...x,affiliate_summary:affiliateSummary(Number(url.searchParams.get("days")||30)),runtime_override:fs.existsSync(platformEngineRuntimeFile)});
+      const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});const x=platformPublic();return json(res,200,{...x,affiliate_summary:affiliateSummary(Number(url.searchParams.get("days")||30)),identity_summary:identitySummary(),runtime_override:fs.existsSync(platformEngineRuntimeFile)});
     }
     if(req.method==="POST"&&url.pathname==="/api/internal/platform/tenant"){
       const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});if(u.role!=="dono")return json(res,403,{error:"owner_required"});

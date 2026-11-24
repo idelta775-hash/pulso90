@@ -1,7 +1,7 @@
 ﻿{
-    "updated_at":  "2026-10-01T14:04:18.7938788-03:00",
+    "updated_at":  "2026-11-23T21:18:30.5372642-03:00",
     "mode":  "DEMO_ONLY",
-    "rgs_base":  "https://valuation-drivers-accidents-among.trycloudflare.com",
+    "rgs_base":  "https://authority-more-substances-uni.trycloudflare.com",
     "health_path":  "/api/lab/health",
     "fallback":  "local_same_origin"
 }
