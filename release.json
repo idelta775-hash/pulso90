@@ -2,9 +2,10 @@
   "product": "Pulso 90",
   "release": "GLOBAL_HUB_LAB_0.37_IDENTITY_HARDENING_V11",
   "built_at": "2026-11-24T01:03:29.250646+00:00",
-  "public_lab": "https://valuation-drivers-accidents-among.trycloudflare.com/",
+  "public_lab": "https://idelta775-hash.github.io/pulso90/runtime-config.json",
   "persistent_site": "https://idelta775-hash.github.io/pulso90/",
   "runtime_config": "runtime-config.json",
+  "runtime_endpoint_source": "runtime-config.json",
   "mode": "DEMO_ONLY_FOR_ORIGINAL_GAMES",
   "features": [
     "global casino discovery lobby",
