@@ -25,6 +25,7 @@ const PORT=Number(process.env.PULSO90_GAMES_PORT||19011);
 const sessions=new Map();
 const telemetryRate=new Map();
 const oddsCache=new Map();
+const referenceSportsCache=new Map();
 const paymentEvents=new Set(),creditedPayments=new Set();
 const internalTokens=new Map();
 const authRate=new Map();
@@ -56,9 +57,10 @@ const duel={home:{p:.43,m:2.23,label:"CASA"},draw:{p:.14,m:6.85,label:"EMPATE"},
 const sha256=v=>crypto.createHash("sha256").update(v).digest("hex");
 function pinHash(pin,salt){return crypto.scryptSync(String(pin),salt,32).toString("hex")}
 function loadPlayers(){
-  let d={version:1,players:{}};
+  let d={version:2,players:{},sportsTickets:[]};
   if(fs.existsSync(playersFile)){try{d={...d,...JSON.parse(fs.readFileSync(playersFile,"utf8"))}}catch{}}
   if(!d.players||typeof d.players!=="object")d.players={};
+  if(!Array.isArray(d.sportsTickets))d.sportsTickets=[];
   return d;
 }
 let playerStore=loadPlayers();
@@ -106,7 +108,7 @@ function authAllowed(req){
   if(!cur||now-cur.start>=60000){authRate.set(key,{start:now,count:1});return true}
   cur.count++;return cur.count<=20;
 }
-function identitySummary(){const rows=Object.values(playerStore.players),now=Date.now(),activeTokens=rows.reduce((n,p)=>n+(Array.isArray(p.tokens)?p.tokens.filter(t=>Number(t.expires)>now).length:0),0),referred=rows.filter(p=>p.referredByCode).length,recent=rows.filter(p=>Date.parse(p.createdAt||"")>now-7*86400000).length;return {players:rows.length,referred_players:referred,created_last_7d:recent,active_tokens:activeTokens,real_accounts_enabled:false}}
+function identitySummary(){const rows=Object.values(playerStore.players),tickets=Array.isArray(playerStore.sportsTickets)?playerStore.sportsTickets:[],now=Date.now(),activeTokens=rows.reduce((n,p)=>n+(Array.isArray(p.tokens)?p.tokens.filter(t=>Number(t.expires)>now).length:0),0),referred=rows.filter(p=>p.referredByCode).length,recent=rows.filter(p=>Date.parse(p.createdAt||"")>now-7*86400000).length;return {players:rows.length,referred_players:referred,created_last_7d:recent,active_tokens:activeTokens,demo_sports_tickets:tickets.length,pending_demo_sports_tickets:tickets.filter(t=>t.status==="PENDING").length,real_accounts_enabled:false}}
 function loadInternalLab(){
   let d={version:1,users:{},ledger:[],sportsTickets:[],treasury:1000000,operatorConfig:{financial_mode:"demo",selected_provider:"asaas",real_execution_state:"locked"}};
   if(fs.existsSync(internalLabFile)){try{d={...d,...JSON.parse(fs.readFileSync(internalLabFile,"utf8"))}}catch{}}
@@ -264,9 +266,10 @@ function telemetrySummary(days=7){
 }
 
 const REF_SPORT_MAP={football:1,combat:2,futsal:6,snooker:18};
-async function fetchReferenceSportsbook(scope){
+async function fetchReferenceSportsbook(scope,force=false){
   const sid=REF_SPORT_MAP[scope];if(!sid)return {available:false,scope,matches:[],events:[],reason:"unsupported_reference_scope"};
-  const r=await fetch("https://esportesgol.net/axios/data",{method:"POST",headers:{"content-type":"application/json","accept":"application/json","user-agent":"Pulso90-LabReference/0.21"},body:JSON.stringify({filtro:-1})});
+  const hit=referenceSportsCache.get(scope);if(!force&&hit&&Date.now()-hit.at<45000)return {...hit.value,cache:"hit"};
+  const r=await fetch("https://esportesgol.net/axios/data",{method:"POST",headers:{"content-type":"application/json","accept":"application/json","user-agent":"Pulso90-Reference/0.36"},body:JSON.stringify({filtro:-1})});
   if(!r.ok)throw new Error("reference_feed_failed");
   const x=await r.json(),rows=Array.isArray(x.lista)?x.lista.filter(g=>Number(g.esporte_id)===sid):[];
   const matches=[],events=[];
@@ -279,7 +282,8 @@ async function fetchReferenceSportsbook(scope){
     if(Number(g.od_fora)>1)outcomes.push({name:String(g.tf||"Fora"),price:Number(g.od_fora),book:"reference"});
     if(outcomes.length)events.push({event_id:eventId,sport_key:scope,league:String(g.campeonato||""),home_team:String(g.tc||""),away_team:String(g.tf||""),start_time:String(g.data_hora||""),outcomes,reference_markets:{double_chance:{home_draw:Number(g.od_1x)||0,home_away:Number(g.od_12)||0,draw_away:Number(g.od_x2)||0},btts:{yes:Number(g.od_btsy)||0,no:Number(g.od_btsn)||0},totals_25:{over:Number(g.od_mais25)||0,under:Number(g.od_menos25)||0},more_markets:Number(g.mais_jogos)||0}});
   }
-  return {available:true,scope,source:"public_reference_only",captured_at:new Date().toISOString(),matches,events,source_config:{min_stake:Number(x?.config?.valor_minimo)||null,max_stake:Number(x?.config?.valor_maximo)||null,max_prize:Number(x?.config?.premio_maximo)||null,max_games:Number(x?.config?.max_jogos)||null,cashout_active:Boolean(x?.config?.cashout_ativo),bet_builder_active:Boolean(x?.config?.bet_builder_ativo)}};
+  const value={available:true,scope,source:"reference_feed_demo_only",captured_at:new Date().toISOString(),matches,events,source_config:{min_stake:Number(x?.config?.valor_minimo)||null,max_stake:Number(x?.config?.valor_maximo)||null,max_prize:Number(x?.config?.premio_maximo)||null,max_games:Number(x?.config?.max_jogos)||null,cashout_active:Boolean(x?.config?.cashout_ativo),bet_builder_active:Boolean(x?.config?.bet_builder_ativo)}};
+  referenceSportsCache.set(scope,{at:Date.now(),value});return {...value,cache:"miss"};
 }
 function normTeam(v){return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\b(fc|cf|ac|sc|club|clube|deportivo|sporting)\b/g,"").replace(/[^a-z0-9]+/g," ").trim()}
 async function validateSportsSelections(selections){
@@ -287,7 +291,7 @@ async function validateSportsSelections(selections){
   for(const raw of selections){
     const scope=String(raw.scope||"football").toLowerCase(),eventId=String(raw.event_id||""),selection=String(raw.selection||"");
     if(!REF_SPORT_MAP[scope]||!eventId||!selection)throw new Error("invalid_sports_selection");
-    if(!cache.has(scope))cache.set(scope,await fetchReferenceSportsbook(scope));
+    if(!cache.has(scope))cache.set(scope,await fetchReferenceSportsbook(scope,true));
     const feed=cache.get(scope),ev=(feed.events||[]).find(x=>x.event_id===eventId);
     if(!ev)throw new Error("sports_event_not_available");
     const out=(ev.outcomes||[]).find(x=>String(x.name)===selection);
@@ -329,6 +333,30 @@ async function settleSportsTickets(username=""){
     }
   }
   saveInternalLab();return settled;
+}
+
+async function settlePlayerSportsTickets(playerId=""){
+  const tickets=Array.isArray(playerStore.sportsTickets)?playerStore.sportsTickets:[],pending=tickets.filter(t=>t.status==="PENDING"&&(!playerId||t.player_id===playerId));if(!pending.length)return [];
+  let football=[];try{football=await fetchFinishedFootball()}catch{}
+  const settled=[];
+  for(const ticket of pending){
+    let unresolved=false,lost=false;
+    for(const leg of ticket.selections){
+      if(leg.scope!=="football"){unresolved=true;continue}
+      const m=findFootballResult(leg,football);if(!m){unresolved=true;continue}
+      const hs=Number(m.home_score),as=Number(m.away_score);if(!Number.isFinite(hs)||!Number.isFinite(as)){unresolved=true;continue}
+      const result=hs>as?String(m.home):as>hs?String(m.away):"Draw";leg.result={home_score:hs,away_score:as,winner:result,source:"SportScore",confirmed_at:new Date().toISOString()};
+      if(normTeam(leg.selection)!==normTeam(result))lost=true;
+    }
+    if(lost||(!unresolved&&ticket.selections.every(x=>x.result))){
+      ticket.status=lost?"LOST":"WON";ticket.settled_at=new Date().toISOString();ticket.payout=lost?0:Math.round(ticket.stake*ticket.combined_odds*100)/100;
+      const u=playerStore.players[ticket.player_id],ss=u?ensurePlayerDemoSession(u):null;
+      if(ss&&ticket.payout>0){ss.balance=Math.round((ss.balance+ticket.payout)*100)/100;persistSession(ss,"public_sports_ticket_win")}
+      if(u)identityEvent("demo_sports_ticket_settled",u,{ticket_id:ticket.id,status:ticket.status,stake:ticket.stake,payout:ticket.payout});
+      settled.push(ticket);
+    }
+  }
+  if(settled.length)savePlayers();return settled;
 }
 
 function summarizeOddsEvent(e,sportKey){
@@ -383,7 +411,7 @@ const server=http.createServer(async(req,res)=>{
   try{
     if(req.method==="OPTIONS"){res.writeHead(204,corsHeaders());return res.end()}
     if(req.method==="GET"&&url.pathname==="/api/lab/health")
-      return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.6.0",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size,identity:{enabled:true,players:identitySummary().players,real_accounts_enabled:false},telemetry:"anonymous_daily_hash_v1",odds_provider_configured:Boolean(ODDS_API_KEY),payments:{provider:"asaas",environment:ASAAS_ENV,configured:Boolean(ASAAS_API_KEY),real_money_enabled:REAL_MONEY_ENABLED}});
+      return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.6.1",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size,identity:{enabled:true,players:identitySummary().players,real_accounts_enabled:false},sports_demo:{public_accounts:true,tickets:identitySummary().demo_sports_tickets,pending:identitySummary().pending_demo_sports_tickets,official_provider_integration:false},telemetry:"anonymous_daily_hash_v1",odds_provider_configured:Boolean(ODDS_API_KEY),payments:{provider:"asaas",environment:ASAAS_ENV,configured:Boolean(ASAAS_API_KEY),real_money_enabled:REAL_MONEY_ENABLED}});
     if(req.method==="GET"&&url.pathname==="/api/platform/operator-mode") return json(res,200,{operator:operatorConfig()});
     if(req.method==="POST"&&url.pathname==="/api/identity/register"){
       if(!authAllowed(req))return json(res,429,{error:"auth_rate_limited"});
@@ -572,6 +600,35 @@ const server=http.createServer(async(req,res)=>{
       if(!gameId)return json(res,400,{error:"game_id_required"});
       if(!["ready_for_homologation","live"].includes(String(p.technical_status)))return json(res,503,{error:"provider_not_configured",provider,technical_status:p.technical_status});
       return json(res,503,{error:"provider_launch_adapter_not_bound",provider});
+    }
+    if(req.method==="GET"&&url.pathname==="/api/sports/demo-feed"){
+      const scope=String(url.searchParams.get("scope")||"football").toLowerCase();
+      if(!REF_SPORT_MAP[scope])return json(res,400,{error:"unsupported_demo_sport",scope});
+      try{const x=await fetchReferenceSportsbook(scope);return json(res,200,{...x,mode:"DEMO_ONLY",official_provider_integration:false})}catch{return json(res,502,{error:"reference_feed_unavailable",scope})}
+    }
+    if(req.method==="POST"&&url.pathname==="/api/sports/demo/bet"){
+      const u=playerAuth(req);if(!u)return json(res,401,{error:"player_auth_required"});
+      const v=await body(req),mode=String(v.mode||"multiple")==="single"?"single":"multiple",stake=safeMoney(v.stake,1,1000),raw=Array.isArray(v.selections)?v.selections:[];
+      if(stake===null||!raw.length||raw.length>12)return json(res,400,{error:"invalid_sports_bet"});
+      let selections;try{selections=await validateSportsSelections(raw)}catch(e){return json(res,409,{error:String(e.message||"sports_validation_failed")})}
+      const now=Date.now();if(selections.some(x=>{const t=Date.parse(String(x.start_time||"").replace(" ","T"));return Number.isFinite(t)&&t<now-15*60000}))return json(res,409,{error:"sports_event_started"});
+      const ss=ensurePlayerDemoSession(u),totalStake=mode==="single"?Math.round(stake*selections.length*100)/100:stake;
+      if(ss.balance<totalStake)return json(res,400,{error:"insufficient_test_balance"});
+      ss.balance=Math.round((ss.balance-totalStake)*100)/100;persistSession(ss,"public_sports_bet_placed");
+      const created=[];
+      if(mode==="single"){
+        for(const leg of selections){const t={id:crypto.randomUUID(),player_id:u.id,mode:"single",stake,combined_odds:leg.price,selections:[leg],status:"PENDING",payout:0,created_at:new Date().toISOString(),environment:"demo"};playerStore.sportsTickets.push(t);created.push(t)}
+      }else{
+        const odds=Math.round(selections.reduce((a,x)=>a*Number(x.price),1)*1000000)/1000000,t={id:crypto.randomUUID(),player_id:u.id,mode:"multiple",stake,combined_odds:odds,selections,status:"PENDING",payout:0,created_at:new Date().toISOString(),environment:"demo"};playerStore.sportsTickets.push(t);created.push(t);
+      }
+      savePlayers();identityEvent("demo_sports_bet_placed",u,{mode,total_stake:totalStake,tickets:created.map(x=>x.id),balance_after:ss.balance});
+      return json(res,201,{ok:true,mode:"DEMO_ONLY",tickets:created,state:state(ss)});
+    }
+    if(req.method==="GET"&&url.pathname==="/api/sports/demo/tickets"){
+      const u=playerAuth(req);if(!u)return json(res,401,{error:"player_auth_required"});await settlePlayerSportsTickets(u.id);const rows=(playerStore.sportsTickets||[]).filter(t=>t.player_id===u.id).slice(-100).reverse(),ss=ensurePlayerDemoSession(u);return json(res,200,{mode:"DEMO_ONLY",tickets:rows,state:state(ss)});
+    }
+    if(req.method==="POST"&&url.pathname==="/api/sports/demo/settle"){
+      const u=playerAuth(req);if(!u)return json(res,401,{error:"player_auth_required"});const rows=await settlePlayerSportsTickets(u.id),ss=ensurePlayerDemoSession(u);return json(res,200,{mode:"DEMO_ONLY",settled:rows,state:state(ss)});
     }
     if(req.method==="POST"&&url.pathname==="/api/internal/sports/bet"){
       const u=internalAuth(req);if(!u)return json(res,401,{error:"lab_auth_required"});

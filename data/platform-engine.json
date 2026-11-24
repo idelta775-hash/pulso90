@@ -30,7 +30,10 @@
       "real_execution": false,
       "player_identity": true,
       "persistent_demo_account": true,
-      "referrals": true
+      "referrals": true,
+      "public_demo_sportsbook": true,
+      "sports_reference_feed": true,
+      "sports_ticket_persistence": true
     }
   },
   "catalog": {

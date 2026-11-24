@@ -1,5 +1,5 @@
 const $=id=>document.getElementById(id),$$=s=>[...document.querySelectorAll(s)];
-const FAVORITES_KEY="pulso90-sports-favorites-v1",SLIP_KEY="pulso90-sports-slip-v1",STAKE_KEY="pulso90-sports-stake-v1",SLIP_MODE_KEY="pulso90-sports-slip-mode-v1",LAB_TOKEN_KEY="pulso90-owner-lab-token-v1",PLAYER_MODE_KEY="pulso90-player-mode-v1";
+const FAVORITES_KEY="pulso90-sports-favorites-v1",SLIP_KEY="pulso90-sports-slip-v1",STAKE_KEY="pulso90-sports-stake-v1",SLIP_MODE_KEY="pulso90-sports-slip-mode-v1",LAB_TOKEN_KEY="pulso90-owner-lab-token-v1",PLAYER_TOKEN_KEY="pulso90-player-token-v1",PLAYER_MODE_KEY="pulso90-player-mode-v1";
 let sport="football",view="all",competitionFilter="",matches=[],favorites=new Set(),oddsEvents=[],slip=[],runtimeBase="",slipMode=localStorage.getItem(SLIP_MODE_KEY)||"multiple";
 try{favorites=new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY)||"[]"))}catch{}
 try{slip=JSON.parse(localStorage.getItem(SLIP_KEY)||"[]");if(!Array.isArray(slip))slip=[]}catch{slip=[]}
@@ -71,32 +71,39 @@ function renderSlip(){
  const playerMode=(localStorage.getItem(PLAYER_MODE_KEY)||"demo")==="real"?"real":"demo";
  const returnLabel=playerMode==="real"?"Retorno potencial REAL":"Retorno potencial DEMO";
  const summary=slipMode==="single"?'<b><span>Aposta total</span><span>'+singleStake.toFixed(2)+'</span></b><b><span>'+returnLabel+'</span><span id="slipReturn">'+singleReturn.toFixed(2)+'</span></b>':'<b><span>Odd combinada</span><span>'+combined.toFixed(2)+'</span></b><b><span>'+returnLabel+'</span><span id="slipReturn">'+(stake*combined).toFixed(2)+'</span></b>';
- const labToken=localStorage.getItem(LAB_TOKEN_KEY)||"";
- host.innerHTML=slip.map(x=>'<div class="slip-item"><b>'+esc(x.home)+' × '+esc(x.away)+'</b><small>'+esc(x.selection)+' · <span class="price">'+Number(x.price).toFixed(2)+'</span></small><button data-slip-remove="'+esc(x.key)+'">Remover</button></div>').join("")+'<div class="slip-total"><label>'+(playerMode==="real"?"Valor REAL":(slipMode==="single"?"Créditos DEMO por seleção":"Créditos DEMO"))+'</label><input id="slipStake" type="number" min="1" max="1000" step="1" value="'+stake+'">'+summary+(playerMode==="real"?'<div class="meta" style="margin-top:7px">JOGAR REAL selecionado. Apostas reais ficam bloqueadas até o conector real do operador estar certificado.</div>':(labToken?'<button id="placeLabBet" class="open" style="width:100%;margin-top:9px">APOSTAR NO LABORATÓRIO</button><div id="labBetResult" class="meta" style="margin-top:7px"></div>':'<div class="meta" style="margin-top:7px">Entre pela Central do Dono para registrar apostas internas.</div>'))+'</div>';
+ const labToken=localStorage.getItem(LAB_TOKEN_KEY)||"",playerToken=localStorage.getItem(PLAYER_TOKEN_KEY)||"";
+ const demoAction=playerToken?'<button id="placeDemoBet" class="open" style="width:100%;margin-top:9px">APOSTAR DEMO</button><div id="labBetResult" class="meta" style="margin-top:7px">A carteira DEMO da sua conta será usada.</div>':(labToken?'<button id="placeDemoBet" class="open" style="width:100%;margin-top:9px">APOSTAR NO LABORATÓRIO</button><div id="labBetResult" class="meta" style="margin-top:7px"></div>':'<a class="open" style="display:block;text-align:center;width:100%;margin-top:9px" href="account.html">ENTRAR NO MEU PULSO</a><div class="meta" style="margin-top:7px">Faça login para registrar bilhetes DEMO persistentes.</div>');
+ host.innerHTML=slip.map(x=>'<div class="slip-item"><b>'+esc(x.home)+' × '+esc(x.away)+'</b><small>'+esc(x.selection)+' · <span class="price">'+Number(x.price).toFixed(2)+'</span></small><button data-slip-remove="'+esc(x.key)+'">Remover</button></div>').join("")+'<div class="slip-total"><label>'+(playerMode==="real"?"Valor REAL":(slipMode==="single"?"Créditos DEMO por seleção":"Créditos DEMO"))+'</label><input id="slipStake" type="number" min="1" max="1000" step="1" value="'+stake+'">'+summary+(playerMode==="real"?'<div class="meta" style="margin-top:7px">JOGAR REAL selecionado. Apostas reais ficam bloqueadas até o conector real do operador estar certificado.</div>':demoAction)+'</div>';
  $$("[data-slip-remove]").forEach(b=>b.onclick=()=>{slip=slip.filter(x=>x.key!==b.dataset.slipRemove);saveSlip();renderSlip()});
  const inp=$("slipStake");if(inp)inp.oninput=()=>{const v=Math.max(0,Number(inp.value)||0);localStorage.setItem(STAKE_KEY,String(v));$("slipReturn").textContent=(slipMode==="single"?slip.reduce((a,x)=>a+v*Number(x.price||1),0):v*combined).toFixed(2)}
- const place=$("placeLabBet");if(place)place.onclick=placeLabBet;
+ const place=$("placeDemoBet");if(place)place.onclick=placeDemoBet;
 }
-async function placeLabBet(){
+async function placeDemoBet(){
  const playerMode=(localStorage.getItem(PLAYER_MODE_KEY)||"demo")==="real"?"real":"demo";if(playerMode==="real")return;
- const base=await getRuntime(),token=localStorage.getItem(LAB_TOKEN_KEY)||"",stake=Math.max(1,Number($("slipStake")?.value)||0),host=$("labBetResult");
- if(!base||!token||!slip.length){if(host)host.textContent="Sessão interna necessária.";return}
- if(host)host.textContent="Registrando bilhete...";
+ const base=await getRuntime(),playerToken=localStorage.getItem(PLAYER_TOKEN_KEY)||"",labToken=localStorage.getItem(LAB_TOKEN_KEY)||"",stake=Math.max(1,Number($("slipStake")?.value)||0),host=$("labBetResult");
+ if(!base||(!playerToken&&!labToken)||!slip.length){if(host)host.textContent="Entre no Meu Pulso para apostar DEMO.";return}
+ if(host)host.textContent="Revalidando cotações e registrando bilhete...";
  try{
-  const r=await fetch(base+"/api/internal/sports/bet",{method:"POST",headers:{"content-type":"application/json","x-lab-token":token},body:JSON.stringify({mode:slipMode,stake,selections:slip.map(x=>({scope:x.scope||sport,event_id:x.event_id,selection:x.selection}))})}),x=await r.json();
+  const publicPlayer=!!playerToken,path=publicPlayer?"/api/sports/demo/bet":"/api/internal/sports/bet",headers={"content-type":"application/json"};
+  headers[publicPlayer?"x-player-token":"x-lab-token"]=publicPlayer?playerToken:labToken;
+  const r=await fetch(base+path,{method:"POST",headers,body:JSON.stringify({mode:slipMode,stake,selections:slip.map(x=>({scope:x.scope||sport,event_id:x.event_id,selection:x.selection}))})}),x=await r.json();
+  if(r.status===401&&publicPlayer)localStorage.removeItem(PLAYER_TOKEN_KEY);
   if(!r.ok)throw new Error(x.error||"Falha ao registrar");
   slip=[];saveSlip();renderSlip();await loadLabTickets();
- }catch(e){if(host)host.textContent=e.message}
+ }catch(e){if(host){const msg={insufficient_test_balance:"Créditos DEMO insuficientes.",sports_event_started:"A partida já começou; atualize o bilhete.",sports_event_not_available:"Evento indisponível no feed de referência.",sports_odd_not_available:"A cotação mudou ou ficou indisponível.",player_auth_required:"Sua sessão expirou. Entre novamente no Meu Pulso."};host.textContent=msg[e.message]||e.message}}
 }
 async function loadLabTickets(){
  const host=$("labTickets");if(!host)return;
- const base=await getRuntime(),token=localStorage.getItem(LAB_TOKEN_KEY)||"";
- if(!base||!token){host.innerHTML="";return}
+ const base=await getRuntime(),playerToken=localStorage.getItem(PLAYER_TOKEN_KEY)||"",labToken=localStorage.getItem(LAB_TOKEN_KEY)||"";
+ if(!base||(!playerToken&&!labToken)){host.innerHTML="";return}
  try{
-  const r=await fetch(base+"/api/internal/sports/tickets",{cache:"no-store",headers:{"x-lab-token":token}}),x=await r.json();
+  const publicPlayer=!!playerToken,path=publicPlayer?"/api/sports/demo/tickets":"/api/internal/sports/tickets",headers={};
+  headers[publicPlayer?"x-player-token":"x-lab-token"]=publicPlayer?playerToken:labToken;
+  const r=await fetch(base+path,{cache:"no-store",headers}),x=await r.json();
+  if(r.status===401&&publicPlayer)localStorage.removeItem(PLAYER_TOKEN_KEY);
   if(!r.ok)throw new Error();
   const rows=Array.isArray(x.tickets)?x.tickets.slice(0,8):[];
-  host.innerHTML=rows.length?'<h3 style="border:0;padding:6px 0;font-size:9px">Bilhetes do laboratório</h3>'+rows.map(t=>'<div class="watch-item"><b>'+esc(t.mode==="multiple"?"Múltipla":"Simples")+' · '+Number(t.stake).toFixed(2)+' créditos</b><small>'+esc(t.status)+' · odd '+Number(t.combined_odds||0).toFixed(2)+(t.payout?' · retorno '+Number(t.payout).toFixed(2):'')+'</small></div>').join(""):'';
+  host.innerHTML=rows.length?'<h3 style="border:0;padding:6px 0;font-size:9px">'+(publicPlayer?"Meus bilhetes DEMO":"Bilhetes do laboratório")+'</h3>'+rows.map(t=>'<div class="watch-item"><b>'+esc(t.mode==="multiple"?"Múltipla":"Simples")+' · '+Number(t.stake).toFixed(2)+' créditos</b><small>'+esc(t.status)+' · odd '+Number(t.combined_odds||0).toFixed(2)+(t.payout?' · retorno '+Number(t.payout).toFixed(2):'')+'</small></div>').join(""):'';
  }catch{host.innerHTML=""}
 }
 async function getRuntime(){
@@ -111,8 +118,9 @@ async function loadOdds(){
 async function load(){
  $("events").innerHTML='<div class="panel" style="padding:18px">Atualizando partidas…</div>';
  const base=await getRuntime(),labToken=localStorage.getItem(LAB_TOKEN_KEY)||"";
- if(base&&labToken&&["football","combat","futsal","snooker"].includes(sport)){
-  try{const r=await fetch(base+"/api/internal/reference/sportsbook?scope="+encodeURIComponent(sport),{cache:"no-store",headers:{"x-lab-token":labToken}}),x=await r.json();if(r.ok&&x.available){matches=(x.matches||[]).map(normalized);oddsEvents=x.events||[];render();loadLabTickets();return}}catch{}
+ if(base&&["football","combat","futsal","snooker"].includes(sport)){
+  try{const r=await fetch(base+"/api/sports/demo-feed?scope="+encodeURIComponent(sport),{cache:"no-store"}),x=await r.json();if(r.ok&&x.available){matches=(x.matches||[]).map(normalized);oddsEvents=x.events||[];render();loadLabTickets();return}}catch{}
+  if(labToken)try{const r=await fetch(base+"/api/internal/reference/sportsbook?scope="+encodeURIComponent(sport),{cache:"no-store",headers:{"x-lab-token":labToken}}),x=await r.json();if(r.ok&&x.available){matches=(x.matches||[]).map(normalized);oddsEvents=x.events||[];render();loadLabTickets();return}}catch{}
  }
  try{
   const [sports]=await Promise.all([fetch("https://sportscore.com/api/widget/matches/?sport="+encodeURIComponent(sport)+"&limit=50&src=pulso90",{cache:"no-store"}),loadOdds()]);
