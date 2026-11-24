@@ -104,3 +104,26 @@ Browser validation:
 - zero page errors
 
 Identity event JSONL validated with one physical line per event.
+
+## V1.1 hardening — v0.37
+
+Additional protections and globalization:
+
+- Unicode display names are preserved with NFC normalization.
+- Control characters and angle brackets are removed from display names.
+- Player token hashes are verified with timing-safe comparison.
+- Expired player tokens are pruned during authentication.
+- Per-username credential failure tracking blocks the account temporarily after repeated wrong passwords.
+- Direct links to `account.html?code=...` capture the referral code even when the visitor never opened the Home first.
+- Direct account referral visits also call the Affiliate Attribution Engine once per stored attribution state.
+- REAL public accounts remain forced disabled.
+
+New isolated validation:
+
+- Arabic + CJK mixed display name preserved exactly.
+- existing anonymous DEMO session claimed by account without losing prior round/state.
+- credential lock activated after repeated invalid attempts.
+- raw password and raw bearer token absent from persisted player store.
+- token, demoSessionId, balance and round count preserved after runtime restart.
+- direct referral page visit persisted `code` locally and appended one Affiliate Engine event.
+- direct referral browser validation produced zero page errors.

@@ -29,6 +29,7 @@ const referenceSportsCache=new Map();
 const paymentEvents=new Set(),creditedPayments=new Set();
 const internalTokens=new Map();
 const authRate=new Map();
+const authFailures=new Map();
 const ASAAS_API_KEY=String(process.env.PULSO90_ASAAS_API_KEY||process.env.ASAAS_API_KEY||"").trim();
 const ASAAS_WEBHOOK_TOKEN=String(process.env.PULSO90_ASAAS_WEBHOOK_TOKEN||"").trim();
 const ASAAS_ENV=String(process.env.PULSO90_ASAAS_ENV||"sandbox").toLowerCase()==="production"?"production":"sandbox";
@@ -66,6 +67,7 @@ function loadPlayers(){
 let playerStore=loadPlayers();
 function savePlayers(){const tmp=playersFile+".tmp";fs.writeFileSync(tmp,JSON.stringify(playerStore,null,2),"utf8");fs.renameSync(tmp,playersFile)}
 function playerPasswordHash(password,salt){return crypto.scryptSync(String(password),salt,32).toString("hex")}
+function cleanDisplayName(v,max=60){return String(v??"").normalize("NFC").replace(/[\u0000-\u001F\u007F]/g,"").replace(/[<>]/g,"").trim().slice(0,max)}
 function secureHexEqual(a,b){try{const x=Buffer.from(String(a),"hex"),y=Buffer.from(String(b),"hex");return x.length===y.length&&x.length>0&&crypto.timingSafeEqual(x,y)}catch{return false}}
 function identityEvent(type,u,extra={}){fs.appendFileSync(identityEventsFile,JSON.stringify({at:new Date().toISOString(),type,player_id:u?.id||"",username:u?.username||"",...extra})+"\n","utf8")}
 function safePlayer(u){
@@ -97,8 +99,9 @@ function issuePlayerToken(u){
 function playerAuth(req){
   const raw=String(req.headers["x-player-token"]||"");if(!raw||!raw.includes("."))return null;
   const id=raw.split(".")[0],u=playerStore.players[id];if(!u)return null;
-  const hash=sha256(raw),now=Date.now(),tokens=Array.isArray(u.tokens)?u.tokens:[];
-  const hit=tokens.find(t=>t.hash===hash&&Number(t.expires)>now);return hit?u:null;
+  const hash=sha256(raw),now=Date.now(),tokens=Array.isArray(u.tokens)?u.tokens:[],valid=tokens.filter(t=>Number(t.expires)>now);
+  if(valid.length!==tokens.length){u.tokens=valid;savePlayers()}
+  const hit=valid.find(t=>secureHexEqual(t.hash,hash));return hit?u:null;
 }
 function revokePlayerToken(req,u){
   const raw=String(req.headers["x-player-token"]||""),hash=sha256(raw);u.tokens=(Array.isArray(u.tokens)?u.tokens:[]).filter(t=>t.hash!==hash);savePlayers();
@@ -108,6 +111,9 @@ function authAllowed(req){
   if(!cur||now-cur.start>=60000){authRate.set(key,{start:now,count:1});return true}
   cur.count++;return cur.count<=20;
 }
+function credentialAllowed(username){const k=String(username||"").toLowerCase(),x=authFailures.get(k);return !x||Number(x.blockedUntil||0)<=Date.now()}
+function recordCredentialFailure(username){const k=String(username||"").toLowerCase(),now=Date.now(),x=authFailures.get(k)||{count:0,first:now,blockedUntil:0};if(now-x.first>15*60*1000){x.count=0;x.first=now}x.count++;if(x.count>=8)x.blockedUntil=now+15*60*1000;authFailures.set(k,x)}
+function clearCredentialFailures(username){authFailures.delete(String(username||"").toLowerCase())}
 function identitySummary(){const rows=Object.values(playerStore.players),tickets=Array.isArray(playerStore.sportsTickets)?playerStore.sportsTickets:[],now=Date.now(),activeTokens=rows.reduce((n,p)=>n+(Array.isArray(p.tokens)?p.tokens.filter(t=>Number(t.expires)>now).length:0),0),referred=rows.filter(p=>p.referredByCode).length,recent=rows.filter(p=>Date.parse(p.createdAt||"")>now-7*86400000).length;return {players:rows.length,referred_players:referred,created_last_7d:recent,active_tokens:activeTokens,demo_sports_tickets:tickets.length,pending_demo_sports_tickets:tickets.filter(t=>t.status==="PENDING").length,real_accounts_enabled:false}}
 function loadInternalLab(){
   let d={version:1,users:{},ledger:[],sportsTickets:[],treasury:1000000,operatorConfig:{financial_mode:"demo",selected_provider:"asaas",real_execution_state:"locked"}};
@@ -411,11 +417,11 @@ const server=http.createServer(async(req,res)=>{
   try{
     if(req.method==="OPTIONS"){res.writeHead(204,corsHeaders());return res.end()}
     if(req.method==="GET"&&url.pathname==="/api/lab/health")
-      return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.6.1",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size,identity:{enabled:true,players:identitySummary().players,real_accounts_enabled:false},sports_demo:{public_accounts:true,tickets:identitySummary().demo_sports_tickets,pending:identitySummary().pending_demo_sports_tickets,official_provider_integration:false},telemetry:"anonymous_daily_hash_v1",odds_provider_configured:Boolean(ODDS_API_KEY),payments:{provider:"asaas",environment:ASAAS_ENV,configured:Boolean(ASAAS_API_KEY),real_money_enabled:REAL_MONEY_ENABLED}});
+      return json(res,200,{ok:true,mode:"DEMO_ONLY",version:"0.6.2",rng:"HMAC-SHA256 provably-fair demo",games:["pulso-tiger","pulso-launch","pulso-goal-duel"],sessions:sessions.size,identity:{enabled:true,players:identitySummary().players,real_accounts_enabled:false},sports_demo:{public_accounts:true,tickets:identitySummary().demo_sports_tickets,pending:identitySummary().pending_demo_sports_tickets,official_provider_integration:false},telemetry:"anonymous_daily_hash_v1",odds_provider_configured:Boolean(ODDS_API_KEY),payments:{provider:"asaas",environment:ASAAS_ENV,configured:Boolean(ASAAS_API_KEY),real_money_enabled:REAL_MONEY_ENABLED}});
     if(req.method==="GET"&&url.pathname==="/api/platform/operator-mode") return json(res,200,{operator:operatorConfig()});
     if(req.method==="POST"&&url.pathname==="/api/identity/register"){
       if(!authAllowed(req))return json(res,429,{error:"auth_rate_limited"});
-      const v=await body(req),username=String(v.username||"").trim().toLowerCase(),displayName=cleanText(v.displayName||v.username||"",60).trim(),password=String(v.password||""),requested=String(v.demo_session||""),ref=cleanText(v.referral_code||"",80).toUpperCase();
+      const v=await body(req),username=String(v.username||"").trim().toLowerCase(),displayName=cleanDisplayName(v.displayName||v.username||"",60),password=String(v.password||""),requested=String(v.demo_session||""),ref=cleanText(v.referral_code||"",80).toUpperCase();
       if(!/^[a-z0-9._-]{3,32}$/.test(username)||displayName.length<2||password.length<8||password.length>72)return json(res,400,{error:"invalid_registration"});
       if(Object.values(playerStore.players).some(p=>p.username===username))return json(res,409,{error:"username_exists"});
       let referredByCode="";if(ref){const inviter=Object.values(playerStore.players).find(p=>String(p.referralCode||"").toUpperCase()===ref);if(inviter)referredByCode=inviter.referralCode}
@@ -426,9 +432,10 @@ const server=http.createServer(async(req,res)=>{
     if(req.method==="POST"&&url.pathname==="/api/identity/login"){
       if(!authAllowed(req))return json(res,429,{error:"auth_rate_limited"});
       const v=await body(req),username=String(v.username||"").trim().toLowerCase(),password=String(v.password||""),u=Object.values(playerStore.players).find(p=>p.username===username);
+      if(!credentialAllowed(username))return json(res,429,{error:"account_temporarily_locked"});
       const candidate=u&&u.passwordSalt?playerPasswordHash(password,u.passwordSalt):playerPasswordHash(password,crypto.randomBytes(16).toString("hex"));
-      if(!u||!secureHexEqual(candidate,u.passwordHash))return json(res,401,{error:"invalid_player_credentials"});
-      const ss=ensurePlayerDemoSession(u),issued=issuePlayerToken(u);identityEvent("login",u);return json(res,200,{token:issued.token,expiresAt:issued.expiresAt,player:safePlayer(u),state:state(ss)});
+      if(!u||!secureHexEqual(candidate,u.passwordHash)){recordCredentialFailure(username);return json(res,401,{error:"invalid_player_credentials"})}
+      clearCredentialFailures(username);const ss=ensurePlayerDemoSession(u),issued=issuePlayerToken(u);identityEvent("login",u);return json(res,200,{token:issued.token,expiresAt:issued.expiresAt,player:safePlayer(u),state:state(ss)});
     }
     if(req.method==="GET"&&url.pathname==="/api/identity/me"){
       const u=playerAuth(req);if(!u)return json(res,401,{error:"player_auth_required"});const ss=ensurePlayerDemoSession(u);return json(res,200,{player:safePlayer(u),state:state(ss),operator:operatorConfig()});
@@ -437,7 +444,7 @@ const server=http.createServer(async(req,res)=>{
       const u=playerAuth(req);if(!u)return json(res,401,{error:"player_auth_required"});revokePlayerToken(req,u);identityEvent("logout",u);return json(res,200,{ok:true});
     }
     if(req.method==="POST"&&url.pathname==="/api/identity/profile"){
-      const u=playerAuth(req);if(!u)return json(res,401,{error:"player_auth_required"});const v=await body(req),displayName=cleanText(v.displayName||"",60).trim();if(displayName.length<2)return json(res,400,{error:"invalid_display_name"});u.displayName=displayName;savePlayers();identityEvent("profile_updated",u);return json(res,200,{ok:true,player:safePlayer(u)});
+      const u=playerAuth(req);if(!u)return json(res,401,{error:"player_auth_required"});const v=await body(req),displayName=cleanDisplayName(v.displayName||"",60);if(displayName.length<2)return json(res,400,{error:"invalid_display_name"});u.displayName=displayName;savePlayers();identityEvent("profile_updated",u);return json(res,200,{ok:true,player:safePlayer(u)});
     }
 
     if(req.method==="GET"&&url.pathname==="/api/platform/capabilities")

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-11-23T20:10:00-03:00",
+  "updated_at": "2026-11-24T01:03:29.250646+00:00",
   "tenant": {
     "id": "pulso90",
     "name": "Pulso 90",
@@ -31,6 +31,10 @@
       "player_identity": true,
       "persistent_demo_account": true,
       "referrals": true,
+      "identity_international_display_names": true,
+      "direct_referral_attribution": true,
+      "credential_lockout": true,
+      "timing_safe_player_tokens": true,
       "public_demo_sportsbook": true,
       "sports_reference_feed": true,
       "sports_ticket_persistence": true
